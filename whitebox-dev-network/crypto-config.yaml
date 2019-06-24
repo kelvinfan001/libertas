@@ -2,16 +2,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+# Modifications Copyright 2019 Sipher Inc.
 
 # ---------------------------------------------------------------------------
-# "OrdererOrgs" - Definition of organizations managing orderer nodes
+# "OrdererOrgs" - Definition of organizations managing orderer nodes.
+# There will only be one solo orderer for the development network.
 # ---------------------------------------------------------------------------
 OrdererOrgs:
   # ---------------------------------------------------------------------------
   # Orderer
   # ---------------------------------------------------------------------------
   - Name: Orderer
-    Domain: example.com
+    Domain: sipher.co
     # ---------------------------------------------------------------------------
     # "Specs" - See PeerOrgs below for complete description
     # ---------------------------------------------------------------------------
@@ -27,10 +29,10 @@ OrdererOrgs:
 # ---------------------------------------------------------------------------
 PeerOrgs:
   # ---------------------------------------------------------------------------
-  # Org1
+  # Sipher
   # ---------------------------------------------------------------------------
-  - Name: Org1
-    Domain: org1.example.com
+  - Name: Sipher
+    Domain: libertas.sipher.co
     EnableNodeOUs: true
     # ---------------------------------------------------------------------------
     # "Specs"
@@ -77,10 +79,10 @@ PeerOrgs:
     Users:
       Count: 1
   # ---------------------------------------------------------------------------
-  # Org2: See "Org1" for full specification
+  # SipherWhitebox: See "Sipher" for full specification
   # ---------------------------------------------------------------------------
-  - Name: Org2
-    Domain: org2.example.com
+  - Name: SipherWhitebox
+    Domain: libertas.whiteboxplatform.com
     EnableNodeOUs: true
     Template:
       Count: 2

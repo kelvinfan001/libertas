@@ -6,7 +6,7 @@
 export FABRIC_CFG_PATH=$PWD
 
 # create genesis block... QUESTION!!! WHAT IS channelID here???????
-../bin/configtxgen -profile TwoOrgsOrdererGenesis -channelID election-sys-channel -outputBlock ./channel-artifacts/genesis.block
+../bin/configtxgen -profile TwoOrgsOrdererDevNetworkGenesis -channelID libertas-sys-channel -outputBlock ./channel-artifacts/genesis.block
 
 
 # create channel configuration transaction
