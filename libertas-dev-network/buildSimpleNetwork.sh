@@ -14,14 +14,14 @@ export FABRIC_CFG_PATH=$PWD
 
 # set up anchor peers
 # define anchor peer for org1
-../bin/configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org1MSP
+../bin/configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg SipherMSP
 
 # define anchor peer for org2
-../bin/configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org2MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org2MSP
+../bin/configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org2MSPanchors.tx -channelID $CHANNEL_NAME -asOrg WhiteBoxPlatformMSP
 
 # bring up the docker containers for orderers, peers, CLI, and CA's
-export BYFN_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org1.example.com/ca && ls *_sk)
-export BYFN_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org2.example.com/ca && ls *_sk)
-IMAGE_TAG=latest COMPOSE_PROJECT_NAME=my-network docker-compose -f docker-compose-cli.yaml -f docker-compose-ca.yaml up -d
+export DEV_NETWORK_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/libertas.sipher.co/ca && ls *_sk)
+export DEV_NETWORK_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/libertas.whiteboxplatform.com/ca && ls *_sk)
+IMAGE_TAG=latest COMPOSE_PROJECT_NAME=libertas-dev-network docker-compose -f docker-compose-cli.yaml -f docker-compose-ca.yaml up -d
 
 # docker exec cli /bin/sh -c "scripts/run.sh"

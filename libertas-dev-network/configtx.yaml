@@ -18,13 +18,13 @@ Organizations:
     # SampleOrg defines an MSP using the sampleconfig.  It should never be used
     # in production but may be used as a template for other definitions
     - &OrdererOrg
-        Name: OrdererOrg
+        Name: SipherOrdererOrg
 
         # ID to load the MSP definition as
-        ID: OrdererMSP
+        ID: SipherOrdererMSP
 
         # MSPDir is the filesystem path which contains the MSP configuration
-        MSPDir: crypto-config/ordererOrganizations/sipher.co/msp
+        MSPDir: crypto-config/ordererOrganizations/orderer.sipher.co/msp
 
         # Policies defines the set of policies at this level of the config tree
         # For organization policies, their canonical path is usually
@@ -271,7 +271,7 @@ Profiles:
         Orderer:
             <<: *OrdererDefaults
             Organizations:
-                - *OrdererOrg
+                - *SipherOrdererOrg
             Capabilities:
                 <<: *OrdererCapabilities
         Consortiums:
