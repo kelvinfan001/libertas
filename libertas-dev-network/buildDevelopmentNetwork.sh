@@ -1,3 +1,7 @@
+# Copyright 2019 Sipher Inc.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # This shell script assumes that the required docker images have been installed
 
 # generate cryptographic materials
@@ -5,7 +9,8 @@
 
 export FABRIC_CFG_PATH=$PWD
 
-# create genesis block... QUESTION!!! WHAT IS channelID here???????
+# create genesis block
+# channelID... here be dragons...
 ../bin/configtxgen -profile TwoOrgsOrdererDevNetworkGenesis -channelID libertas-sys-channel -outputBlock ./channel-artifacts/genesis.block
 
 
