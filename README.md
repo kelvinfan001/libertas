@@ -1,7 +1,7 @@
 # Development Network
 
 Use buildDevelopmentNetwork.sh to bring up a two-organization, solo fabric network with credentials pre-generated 
-using the cryptogen tool.
+using the cryptogen tool. Docker containers are on debug mode. 
 
 TODO: use Fabric-CA instead of cryptogen.
 
