@@ -15,8 +15,8 @@ services:
       service: orderer-base
     volumes:
         - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
-        - ../crypto-config/ordererOrganizations/example.com/orderers/orderer.sipher.co/msp:/var/hyperledger/orderer/msp
-        - ../crypto-config/ordererOrganizations/example.com/orderers/orderer.sipher.co/tls/:/var/hyperledger/orderer/tls
+        - ../crypto-config/ordererOrganizations/sipher.co/orderers/orderer.sipher.co/msp:/var/hyperledger/orderer/msp
+        - ../crypto-config/ordererOrganizations/sipher.co/orderers/orderer.sipher.co/tls/:/var/hyperledger/orderer/tls
         - orderer.sipher.co:/var/hyperledger/production/orderer
     ports:
       - 7050:7050

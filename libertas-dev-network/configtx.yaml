@@ -24,7 +24,7 @@ Organizations:
         ID: SipherOrdererMSP
 
         # MSPDir is the filesystem path which contains the MSP configuration
-        MSPDir: crypto-config/ordererOrganizations/orderer.sipher.co/msp
+        MSPDir: crypto-config/ordererOrganizations/sipher.co/msp
 
         # Policies defines the set of policies at this level of the config tree
         # For organization policies, their canonical path is usually
@@ -32,13 +32,13 @@ Organizations:
         Policies:
             Readers:
                 Type: Signature
-                Rule: "OR('OrdererMSP.member')"
+                Rule: "OR('SipherOrdererMSP.member')"
             Writers:
                 Type: Signature
-                Rule: "OR('OrdererMSP.member')"
+                Rule: "OR('SipherOrdererMSP.member')"
             Admins:
                 Type: Signature
-                Rule: "OR('OrdererMSP.admin')"
+                Rule: "OR('SipherOrdererMSP.admin')"
 
     - &Sipher
         Name: SipherMSP
@@ -271,7 +271,7 @@ Profiles:
         Orderer:
             <<: *OrdererDefaults
             Organizations:
-                - *SipherOrdererOrg
+                - *OrdererOrg
             Capabilities:
                 <<: *OrdererCapabilities
         Consortiums:

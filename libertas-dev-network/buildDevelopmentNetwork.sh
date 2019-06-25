@@ -11,7 +11,7 @@ export FABRIC_CFG_PATH=$PWD
 
 # create genesis block
 # channelID... here be dragons...
-../bin/configtxgen -profile TwoOrgsOrdererDevNetworkGenesis -channelID libertas-sys-channel -outputBlock ./channel-artifacts/genesis.block
+../bin/configtxgen -profile TwoOrgsOrdererDevNetworkGenesis -channelID herebedragons -outputBlock ./channel-artifacts/genesis.block
 
 
 # create channel configuration transaction
@@ -19,10 +19,10 @@ export FABRIC_CFG_PATH=$PWD
 
 # set up anchor peers
 # define anchor peer for org1
-../bin/configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg SipherMSP
+../bin/configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/SipherMSPanchors.tx -channelID $CHANNEL_NAME -asOrg SipherMSP
 
 # define anchor peer for org2
-../bin/configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org2MSPanchors.tx -channelID $CHANNEL_NAME -asOrg WhiteBoxPlatformMSP
+../bin/configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/WhiteBoxPlatformMSPanchors.tx -channelID $CHANNEL_NAME -asOrg WhiteBoxPlatformMSP
 
 # bring up the docker containers for orderers, peers, CLI, and CA's
 export DEV_NETWORK_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/libertas.sipher.co/ca && ls *_sk)

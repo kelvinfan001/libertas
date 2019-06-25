@@ -13,7 +13,7 @@ OrdererOrgs:
   # Orderer
   # ---------------------------------------------------------------------------
   - Name: Orderer
-    Domain: orderer.sipher.co
+    Domain: sipher.co
     # ---------------------------------------------------------------------------
     # "Specs" - See PeerOrgs below for complete description
     # ---------------------------------------------------------------------------
@@ -81,7 +81,7 @@ PeerOrgs:
   # ---------------------------------------------------------------------------
   # SipherWhitebox: See "Sipher" for full specification
   # ---------------------------------------------------------------------------
-  - Name: SipherWhitebox
+  - Name: WhiteBoxPlatform
     Domain: libertas.whiteboxplatform.com
     EnableNodeOUs: true
     Template:
