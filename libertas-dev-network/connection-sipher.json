@@ -1,0 +1,58 @@
+{
+    "name": "my-network-sipher",
+    "version": "1.0.0",
+    "client": {
+        "organization": "Sipher",
+        "connection": {
+            "timeout": {
+                "peer": {
+                    "endorser": "300"
+                }
+            }
+        }
+    },
+    "organizations": {
+        "Sipher": {
+            "mspid": "SipherMSP",
+            "peers": [
+                "peer0.libertas.sipher.co",
+                "peer1.libertas.sipher.co"
+            ],
+            "certificateAuthorities": [
+                "ca.libertas.sipher.co"
+            ]
+        }
+    },
+    "peers": {
+        "peer0.libertas.sipher.co": {
+            "url": "grpcs://localhost:7051",
+            "tlsCACerts": {
+                "path": "crypto-config/peerOrganizations/libertas.sipher.co/tlsca/tlsca.libertas.sipher.co-cert.pem"
+            },
+            "grpcOptions": {
+                "ssl-target-name-override": "peer0.libertas.sipher.co"
+            }
+        },
+        "peer1.libertas.sipher.co": {
+            "url": "grpcs://localhost:8051",
+            "tlsCACerts": {
+                "path": "crypto-config/peerOrganizations/libertas.sipher.co/tlsca/tlsca.libertas.sipher.co-cert.pem"
+            },
+            "grpcOptions": {
+                "ssl-target-name-override": "peer1.libertas.sipher.co"
+            }
+        }
+    },
+    "certificateAuthorities": {
+        "ca.libertas.sipher.com": {
+            "url": "https://localhost:7054",
+            "caName": "ca-sipher",
+            "tlsCACerts": {
+                "path": "crypto-config/peerOrganizations/libertas.sipher.co/tlsca/tlsca.libertas.sipher.co-cert.pem"
+            },
+            "httpOptions": {
+                "verify": false
+            }
+        }
+    }
+}
