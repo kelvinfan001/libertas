@@ -7,7 +7,7 @@
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
 const path = require('path');
 
-const ccpPath = path.resolve(__dirname, '..', '..', 'my-network', 'connection-org1.json');
+const ccpPath = path.resolve(__dirname, '..', '..', 'libertas-dev-network', 'connection-sipher.json');
 
 async function main() {
     try {
@@ -41,10 +41,10 @@ async function main() {
 
         // Register the user, enroll the user, and import the new identity into wallet. 
         // register
-        const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: 'user1', role: 'client' }, adminIdentity);
+        const secret = await ca.register({ affiliation: 'sipher.department1', enrollmentID: 'user1', role: 'client' }, adminIdentity);
         // enroll
         const enrollment = await ca.enroll({ enrollmentID: 'user1', enrollmentSecret: secret });
-        const userIdentity = X509WalletMixin.createIdentity('Org1MSP', enrollment.certificate, enrollment.key.toBytes());
+        const userIdentity = X509WalletMixin.createIdentity('SipherMSP', enrollment.certificate, enrollment.key.toBytes());
         await wallet.import('user1', userIdentity);
         console.log('Successfully registered and enrolled user "user1" and importted it into the wallet');
     } catch (error) {

@@ -12,7 +12,7 @@
         }
     },
     "organizations": {
-        "Org1": {
+        "Sipher": {
             "mspid": "SipherMSP",
             "peers": [
                 "peer0.libertas.sipher.co",
@@ -44,9 +44,9 @@
         }
     },
     "certificateAuthorities": {
-        "ca.org1.example.com": {
+        "ca.libertas.sipher.com": {
             "url": "https://localhost:7054",
-            "caName": "ca-org1",
+            "caName": "ca-sipher",
             "tlsCACerts": {
                 "path": "crypto-config/peerOrganizations/libertas.sipher.co/tlsca/tlsca.libertas.sipher.co-cert.pem"
             },
