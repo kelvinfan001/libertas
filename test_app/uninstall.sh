@@ -6,8 +6,10 @@
 
 # Bring down test network
 cd ../libertas-dev-network
-./buildDevelopmentNetwork.sh
+./downDevelopmentNetwork.sh
 
 # Remove keys in wallet
 cd ../test_app/javascript/
 rm -rf ./wallet
+
+echo "Squeaky clean!"
