@@ -41,7 +41,7 @@ async function main() {
 
         // Register the user, enroll the user, and import the new identity into wallet. 
         // register
-        const secret = await ca.register({ affiliation: 'voting_district1', enrollmentID: 'user1', role: 'client' }, adminIdentity);
+        const secret = await ca.register({ affiliation: '   voting_district1', enrollmentID: 'user1', role: 'client' }, adminIdentity);
         // enroll
         const enrollment = await ca.enroll({ enrollmentID: 'user1', enrollmentSecret: secret });
         const userIdentity = X509WalletMixin.createIdentity('SipherMSP', enrollment.certificate, enrollment.key.toBytes());

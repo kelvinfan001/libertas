@@ -2,7 +2,7 @@
 #
 # Copyright IBM Corp All Rights Reserved
 #
-# Modifications Copyright (C) 2019 Sipher Inc.
+# Modifications Copyright 2019 Sipher Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #

@@ -1,4 +1,4 @@
-# Copyright (C) 2019 Sipher Inc.
+# Copyright 2019 Sipher Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #

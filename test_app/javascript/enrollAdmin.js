@@ -1,4 +1,6 @@
 /*
+ * Modification Copyright 2019 Sipher Inc
+ *
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -9,40 +11,33 @@ const { FileSystemWallet, X509WalletMixin } = require('fabric-network');
 const fs = require('fs');
 const path = require('path');
 
-const ccpPath = path.resolve(__dirname, '..', '..', 'libertas-dev-network', 'connection-sipher.json');
-const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
-const ccp = JSON.parse(ccpJSON);
+async function enrollAdmin(connectionProfilePath, caName, networkDirPath, walletPath, enrollmentID, enrollmentSecret, mspID) {
+    const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
+    const ccp = JSON.parse(ccpJSON);
 
-async function main() {
     try {
-
         // Create a new CA client for interacting with the CA.
-        const caInfo = ccp.certificateAuthorities['ca.libertas.sipher.co'];
-        const caTLSCACertsPath = path.resolve(__dirname, '..', '..', 'libertas-dev-network', caInfo.tlsCACerts.path);
+        const caInfo = ccp.certificateAuthorities[caName];
+        const caTLSCACertsPath = path.resolve(networkDirPath, caInfo.tlsCACerts.path);
         const caTLSCACerts = fs.readFileSync(caTLSCACertsPath);
-        const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.caName);
+        const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.Name);
 
         // Create a new file system based wallet for managing identities.
-        const walletPath = path.join(process.cwd(), 'wallet'); // create a wallet folder
         const wallet = new FileSystemWallet(walletPath);
-        console.log(`Wallet path: ${walletPath}`);
 
-        // Check to see if we've already enrolled the admin user.
+        // Check to see if admin user is already enrolled.
         const adminExists = await wallet.exists('admin');
         if (adminExists) {
-            console.log('An identity for the admin user "admin" already exists in the wallet');
-            return;
+            throw new Error("Admin already exists in wallet.")
         }
 
-        // Enroll the admin user, and import the new identity into the wallet.
-        const enrollment = await ca.enroll({ enrollmentID: 'admin', enrollmentSecret: 'adminpw' });
-        const identity = X509WalletMixin.createIdentity('SipherMSP', enrollment.certificate, enrollment.key.toBytes());
-        await wallet.import('admin', identity);
-        console.log('Succesffuly enrolled admin user "admin" and imported credntials into wallet.');
+        // Enroll the admin user.
+        const enrollment = await ca.enroll({ enrollmentID: enrollmentID, enrollmentSecret: enrollmentSecret });
+        // Import the new identity into the wallet.
+        const identity = X509WalletMixin.createIdentity(mspID, enrollment.certificate, enrollment.key.toBytes());
+        await wallet.import('admin', identity)
+
     } catch (error) {
-        console.error(`Failed to enroll admin user "admin": ${error}`);
-        process.exit(1);
+        throw new Error(`Failed to enroll admin user "admin": ${error}`)
     }
 }
-
-main()
