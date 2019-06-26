@@ -45,6 +45,7 @@ async function enrollAdmin(connectionProfilePath, caDomain, networkDirPath, wall
         const adminExists = await wallet.exists('admin');
         if (adminExists) {
             console.log("Admin already exists in wallet.")
+            return;
         }
 
         // Enroll the admin user.
