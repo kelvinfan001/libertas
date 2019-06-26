@@ -41,12 +41,12 @@ async function main() {
 
         // Register the user, enroll the user, and import the new identity into wallet. 
         // register
-        const secret = await ca.register({ affiliation: 'sipher.department1', enrollmentID: 'user1', role: 'client' }, adminIdentity);
+        const secret = await ca.register({ affiliation: 'libertas.department1', enrollmentID: 'user1', role: 'client' }, adminIdentity);
         // enroll
         const enrollment = await ca.enroll({ enrollmentID: 'user1', enrollmentSecret: secret });
         const userIdentity = X509WalletMixin.createIdentity('SipherMSP', enrollment.certificate, enrollment.key.toBytes());
         await wallet.import('user1', userIdentity);
-        console.log('Successfully registered and enrolled user "user1" and importted it into the wallet');
+        console.log('Successfully registered and enrolled user "user1" and imported it into the wallet');
     } catch (error) {
         console.error(`Failed to register user "user1": ${error}`);
         process.exit(1);

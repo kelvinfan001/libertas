@@ -44,7 +44,7 @@
         }
     },
     "certificateAuthorities": {
-        "ca.libertas.sipher.com": {
+        "ca.libertas.sipher.co": {
             "url": "https://localhost:7054",
             "caName": "ca-sipher",
             "tlsCACerts": {
