@@ -6,12 +6,14 @@
 
 'use strict';
 
+module.exports = { enroll };
+
 const FabricCAServices = require('fabric-ca-client');
 const { FileSystemWallet, X509WalletMixin } = require('fabric-network');
 const fs = require('fs');
 const path = require('path');
 
-async function enrollAdmin(connectionProfilePath, caName, networkDirPath, walletPath, enrollmentID, enrollmentSecret, mspID) {
+async function enroll(connectionProfilePath, caName, networkDirPath, walletPath, enrollmentID, enrollmentSecret, mspID) {
     const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
     const ccp = JSON.parse(ccpJSON);
 
@@ -28,7 +30,7 @@ async function enrollAdmin(connectionProfilePath, caName, networkDirPath, wallet
         // Check to see if admin user is already enrolled.
         const adminExists = await wallet.exists('admin');
         if (adminExists) {
-            throw new Error("Admin already exists in wallet.")
+            console.log("Admin already exists in wallet.")
         }
 
         // Enroll the admin user.
@@ -40,4 +42,6 @@ async function enrollAdmin(connectionProfilePath, caName, networkDirPath, wallet
     } catch (error) {
         throw new Error(`Failed to enroll admin user "admin": ${error}`)
     }
+
+    console.log("Admin successfully enrolled in wallet.")
 }

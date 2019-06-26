@@ -10,6 +10,6 @@ cd ../libertas-dev-network
 
 # Remove keys in wallet
 cd ../test_app/javascript/
-rm -rf ./wallet
+rm -rf ./wallet/*
 
 echo "Squeaky clean!"
