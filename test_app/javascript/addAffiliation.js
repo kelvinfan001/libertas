@@ -26,12 +26,6 @@ async function main() {
         const ca = gateway.getClient().getCertificateAuthority();
         const adminIdentity = gateway.getCurrentIdentity();
 
-        // // Create a new CA client for interacting with the CA.
-        // const caInfo = ccp.certificateAuthorities['ca.libertas.sipher.co'];
-        // const caTLSCACertsPath = path.resolve(__dirname, '..', '..', 'libertas-dev-network', caInfo.tlsCACerts.path);
-        // const caTLSCACerts = fs.readFileSync(caTLSCACertsPath);
-        // const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.caName);
-
         try {
             await ca.newAffiliationService().create({ "name": "voting_district1" }, adminIdentity);
         } catch (error) {

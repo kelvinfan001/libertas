@@ -13,13 +13,27 @@ const { FileSystemWallet, X509WalletMixin } = require('fabric-network');
 const fs = require('fs');
 const path = require('path');
 
-async function enroll(connectionProfilePath, caName, networkDirPath, walletPath, enrollmentID, enrollmentSecret, mspID) {
+/**
+ * Enrolls a registered admin and stores its public key, private key, and X.509 certificate in a local wallet.
+ * 
+ * This process uses a Certificate Signing Request where the private and public keys are first generated locally 
+ * and the public key is then sent to the CA which returns an encoded certificate for use by the application. 
+ * 
+ * @param {string} connectionProfilePath Path to connection profile.
+ * @param {string} caDomain              Domain of a certificate authority defined in connection profile to connect to.
+ * @param {string} networkDirPath        Path to directory containing the "crypto-config" directory.
+ * @param {string} walletPath            Path to local wallet.
+ * @param {string} enrollmentID          Enrolment ID for admin.
+ * @param {string} enrollmentSecret      Enrolment secret for admin.
+ * @param {string} mspID                 MSP ID for creating identity object.
+ */
+async function enroll(connectionProfilePath, caDomain, networkDirPath, walletPath, enrollmentID, enrollmentSecret, mspID) {
     const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
     const ccp = JSON.parse(ccpJSON);
 
     try {
         // Create a new CA client for interacting with the CA.
-        const caInfo = ccp.certificateAuthorities[caName];
+        const caInfo = ccp.certificateAuthorities[caDomain];
         const caTLSCACertsPath = path.resolve(networkDirPath, caInfo.tlsCACerts.path);
         const caTLSCACerts = fs.readFileSync(caTLSCACertsPath);
         const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.Name);
