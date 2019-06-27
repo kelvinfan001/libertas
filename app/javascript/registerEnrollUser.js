@@ -45,6 +45,21 @@ async function registerUser(connectionProfilePath, walletPath, affiliation, enro
         const secret = await ca.register({ affiliation: affiliation, enrollmentID: enrollmentID, role: role }, adminIdentity);
         console.log('Successfully registered user: ' + enrollmentID)
 
+
+
+
+
+        // // Enroll user with enrollmentID and enrollmentSecret.
+        // const enrollment = await ca.enroll({ enrollmentID: enrollmentID, enrollmentSecret: secret });
+
+        // // Import public, private keys and certificate to local wallet.
+        // const userIdentity = X509WalletMixin.createIdentity('SipherMSP', enrollment.certificate, enrollment.key.toBytes());
+        // await wallet.import(enrollmentID, userIdentity);
+        // console.log('Successfully enrolled user: ' + enrollmentID + ' and imported it into the wallet');
+
+
+
+
         // Return the secret generated.
         return secret;
 
@@ -68,6 +83,7 @@ async function enrollUser(connectionProfilePath, walletPath, caDomain, networkDi
         // Enroll user with enrollmentID and enrollmentSecret.
         const enrollment = await ca.enroll({ enrollmentID: enrollmentID, enrollmentSecret: enrollmentSecret });
 
+
         // Import public, private keys and certificate to local wallet.
         const wallet = new FileSystemWallet(walletPath);
         const userIdentity = X509WalletMixin.createIdentity(mspID, enrollment.certificate, enrollment.key.toBytes());
@@ -75,6 +91,6 @@ async function enrollUser(connectionProfilePath, walletPath, caDomain, networkDi
         console.log('Successfully enrolled user: ' + enrollmentID + ' and imported it into the wallet');
 
     } catch (error) {
-        throw new Error(`Failed to enroll user: ` + enrollmentID + `${error}`);
+        throw new Error(`Failed to enroll user: ` + enrollmentID + ` ${error}`);
     }
 }

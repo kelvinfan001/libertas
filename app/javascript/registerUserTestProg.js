@@ -16,13 +16,23 @@ const walletPath = path.join(process.cwd(), 'wallet')
 async function main() {
 
     try {
-        const secret = registerEnrollUserModule.registerUser(ccpPath, walletPath, "voting_district1", "user1", "client");
+        const secret = await registerEnrollUserModule.registerUser(ccpPath, walletPath, "voting_district1", "user1", "client");
 
         registerEnrollUserModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, "user1", secret, "SipherMSP");
+
+        console.log(secret);
+    
     } catch (error) {
         console.error(`${error}`);
         process.exit(1);
     }
+
+    // try {
+    //     registerEnrollUserModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, "user1", secret, "SipherMSP");
+    // } catch (error) {
+    //     console.error(`${error}`);
+    //     process.exit(1);
+    // }
 }
 
 // const { FileSystemWallet, Gateway, X509WalletMixin } = require('./node_modules/fabric-network/types');

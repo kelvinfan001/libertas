@@ -10,12 +10,14 @@ set -e
 # Set relative path correctly
 cd $(dirname "$0")
 
-# Bring down test network
-cd ../libertas-dev-network
-./downDevelopmentNetwork.sh
+# Bring down test network if it is up
+if [ "$(docker ps -q -f name=cli)" ]; then
+    cd ../libertas-dev-network
+    ./downDevelopmentNetwork.sh
+    cd ../app/javascript/
+fi
 
 # Remove keys in wallet
-cd ../app/javascript/
 rm -rf ./wallet/*
 
 echo "Squeaky clean!"
