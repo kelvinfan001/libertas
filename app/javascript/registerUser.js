@@ -6,10 +6,11 @@
 
 'use strict';
 
+module.exports = { registerUser, enrollUser}
+
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
 const path = require('path');
-
-// const ccpPath = path.resolve(__dirname, '..', '..', 'libertas-dev-network', 'connection-sipher.json');
+const fs = require('fs');
 
 async function registerUser(connectionProfilePath, walletPath, userName, affiliation, enrollmentID, role) {
     try {
@@ -42,7 +43,37 @@ async function registerUser(connectionProfilePath, walletPath, userName, affilia
         // Register the user.
         const secret = await ca.register({ affiliation: affiliation, enrollmentID: enrollmentID, role: role }, adminIdentity);
         console.log('Successfully registered user: ' + enrollmentID)
+
+        // Return the secret generated.
+        return secret;
+
     } catch (error) {
         throw new Error(`Failed to register user: ` + enrollmentID + `${error}`);
+    }
+}
+
+async function enrollUser(connectionProfilePath, walletPath, caDomain, networkDirPath, enrollmentID, enrollmentSecret, mspID) {
+
+    const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
+    const ccp = JSON.parse(ccpJSON);
+
+    try {
+        // Create a new CA client for interacting with the CA.
+        const caInfo = ccp.certificateAuthorities[caDomain];
+        const caTLSCACertsPath = path.resolve(networkDirPath, caInfo.tlsCACerts.path);
+        const caTLSCACerts = fs.readFileSync(caTLSCACertsPath);
+        const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.Name);
+
+        // Enroll user with enrollmentID and enrollmentSecret.
+        const enrollment = await ca.enroll({ enrollmentID: enrollmentID, enrollmentSecret: enrollmentSecret });
+
+        // Import public, private keys and certificate to local wallet.
+        const wallet = new FileSystemWallet(walletPath);
+        const userIdentity = X509WalletMixin.createIdentity(mspID, enrollment.certificate, enrollment.key.toBytes());
+        await wallet.import(enrollmentID, userIdentity);
+        console.log('Successfully enrolled user: ' + enrollmentID + ' and imported it into the wallet');
+
+    } catch (error) {
+        throw new Error(`Failed to enroll user: ` + enrollmentID + `${error}`);
     }
 }
