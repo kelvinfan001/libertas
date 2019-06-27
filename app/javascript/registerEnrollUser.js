@@ -6,13 +6,23 @@
 
 'use strict';
 
-module.exports = { registerUser, enrollUser}
+module.exports = { registerUser, enrollUser }
 
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const path = require('path');
 const fs = require('fs');
 
+/**
+ * Registers a new user with affiliation, enrollmentID, and role with the CA provided in the connection profile 
+ * at connectionProfilePath. Registrar must have admin credentials.
+ * 
+ * @param {string} connectionProfilePath Path to connection profile.
+ * @param {string} walletPath            Path to wallet where admin credentials are stored.
+ * @param {string} affiliation  
+ * @param {string} enrollmentID 
+ * @param {string} role 
+ */
 async function registerUser(connectionProfilePath, walletPath, affiliation, enrollmentID, role) {
     try {
 
@@ -45,22 +55,6 @@ async function registerUser(connectionProfilePath, walletPath, affiliation, enro
         const secret = await ca.register({ affiliation: affiliation, enrollmentID: enrollmentID, role: role }, adminIdentity);
         console.log('Successfully registered user: ' + enrollmentID)
 
-
-
-
-
-        // // Enroll user with enrollmentID and enrollmentSecret.
-        // const enrollment = await ca.enroll({ enrollmentID: enrollmentID, enrollmentSecret: secret });
-
-        // // Import public, private keys and certificate to local wallet.
-        // const userIdentity = X509WalletMixin.createIdentity('SipherMSP', enrollment.certificate, enrollment.key.toBytes());
-        // await wallet.import(enrollmentID, userIdentity);
-        // console.log('Successfully enrolled user: ' + enrollmentID + ' and imported it into the wallet');
-
-
-
-
-        // Return the secret generated.
         return secret;
 
     } catch (error) {
@@ -68,6 +62,20 @@ async function registerUser(connectionProfilePath, walletPath, affiliation, enro
     }
 }
 
+/**
+ * Enrolls a registered user and stores its public key, private key, and X.509 certificate in a local wallet.
+ *
+ * This process uses a Certificate Signing Request where the private and public keys are first generated locally
+ * and the public key is then sent to the CA which returns an encoded certificate for use by the application.
+ * 
+ * @param {string} connectionProfilePath Path to connection profile.
+ * @param {string} walletPath            Path to wallet.
+ * @param {string} caDomain              Domain name of certificate authority.
+ * @param {string} networkDirPath        Path to directory containing the "crypto-config" directory.
+ * @param {string} enrollmentID 
+ * @param {string} enrollmentSecret 
+ * @param {string} mspID 
+ */
 async function enrollUser(connectionProfilePath, walletPath, caDomain, networkDirPath, enrollmentID, enrollmentSecret, mspID) {
 
     const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
