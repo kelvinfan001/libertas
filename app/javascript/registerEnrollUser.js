@@ -9,6 +9,7 @@
 module.exports = { registerUser, enrollUser}
 
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
+const FabricCAServices = require('fabric-ca-client');
 const path = require('path');
 const fs = require('fs');
 
