@@ -14,6 +14,9 @@
 # Exit on first error
 set -e
 
+# Set relative path correctly
+cd $(dirname "$0")
+
 # set some variables
 CC_SRC_LANGUAGE=go
 CC_RUNTIME_LANGUAGE=golang

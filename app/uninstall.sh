@@ -7,8 +7,11 @@
 # Exit on first error
 set -e
 
+# Set relative path correctly
+cd $(dirname "$0")
+
 # Bring down test network
-cd $(dirname "$0")/../libertas-dev-network
+cd ../libertas-dev-network
 ./downDevelopmentNetwork.sh
 
 # Remove keys in wallet
