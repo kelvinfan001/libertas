@@ -12,16 +12,16 @@ const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network')
 const path = require('path');
 const fs = require('fs');
 
-async function registerUser(connectionProfilePath, walletPath, userName, affiliation, enrollmentID, role) {
+async function registerUser(connectionProfilePath, walletPath, affiliation, enrollmentID, role) {
     try {
 
         // Create a new file system wallet  object for managing identities.
         const wallet = new FileSystemWallet(walletPath);
 
         // Check to see if user is already enrolled.
-        const userExists = await wallet.exists(userName);
+        const userExists = await wallet.exists(enrollmentID);
         if (userExists) {
-            console.log(userName + "identity already exists in the wallet");
+            console.log(enrollmentID + "identity already exists in the wallet");
             return;
         }
 
