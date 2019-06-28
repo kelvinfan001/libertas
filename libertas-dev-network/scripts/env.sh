@@ -1,3 +1,5 @@
+set -e
+
 function genClientTLSCert {
     ENROLLMENT_URL=$1
 
