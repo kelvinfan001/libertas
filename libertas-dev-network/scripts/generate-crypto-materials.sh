@@ -3,10 +3,10 @@ set -e
 source ./env.sh
 
 export PEER_ORGS="sipher whiteboxplatform"
-export NUM_ORDERERS=2
-export ORDERER_ORGS="sipherorg"
-export NUM_PEERS=1
-export ORGS=$ORDERER_ORGS
+export NUM_ORDERERS=2 # number of ordering nodes for each ordering org
+export ORDERER_ORGS="ordsipher"
+export NUM_PEERS=1 # number of peer nodes for each peer org
+export ORGS="$ORDERER_ORGS $PEER_ORGS"
 
 # Register any identities associated with the orderer
 function registerOrdererIdentities {
@@ -38,10 +38,11 @@ function getCACerts {
    log "Getting CA certificates ..."
    for ORG in $ORGS; do
       # initOrgVars $ORG
+      ORG_MSP_DIR=/data/orgs/${ORG}/msp
       echo "Getting CA certs for organization $ORG and storing in $ORG_MSP_DIR"
-      export FABRIC_CA_CLIENT_TLS_CERTFILES=$CA_CHAINFILE
-      fabric-ca-client getcacert -d -u https://0.0.0.0:7054 -M $ORG_MSP_DIR
-      finishMSPSetup $ORG_MSP_DIR
+      # export FABRIC_CA_CLIENT_TLS_CERTFILES=$CA_CHAINFILE
+      fabric-ca-client getcacert -d -u http://0.0.0.0:7054 -M $ORG_MSP_DIR
+      # finishMSPSetup $ORG_MSP_DIR
    done
 }
 
@@ -53,20 +54,18 @@ function enrollCAAdmin {
    echo "Enrolling with $CA_HOST as bootstrap identity ..."
    # export FABRIC_CA_CLIENT_HOME=$HOME/cas/$CA_NAME
    # export FABRIC_CA_CLIENT_TLS_CERTFILES=$CA_CHAINFILE
-   # fabric-ca-client register -d --id.name admin-${ORG} --id.secret adminpw --id.attrs "admin=true:ecert"
    fabric-ca-client enroll -d -u http://admin:adminpw@0.0.0.0:7054
    # fabric-ca-client enroll -d -u http://admin:adminpw@0.0.0.0:8054
 }
 
 echo "Enrolling CA admin ..."
-# for ORG in $ORGS; do
-   enrollCAAdmin # $ORG
-# done
+enrollCAAdmin # $ORG
 echo "Registering identities ..."
 registerOrdererIdentities
-# registerPeerIdentities
+registerPeerIdentities
+echo "Generating MSP folders ..."
+enrollCAAdmin
 
 # TODO >> admins, tls
 
-
-         # fabric-ca-client register --id.name 1-sipher --id.secret 1-sipherpw --id.type orderer 
+# steps >> bring up ca containers, generate crypto materials, bring up peer and ordering node containers

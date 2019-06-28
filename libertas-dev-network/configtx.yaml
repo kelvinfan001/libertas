@@ -24,7 +24,9 @@ Organizations:
         ID: SipherOrdererMSP
 
         # MSPDir is the filesystem path which contains the MSP configuration
-        MSPDir: crypto-config/ordererOrganizations/sipher.co/msp
+        # MSPDir: crypto-config/ordererOrganizations/sipher.co/msp
+        MSPDir: data/orgs/orgsipher/msp
+
 
         # Policies defines the set of policies at this level of the config tree
         # For organization policies, their canonical path is usually
@@ -46,7 +48,9 @@ Organizations:
         # ID to load the MSP definition as
         ID: SipherMSP
 
-        MSPDir: crypto-config/peerOrganizations/libertas.sipher.co/msp
+        # MSPDir: crypto-config/peerOrganizations/libertas.sipher.co/msp
+        MSPDir: data/orgs/sipher/msp
+
 
         # Policies defines the set of policies at this level of the config tree
         # For organization policies, their canonical path is usually
@@ -77,7 +81,9 @@ Organizations:
         # ID to load the MSP definition as
         ID: WhiteBoxPlatformMSP
 
-        MSPDir: crypto-config/peerOrganizations/libertas.whiteboxplatform.com/msp
+        # MSPDir: crypto-config/peerOrganizations/libertas.whiteboxplatform.com/msp
+        MSPDir: data/orgs/whiteboxplatform/msp
+
 
         # Policies defines the set of policies at this level of the config tree
         # For organization policies, their canonical path is usually
