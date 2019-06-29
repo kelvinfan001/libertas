@@ -1,3 +1,9 @@
+/*
+ * Copyright 2019 Sipher Inc
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 package main
 
 import (
@@ -12,10 +18,15 @@ import (
 type Account struct {
 	ID        string
 	Name      string
-	email     string
-	Type      string
+	Email     string
+	Kind      string
 	CreatedAt timestamp.Timestamp
 	UpdatedAt timestamp.Timestamp
+}
+
+// AccountsList is a list of accounts
+type AccountsList struct {
+	Accounts []Account
 }
 
 // Libertas represents a project on a network.
@@ -69,6 +80,70 @@ func (t *Libertas) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	}
 
 	return shim.Error("Invalid invoke function name. Expecting \"newAccount\"")
+}
+
+// CreateAccount creates an account, if it doesn't already exist. Only admin can create account.
+func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	var id, name, email, kind string
+	var accountBytes []byte
+	var err error
+
+	id = args[0]
+	name = args[1]
+	email = args[2]
+	kind = args[3]
+
+	if len(args) != 4 {
+		return shim.Error("Incorrect number of arguments. Expecting 4.")
+	}
+
+	creator := stub.GetCreator()
+	// TODO: do stuff to verify creator is an admin!
+
+	// Get list of accounts from the ledger
+	accountsListBytes, err = stub.GetState("Accounts List")
+	accountsList = convertAccountsListFromByte(accountsListBytes)
+
+	// If account with id already exists in accountsList, return error
+	accountExists := queryById(id, accountsArray)
+	if (accountExists) {
+		return shim.Error("This ID already exists")
+	}
+	newAccount := Accout{id, name, email, kind}
+	// Else, create Account and add account to list
+	accountsList.Accounts = append(newAccount)
+
+	// Update state and put state on ledger
+	accountsListBytes = convertAccountsListToByte(AccountsList)
+
+	err = stub.PutState("Accounts List", accountsListBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	fmt.Println("New account added.")
+
+	return shim.Success(nil)
+}
+
+// QueryById queries existing accounts in the ledger for id and returns whether it exists.
+func (t *Libertas) QueryById(stub shim.ChaincodeStubInterface. args []string) pb.Response {
+	var id string
+
+	id = args[0]
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1.")
+	}
+}
+
+// queryById queries the Accounts array for id and returns whether it exists.
+func queryById(id string, accounts []Account) bool {
+
+}
+
+func convertAccountsListFromByte(toConvert []byte) AccountsList {
+
 }
 
 func main() {
