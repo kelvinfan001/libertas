@@ -10,6 +10,14 @@ module.exports = { addAffiliation }
 
 const { FileSystemWallet, Gateway } = require('fabric-network');
 
+/**
+ * Adds a new affiliation affiliationName in the CA provided in connectionProfilePath
+ * by using the admin credentials in walletPath.
+ * Must be admin to add affiliation.
+ * @param {string} walletPath 
+ * @param {string} connectionProfilePath 
+ * @param {string} affiliationName 
+ */
 async function addAffiliation(walletPath, connectionProfilePath, affiliationName) {
     try {
         // Create a new file system wallet for managing identities.
