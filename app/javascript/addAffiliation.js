@@ -27,7 +27,7 @@ async function addAffiliation(walletPath, connectionProfilePath, affiliationName
         await gateway.connect(connectionProfilePath, { wallet, identity: 'admin', discovery: { enabled: true, asLocalhost: true } });
 
         // Get CA client object from gateway for interacting with CA. 
-        const ca = gateway.getClient().getCertificateAuthority;
+        const ca = gateway.getClient().getCertificateAuthority();
         const adminIdentity = gateway.getCurrentIdentity();
 
         await ca.newAffiliationService().create({ "name": affiliationName }, adminIdentity);

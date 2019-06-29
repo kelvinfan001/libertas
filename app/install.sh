@@ -173,8 +173,12 @@ docker exec \
         # TOOD: maybe put names in a variable, e.g. Dummy Name
 
 echo "Waiting for instatiation request to be committed..."
-sleep 15
-
+echo " Going to sleep for 15 seconds."
 set +x
+sleep 5
+echo "Still sleeping..."
+sleep 5
+echo "Derp derp"
+sleep 5
 
 echo "ALL GOOD!"
