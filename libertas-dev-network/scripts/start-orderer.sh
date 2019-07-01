@@ -7,7 +7,8 @@
 
 set -e
 
-source ./env.sh
+scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
+source $scriptDir/env.sh
 
 # Wait for setup to complete sucessfully
 # awaitSetup

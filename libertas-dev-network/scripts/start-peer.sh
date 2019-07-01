@@ -7,7 +7,8 @@
 
 set -e
 
-source ./env.sh
+scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
+source $scriptDir/env.sh
 
 # PEER_HOST=....
 PEER_NAME=$PEER_HOST

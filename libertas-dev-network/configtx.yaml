@@ -25,7 +25,7 @@ Organizations:
 
         # MSPDir is the filesystem path which contains the MSP configuration
         # MSPDir: crypto-config/ordererOrganizations/sipher.co/msp
-        MSPDir: data/orgs/orgsipher/msp
+        MSPDir: data/orgs/ordsipher/msp
 
 
         # Policies defines the set of policies at this level of the config tree
