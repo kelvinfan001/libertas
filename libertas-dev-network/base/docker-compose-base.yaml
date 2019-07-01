@@ -13,6 +13,8 @@ services:
     extends:
       file: peer-base.yaml
       service: orderer-base
+    environment:
+      - ORDERER_HOST=1-ordsipher
     volumes:
         - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
         - ../crypto-config/ordererOrganizations/sipher.co/orderers/orderer.sipher.co/msp:/var/hyperledger/orderer/msp
@@ -27,6 +29,7 @@ services:
       file: peer-base.yaml
       service: peer-base
     environment:
+      - PEER_HOST=1-sipher
       - CORE_PEER_ID=peer0.libertas.sipher.co
       - CORE_PEER_ADDRESS=peer0.libertas.sipher.co:7051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
@@ -49,6 +52,7 @@ services:
       file: peer-base.yaml
       service: peer-base
     environment:
+      - PEER_HOST=2-sipher
       - CORE_PEER_ID=peer1.libertas.sipher.co
       - CORE_PEER_ADDRESS=peer1.libertas.sipher.co:8051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
@@ -72,6 +76,7 @@ services:
       file: peer-base.yaml
       service: peer-base
     environment:
+      - PEER_HOST=1-whiteboxplatform
       - CORE_PEER_ID=peer0.libertas.whiteboxplatform.com
       - CORE_PEER_ADDRESS=peer0.libertas.whiteboxplatform.com:9051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
@@ -94,6 +99,7 @@ services:
       file: peer-base.yaml
       service: peer-base
     environment:
+      - PEER_HOST=2-whiteboxplatform
       - CORE_PEER_ID=peer1.libertas.whiteboxplatform.com
       - CORE_PEER_ADDRESS=peer1.libertas.whiteboxplatform.com:10051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:10051

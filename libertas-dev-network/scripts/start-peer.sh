@@ -14,7 +14,7 @@ source $scriptDir/env.sh
 PEER_NAME=$PEER_HOST
 PEER_PASS=${PEER_NAME}:${PEER_NAME}pw
 PEER_HOME=/opt/gopath/src/github.com/hyperledger/fabric/peer
-# CORE_PEER_TLS_CERT_FILE=$PEER_HOME/tls/server.crt
+# CORE_PEER_TLS_CERT_FILE=$PEER_HOME/tls/server.crtchannelchannelchannelchchannelannel
 # CORE_PEER_TLS_KEY_FILE=$PEER_HOME/tls/server.key
 CORE_PEER_MSPCONFIGPATH=$PEER_HOME/msp
 # CORE_PEER_TLS_CLIENTCERT_FILE=/data/tls/$PEER_NAME-client.crt
@@ -52,3 +52,6 @@ fabric-ca-client enroll -d -u $ENROLLMENT_URL -M $CORE_PEER_MSPCONFIGPATH
 # log "Starting peer '$CORE_PEER_ID' with MSP at '$CORE_PEER_MSPCONFIGPATH'"
 # env | grep CORE
 # peer node start
+
+# every peer node has a copy of the org admin cert
+copyAdminCert $CORE_PEER_MSPCONFIGPATH

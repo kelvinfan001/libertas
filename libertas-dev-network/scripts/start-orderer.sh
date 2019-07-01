@@ -45,3 +45,6 @@ fabric-ca-client enroll -d -u $ENROLLMENT_URL -M $ORDERER_GENERAL_LOCALMSPDIR
 # Start the orderer
 # env | grep ORDERER
 # orderer
+
+# every ordering node has a copy of the org admin cert
+copyAdminCert $ORDERER_GENERAL_LOCALMSPDIR
