@@ -1,7 +1,11 @@
+#!/bin/bash
+sudo -E env "PATH=$PATH" "$@"
+
 set -e
 
 scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
-source $scriptDir/env.sh
+echo $scriptDir
+# source $scriptDir/env.sh
 
 export PEER_ORGS="sipher whiteboxplatform"
 export NUM_ORDERERS=2 # number of ordering nodes for each ordering org
@@ -36,13 +40,13 @@ function registerPeerIdentities {
 }
 
 function getCACerts {
-   log "Getting CA certificates ..."
+   #  "Getting CA certificates ..."
    for ORG in $ORGS; do
       # initOrgVars $ORG
       ORG_MSP_DIR=$scriptDir/../data/orgs/${ORG}/msp
       echo "Getting CA certs for organization $ORG and storing in $ORG_MSP_DIR"
       # export FABRIC_CA_CLIENT_TLS_CERTFILES=$CA_CHAINFILE
-      sudo env "PATH=$PATH" fabric-ca-client getcacert -d -u http://0.0.0.0:7054 -M $ORG_MSP_DIR
+      fabric-ca-client getcacert -d -u http://0.0.0.0:7054 -M $ORG_MSP_DIR
       # finishMSPSetup $ORG_MSP_DIR
    done
 }
@@ -60,52 +64,43 @@ function enrollCAAdmin {
 }
 
 
-# function generateAdminCerts {
+function generateAdminCerts {
+   for ORG in $ORGS; do
+      ORG_ADMIN_HOME=$scriptDir/../data/orgs/$ORG/admin
+      ORG_MSP_DIR=$scriptDir/../data/orgs/$ORG/msp
+      # dowait "$CA_NAME to start" 60 $CA_LOGFILE $CA_CHAINFILE
+      # log "Enrolling admin '$ADMIN_NAME' with $CA_HOST ..."
+      export FABRIC_CA_CLIENT_HOME=$ORG_ADMIN_HOME
+      # export FABRIC_CA_CLIENT_TLS_CERTFILES=$CA_CHAINFILE
+      fabric-ca-client enroll -d -u http://admin:adminpw@0.0.0.0:7054
+      # copy the generated admin cert to msp/admincerts
+      ORG_ADMIN_CERT=${ORG_MSP_DIR}/admincerts/cert.pem
+      mkdir -p $(dirname "${ORG_ADMIN_CERT}")
+      cp $ORG_ADMIN_HOME/msp/signcerts/* $ORG_ADMIN_CERT
+      mkdir $ORG_ADMIN_HOME/msp/admincerts
+      cp $ORG_ADMIN_HOME/msp/signcerts/* $ORG_ADMIN_HOME/msp/admincerts
+      # export CORE_PEER_MSPCONFIGPATH=$ORG_ADMIN_HOME/msp
+   done
+}
 
-#    # dowait "$CA_NAME to start" 60 $CA_LOGFILE $CA_CHAINFILE
-#    # log "Enrolling admin '$ADMIN_NAME' with $CA_HOST ..."
-#    export FABRIC_CA_CLIENT_HOME=$ORG_ADMIN_HOME
-#    # export FABRIC_CA_CLIENT_TLS_CERTFILES=$CA_CHAINFILE
-#    fabric-ca-client enroll -d -u https://admin:adminpw@0.0.0.0:7054
-#    # copy the generated admin cert to msp/admincerts
-#    ORG_ADMIN_CERT=${ORG_MSP_DIR}/admincerts/cert.pem
-#    mkdir -p $(dirname "${ORG_ADMIN_CERT}")
-#    cp $ORG_ADMIN_HOME/msp/signcerts/* $ORG_ADMIN_CERT
-#    mkdir $ORG_ADMIN_HOME/msp/admincerts
-#    cp $ORG_ADMIN_HOME/msp/signcerts/* $ORG_ADMIN_HOME/msp/admincerts
-#    # export CORE_PEER_MSPCONFIGPATH=$ORG_ADMIN_HOME/msp
-# }
 
-# # Copy the org's admin cert into some target MSP directory
-# # We do this for the peer nodes
-# function copyAdminCert {
-#    if [ $# -ne 1 ]; then
-#       fatal "Usage: copyAdminCert <targetMSPDIR>"
-#    fi
-   
-#    dstDir=$1/admincerts
-#    mkdir -p $dstDir
-#    # dowait "$ORG administator to enroll" 60 $SETUP_LOGFILE $ORG_ADMIN_CERT
-#    cp $ORG_ADMIN_CERT $dstDir
-# }
-
+main
 echo "Enrolling CA admin ..."
 enrollCAAdmin # $ORG
 echo "Registering identities ..."
 registerOrdererIdentities
 registerPeerIdentities
 echo "Generating MSP folders ..."
-enrollCAAdmin
-# echo "Generating Admin Certs"
-# for ORG in $ORGS; do
-#    ORG_ADMIN_HOME=$scriptDir/../data/orgs/$ORG/admin
-#    generateAdminCerts
-# done
+getCACerts
+echo "Generating Admin Certs"
+generateAdminCerts
 
 
-# TODO >> admins, tls >> perhaps don't need this
+
+# TODO >> admins, tls 
 
 # steps >> bring up ca containers, generate crypto materials, bring up peer and ordering node containers
 
+# need a lot of sudos...
 
 # fabric-ca-client getcacert -d -u http://0.0.0.0:7054 -M $PWD/../data/orgs/ordsipher/msp
