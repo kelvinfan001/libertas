@@ -74,9 +74,9 @@ func (t *Libertas) Init(stub shim.ChaincodeStubInterface) pb.Response {
 func (t *Libertas) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	fmt.Println("Election Invoke")
 	function, args := stub.GetFunctionAndParameters()
-	if function == "newAccount" {
+	if function == "CreateAccount" {
 		// Create a new account
-		return t.newAccount(stub, args)
+		return t.CreateAccount(stub, args)
 	}
 
 	return shim.Error("Invalid invoke function name. Expecting \"newAccount\"")
@@ -97,15 +97,17 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 		return shim.Error("Incorrect number of arguments. Expecting 4.")
 	}
 
+	// Get the identity of the person calling this function.
 	creator := stub.GetCreator()
 	// TODO: do stuff to verify creator is an admin!
 
 	// Get list of accounts from the ledger
 	accountsListBytes, err = stub.GetState("Accounts List")
-	accountsList = convertAccountsListFromByte(accountsListBytes)
+	accountsList := AccountsList{}
+	json.Unmarshal(accountsListBytes, *accountsList)
 
 	// If account with id already exists in accountsList, return error
-	accountExists := queryById(id, accountsArray)
+	accountExists := queryById(id, accountsList)
 	if (accountExists) {
 		return shim.Error("This ID already exists")
 	}
@@ -114,7 +116,7 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 	accountsList.Accounts = append(newAccount)
 
 	// Update state and put state on ledger
-	accountsListBytes = convertAccountsListToByte(AccountsList)
+	accountsListBytes = json.Marshal(AccountsList)
 
 	err = stub.PutState("Accounts List", accountsListBytes)
 	if err != nil {
