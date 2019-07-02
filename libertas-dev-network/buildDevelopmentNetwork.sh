@@ -37,7 +37,9 @@ export CHANNEL_NAME=channel
 # # bring up the docker containers for orderers, peers, and CLI
 # export DEV_NETWORK_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/libertas.sipher.co/ca && ls *_sk)
 # export DEV_NETWORK_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/libertas.whiteboxplatform.com/ca && ls *_sk)
-# docker-compose -f docker-compose-cli.yaml -f up -d
+docker-compose -f docker-compose-cli.yaml up -d
 
-# # docker exec cli /bin/sh -c "scripts/run.sh"
+# docker exec cli /bin/sh -c "scripts/run.sh"
 
+
+# TODO >> enable fabric-client for nodes, admin for cli

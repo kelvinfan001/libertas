@@ -15,11 +15,14 @@ services:
       service: orderer-base
     environment:
       - ORDERER_HOST=1-ordsipher
+      - FABRIC_CA_CLIENT_HOME=/etc/hyperledger/orderer
     volumes:
         - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
-        - ../crypto-config/ordererOrganizations/sipher.co/orderers/orderer.sipher.co/msp:/var/hyperledger/orderer/msp
-        - ../crypto-config/ordererOrganizations/sipher.co/orderers/orderer.sipher.co/tls/:/var/hyperledger/orderer/tls
+        - ../data/orgs/ordsipher/msp:/var/hyperledger/orderer/msp
+        # - ../crypto-config/ordererOrganizations/sipher.co/orderers/orderer.sipher.co/tls/:/var/hyperledger/orderer/tls
         - orderer.sipher.co:/var/hyperledger/production/orderer
+        - ../scripts:/opt/gopath/src/github.com/hyperledger/fabric/scripts
+    command: /bin/bash -c './scripts/start-orderer.sh'
     ports:
       - 7050:7050
 
@@ -30,6 +33,7 @@ services:
       service: peer-base
     environment:
       - PEER_HOST=1-sipher
+      - FABRIC_CA_CLIENT_HOME=/opt/gopath/src/github.com/hyperledger/fabric/peer
       - CORE_PEER_ID=peer0.libertas.sipher.co
       - CORE_PEER_ADDRESS=peer0.libertas.sipher.co:7051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
@@ -40,9 +44,11 @@ services:
       - CORE_PEER_LOCALMSPID=SipherMSP
     volumes:
         - /var/run/:/host/var/run/
-        - ../crypto-config/peerOrganizations/libertas.sipher.co/peers/peer0.libertas.sipher.co/msp:/etc/hyperledger/fabric/msp
-        - ../crypto-config/peerOrganizations/libertas.sipher.co/peers/peer0.libertas.sipher.co/tls:/etc/hyperledger/fabric/tls
+        - ../data/orgs/sipher/msp:/etc/hyperledger/fabric/msp
+        # - ../crypto-config/peerOrganizations/libertas.sipher.co/peers/peer0.libertas.sipher.co/tls:/etc/hyperledger/fabric/tls
         - peer0.libertas.sipher.co:/var/hyperledger/production
+        - ../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts
+    command: /bin/bash -c './scripts/start-peer.sh'
     ports:
       - 7051:7051
 
@@ -53,6 +59,7 @@ services:
       service: peer-base
     environment:
       - PEER_HOST=2-sipher
+      - FABRIC_CA_CLIENT_HOME=/opt/gopath/src/github.com/hyperledger/fabric/peer
       - CORE_PEER_ID=peer1.libertas.sipher.co
       - CORE_PEER_ADDRESS=peer1.libertas.sipher.co:8051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
@@ -63,10 +70,11 @@ services:
       - CORE_PEER_LOCALMSPID=SipherMSP
     volumes:
         - /var/run/:/host/var/run/
-        - ../crypto-config/peerOrganizations/libertas.sipher.co/peers/peer1.libertas.sipher.co/msp:/etc/hyperledger/fabric/msp
-        - ../crypto-config/peerOrganizations/libertas.sipher.co/peers/peer1.libertas.sipher.co/tls:/etc/hyperledger/fabric/tls
+        - ../data/orgs/sipher/msp:/etc/hyperledger/fabric/msp
+        # - ../crypto-config/peerOrganizations/libertas.sipher.co/peers/peer1.libertas.sipher.co/tls:/etc/hyperledger/fabric/tls
         - peer1.libertas.sipher.co:/var/hyperledger/production
-
+        - ../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts
+    command: /bin/bash -c './scripts/start-peer.sh'
     ports:
       - 8051:8051
 
@@ -77,6 +85,7 @@ services:
       service: peer-base
     environment:
       - PEER_HOST=1-whiteboxplatform
+      - FABRIC_CA_CLIENT_HOME=/opt/gopath/src/github.com/hyperledger/fabric/peer
       - CORE_PEER_ID=peer0.libertas.whiteboxplatform.com
       - CORE_PEER_ADDRESS=peer0.libertas.whiteboxplatform.com:9051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
@@ -87,9 +96,11 @@ services:
       - CORE_PEER_LOCALMSPID=WhiteBoxPlatformMSP
     volumes:
         - /var/run/:/host/var/run/
-        - ../crypto-config/peerOrganizations/libertas.whiteboxplatform.com/peers/peer0.libertas.whiteboxplatform.com/msp:/etc/hyperledger/fabric/msp
-        - ../crypto-config/peerOrganizations/libertas.whiteboxplatform.com/peers/peer0.libertas.whiteboxplatform.com/tls:/etc/hyperledger/fabric/tls
+        - ../data/orgs/whiteboxplatform/msp:/etc/hyperledger/fabric/msp
+        # - ../crypto-config/peerOrganizations/libertas.whiteboxplatform.com/peers/peer0.libertas.whiteboxplatform.com/tls:/etc/hyperledger/fabric/tls
         - peer0.libertas.whiteboxplatform.com:/var/hyperledger/production
+        - ../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts
+    command: /bin/bash -c './scripts/start-peer.sh'
     ports:
       - 9051:9051
 
@@ -100,6 +111,7 @@ services:
       service: peer-base
     environment:
       - PEER_HOST=2-whiteboxplatform
+      - FABRIC_CA_CLIENT_HOME=/opt/gopath/src/github.com/hyperledger/fabric/peer
       - CORE_PEER_ID=peer1.libertas.whiteboxplatform.com
       - CORE_PEER_ADDRESS=peer1.libertas.whiteboxplatform.com:10051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:10051
@@ -110,8 +122,10 @@ services:
       - CORE_PEER_LOCALMSPID=WhiteBoxPlatformMSP
     volumes:
         - /var/run/:/host/var/run/
-        - ../crypto-config/peerOrganizations/libertas.whiteboxplatform.com/peers/peer1.libertas.whiteboxplatform.com/msp:/etc/hyperledger/fabric/msp
-        - ../crypto-config/peerOrganizations/libertas.whiteboxplatform.com/peers/peer1.libertas.whiteboxplatform.com/tls:/etc/hyperledger/fabric/tls
+        - ../data/orgs/whiteboxplatform/msp:/etc/hyperledger/fabric/msp
+        # - ../crypto-config/peerOrganizations/libertas.whiteboxplatform.com/peers/peer1.libertas.whiteboxplatform.com/tls:/etc/hyperledger/fabric/tls
         - peer1.libertas.whiteboxplatform.com:/var/hyperledger/production
+        - ../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts
+    command: /bin/bash -c './scripts/start-peer.sh'
     ports:
       - 10051:10051
