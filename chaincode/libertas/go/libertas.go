@@ -14,7 +14,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
@@ -26,8 +25,8 @@ type Account struct {
 	Name      string
 	Email     string
 	Kind      string
-	CreatedAt timestamp.Timestamp
-	UpdatedAt timestamp.Timestamp
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // AccountsList is a list of accounts
@@ -95,14 +94,16 @@ func (t *Libertas) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 // CreateAccount creates an account, if it doesn't already exist. Only admin can create account.
 func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	var id, name, email, kind string
-	var accountBytes, accountsListBytes []byte
+	var accountsListBytes []byte
 	var err error
 
 	id = args[0]
 	name = args[1]
 	email = args[2]
 	kind = args[3]
-	transactionTime, _ := stub.GetTxTimestamp()
+	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
+	// Convert protobuf timestamp to Time data structure
+	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
 
 	if len(args) != 4 {
 		return shim.Error("Incorrect number of arguments. Expecting 4.")
@@ -125,17 +126,17 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 	json.Unmarshal(accountsListBytes, &accountsList)
 
 	// If account with id already exists in accountsList, return error
-	accountExists := queryById(id, accountsList)
+	accountExists := queryById(id, accountsList.Accounts)
 	if accountExists {
 		return shim.Error("This ID already exists")
 	}
 
 	// Else, create Account and add account to list
-	newAccount := Accout{id, name, email, kind, transactionTime, transactionTime}
+	newAccount := Account{id, name, email, kind, transactionTime, transactionTime}
 	accountsList.Accounts = append(accountsList.Accounts, newAccount)
 
 	// Update state and put state on ledger
-	accountsListBytes, _ = json.Marshal(AccountsList)
+	accountsListBytes, _ = json.Marshal(accountsList)
 
 	err = stub.PutState("Accounts List", accountsListBytes)
 	if err != nil {
@@ -158,11 +159,14 @@ func (t *Libertas) QueryById(stub shim.ChaincodeStubInterface, args []string) pb
 	}
 
 	// Get list of accounts from the world state.
-	accountsListBytes, err = stub.GetState("Accounts List")
+	accountsListBytes, err := stub.GetState("Accounts List")
+	if err != nil {
+		return shim.Error(err.Error())
+	}
 	accountsList := AccountsList{}
-	json.Unmarshal(accountsListBytes, *accountsList)
+	json.Unmarshal(accountsListBytes, &accountsList)
 
-	exists := queryById(id, accountsList)
+	exists := queryById(id, accountsList.Accounts)
 
 	// Buffer is a string indicating whether the id exists.
 	var buffer bytes.Buffer
@@ -180,17 +184,13 @@ func (t *Libertas) QueryById(stub shim.ChaincodeStubInterface, args []string) pb
 // queryById queries the Accounts array for id and returns whether it exists.
 func queryById(id string, accounts []Account) bool {
 
-	for k, v := range accounts {
+	for _, v := range accounts {
 		if v.ID == id {
 			return true
 		}
 	}
 
 	return false
-}
-
-func convertAccountsListFromByte(toConvert []byte) AccountsList {
-
 }
 
 func main() {
