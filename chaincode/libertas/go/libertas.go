@@ -2,16 +2,22 @@
  * Copyright 2019 Sipher Inc
  *
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * TODO: provide better documentation.
  */
 
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 
-	// need to "go get" this
 	"github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
+	pb "github.com/hyperledger/fabric/protos/peer"
 )
 
 // Account represents a user account.
@@ -48,22 +54,26 @@ func (t *Libertas) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	projectIDVal := args[0]
 	projectName := "Project Name"
 	projectNameVal := args[1]
-	projectCrateTime := "Project Create Time"
-	projectCreateTimeVal := stub.GetTxTimestamp
+	projectCreateTime := "Project Create Time"
+	projectCreateTimeProtobuf, _ := stub.GetTxTimestamp()
+
+	// Convert protobuf timestamp to Time data structure
+	projectCreateTimeVal := time.Unix(projectCreateTimeProtobuf.Seconds, int64(projectCreateTimeProtobuf.Nanos))
 
 	// Write state to ledger
 	err = stub.PutState(projectID, []byte(projectIDVal))
-	if er != nil {
+	if err != nil {
 		return shim.Error(err.Error())
 	}
 
 	err = stub.PutState(projectName, []byte(projectNameVal))
-	if er != nil {
+	if err != nil {
 		return shim.Error(err.Error())
 	}
 
-	err = stub.PutState(projectCreateTime, []byte(projectCreateTimeVal))
-	if er != nil {
+	projectCreateTimeValBytes, _ := json.Marshal(projectCreateTimeVal)
+	err = stub.PutState(projectCreateTime, []byte(projectCreateTimeValBytes))
+	if err != nil {
 		return shim.Error(err.Error())
 	}
 
@@ -85,38 +95,47 @@ func (t *Libertas) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 // CreateAccount creates an account, if it doesn't already exist. Only admin can create account.
 func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	var id, name, email, kind string
-	var accountBytes []byte
+	var accountBytes, accountsListBytes []byte
 	var err error
 
 	id = args[0]
 	name = args[1]
 	email = args[2]
 	kind = args[3]
+	transactionTime, _ := stub.GetTxTimestamp()
 
 	if len(args) != 4 {
 		return shim.Error("Incorrect number of arguments. Expecting 4.")
 	}
 
 	// Get the identity of the person calling this function.
-	creator := stub.GetCreator()
-	// TODO: do stuff to verify creator is an admin!
+	id, err = cid.GetID(stub)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	// Check if caller is admin.
+	// TODO: SHOULD CHECK CERTIFICATE TO BE MORE RIGOROUS!
+	if id != "admin" {
+		return shim.Error("Cannot find admin credentials")
+	}
 
 	// Get list of accounts from the ledger
 	accountsListBytes, err = stub.GetState("Accounts List")
 	accountsList := AccountsList{}
-	json.Unmarshal(accountsListBytes, *accountsList)
+	json.Unmarshal(accountsListBytes, &accountsList)
 
 	// If account with id already exists in accountsList, return error
 	accountExists := queryById(id, accountsList)
-	if (accountExists) {
+	if accountExists {
 		return shim.Error("This ID already exists")
 	}
-	newAccount := Accout{id, name, email, kind}
+
 	// Else, create Account and add account to list
-	accountsList.Accounts = append(newAccount)
+	newAccount := Accout{id, name, email, kind, transactionTime, transactionTime}
+	accountsList.Accounts = append(accountsList.Accounts, newAccount)
 
 	// Update state and put state on ledger
-	accountsListBytes = json.Marshal(AccountsList)
+	accountsListBytes, _ = json.Marshal(AccountsList)
 
 	err = stub.PutState("Accounts List", accountsListBytes)
 	if err != nil {
@@ -129,19 +148,45 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 }
 
 // QueryById queries existing accounts in the ledger for id and returns whether it exists.
-func (t *Libertas) QueryById(stub shim.ChaincodeStubInterface. args []string) pb.Response {
-	var id string
+func (t *Libertas) QueryById(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
+	var id string
 	id = args[0]
 
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1.")
 	}
+
+	// Get list of accounts from the world state.
+	accountsListBytes, err = stub.GetState("Accounts List")
+	accountsList := AccountsList{}
+	json.Unmarshal(accountsListBytes, *accountsList)
+
+	exists := queryById(id, accountsList)
+
+	// Buffer is a string indicating whether the id exists.
+	var buffer bytes.Buffer
+
+	if exists {
+		buffer.WriteString("true")
+	} else {
+		buffer.WriteString("false")
+	}
+
+	return shim.Success(buffer.Bytes())
+
 }
 
 // queryById queries the Accounts array for id and returns whether it exists.
 func queryById(id string, accounts []Account) bool {
 
+	for k, v := range accounts {
+		if v.ID == id {
+			return true
+		}
+	}
+
+	return false
 }
 
 func convertAccountsListFromByte(toConvert []byte) AccountsList {
