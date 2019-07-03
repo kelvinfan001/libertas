@@ -20,8 +20,8 @@ cd $(dirname "$0")
 # set some variables
 CC_SRC_LANGUAGE=go
 CC_RUNTIME_LANGUAGE=golang
-# directory for chaincode to install (currently using sample voting)
-CC_SRC_PATH=github.com/chaincode/voting
+# directory for chaincode to install
+CC_SRC_PATH=github.com/chaincode/libertas
 export CHANNEL_NAME=test
 
 # clean the keystore
@@ -135,8 +135,8 @@ docker exec \
     -e CORE_PEER_TLS_ROOTCERT_FILE=${SIPHER_TLS_ROOTCERT_FILE} \
     cli \
     peer chaincode install \
-        -n testapp \
-        -v 1.0 \
+        -n libertas \
+        -v 1.1 \
         -p "$CC_SRC_PATH" \
         #-l "$CC_RUNTIME_LANGUAGE"
 
@@ -148,8 +148,8 @@ docker exec \
     -e CORE_PEER_TLS_ROOTCERT_FILE=${WHITEBOXPLATFORM_TLS_ROOTCERT_FILE} \
     cli \
     peer chaincode install \
-        -n testapp \
-        -v 1.0 \
+        -n libertas \
+        -v 1.1 \
         -p "$CC_SRC_PATH" \
         #-l "$CC_RUNTIME_LANGUAGE"
 
@@ -161,9 +161,9 @@ docker exec \
     peer chaincode instantiate \
         -o orderer.sipher.co:7050 \
         -C $CHANNEL_NAME \
-        -n testapp \
-        -v 1.0 \
-        -c '{"Args":["init", "Dummy Name"]}' \
+        -n libertas \
+        -v 1.1 \
+        -c '{"Args":["init", "123", "derp"]}' \
         -P "AND('SipherMSP.member','WhiteBoxPlatformMSP.member')" \
         --tls \
         --cafile ${ORDERER_TLS_ROOTCERT_FILE} \
@@ -173,8 +173,12 @@ docker exec \
         # TOOD: maybe put names in a variable, e.g. Dummy Name
 
 echo "Waiting for instatiation request to be committed..."
-sleep 15
-
+echo " Going to sleep for 15 seconds."
 set +x
+sleep 5
+echo "Still sleeping..."
+sleep 5
+echo "Derp derp"
+sleep 5
 
 echo "ALL GOOD!"
