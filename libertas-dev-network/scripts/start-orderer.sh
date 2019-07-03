@@ -1,4 +1,4 @@
-#!/bin/bash
+    #!/bin/bash
 #
 # Copyright 2019 Sipher Inc. 
 #
@@ -17,6 +17,8 @@ function copyAdminCert {
    fi
    
    dstDir=$1/admincerts
+   ORG_MSP_DIR=/data/orgs/${ORG}/msp
+   ORG_ADMIN_CERT=${ORG_MSP_DIR}/admincerts/cert.pem
    mkdir -p $dstDir
    # dowait "$ORG administator to enroll" 60 $SETUP_LOGFILE $ORG_ADMIN_CERT
    cp $ORG_ADMIN_CERT $dstDir
@@ -24,8 +26,6 @@ function copyAdminCert {
 
 # ORDERER_HOST=$ORDERER_HOST # need to specify, this would be the name of the container
 ORDERER_PASS=${ORDERER_HOST}:${ORDERER_HOST}pw
-ORDERER_HOME=/etc/hyperledger/orderer
-ORDERER_GENERAL_LOCALMSPDIR=$ORDERER_HOME/msp
 ENROLLMENT_URL=http://${ORDERER_PASS}@ca-sipher:7054 
 
 # Enroll again to get the orderer's enrollment certificate (default profile)

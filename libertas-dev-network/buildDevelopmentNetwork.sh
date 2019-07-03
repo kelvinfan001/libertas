@@ -25,17 +25,17 @@ function wait_file {
 
 # bring up CA docker containers
 echo "----------------------------------------Bringing up CA containers-----------------------------------------"
-# mkdir data
-# docker-compose -f docker-compose-ca.yaml up -d
+mkdir data
+docker-compose -f docker-compose-ca.yaml up -d
 
 # generate cryptographic materials
 # ../bin/cryptogen generate --config=./crypto-config.yaml
 # export PATH=$PATH:/home/kai/go/bin # gonna need to change this
 # wait until the ca containers finish setting up
 echo "----------------------------------------Generating Crypto Materials-----------------------------------------"
-# wait_file ./data/ca-cert.pem
-# ./scripts/generate-crypto-materials.sh
-# chmod -R 777 data/
+wait_file ./data/ca-cert.pem
+./scripts/generate-crypto-materials.sh
+chmod -R 777 data/
 
 echo "-----------------Doing Stuff--------------------------------"
 export FABRIC_CFG_PATH=$PWD
@@ -59,9 +59,9 @@ mkdir channel-artifacts
 # # bring up the docker containers for orderers, peers, and CLI
 # export DEV_NETWORK_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/libertas.sipher.co/ca && ls *_sk)
 # export DEV_NETWORK_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/libertas.whiteboxplatform.com/ca && ls *_sk)
-docker-compose -f docker-compose-cli.yaml up -d
+docker-compose -f docker-compose-cli.yaml up 
 
 # docker exec cli /bin/sh -c "scripts/run.sh"
 
 
-# TODO >> get nodes working, admin for cli, logs and wait
+# TODO >> fix registration issue, admin for cli, logs and wait

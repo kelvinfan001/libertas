@@ -8,9 +8,9 @@ scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
 # source $scriptDir/env.sh
 
 export PEER_ORGS="sipher whiteboxplatform"
-export NUM_ORDERERS=2 # number of ordering nodes for each ordering org
+export NUM_ORDERERS=1 # number of ordering nodes for each ordering org
 export ORDERER_ORGS="ordsipher"
-export NUM_PEERS=1 # number of peer nodes for each peer org
+export NUM_PEERS=2 # number of peer nodes for each peer org
 export ORGS="$ORDERER_ORGS $PEER_ORGS"
 
 # Register any identities associated with the orderer
@@ -20,7 +20,7 @@ function registerOrdererIdentities {
       while [[ "$COUNT" -le $NUM_ORDERERS ]]; do
          ORDERER_NAME=${COUNT}-${ORG}
          echo "Registering $ORDERER_NAME" # with $CA_NAME"
-         fabric-ca-client register -d --id.name $ORDERER_NAME --id.secret ${ORDERER_NAME}pw --id.type orderer # maybe we need diff pass for diff nodes
+         fabric-ca-client register -d --id.name $ORDERER_NAME --id.secret ${ORDERER_NAME}pw --id.affiliation $ORG --id.type orderer # maybe we need diff pass for diff nodes
          COUNT=$((COUNT+1))
       done
    done
@@ -33,7 +33,7 @@ function registerPeerIdentities {
       while [[ "$COUNT" -le $NUM_PEERS ]]; do
          PEER_NAME=${COUNT}-${ORG}
          echo "Registering $PEER_NAME" # with $CA_NAME"
-         fabric-ca-client register -d --id.name $PEER_NAME --id.secret ${PEER_NAME}pw --id.type peer
+         fabric-ca-client register -d --id.name $PEER_NAME --id.secret ${PEER_NAME}pw --id.affiliation $ORG --id.type peer
          COUNT=$((COUNT+1))
       done
    done

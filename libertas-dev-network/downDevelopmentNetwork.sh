@@ -11,6 +11,6 @@ y
 docker rmi $(docker images -a)
 
 # delete blocks and certificates, if already existing
-rm -f ./channel-artifacts/*
-rm -f -r ./crypto-config/*
+rm -rf ./channel-artifacts/
+rm -rf ./crypto-config/
 rm -rf ./data/
