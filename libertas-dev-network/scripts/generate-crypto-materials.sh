@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/usr/bin/sudo bash
+PATH=$PATH:/home/kai/go/bin
 sudo -E env "PATH=$PATH" "$@"
 
 set -e
 
 scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
-echo $scriptDir
 # source $scriptDir/env.sh
 
 export PEER_ORGS="sipher whiteboxplatform"
@@ -56,7 +56,7 @@ function enrollCAAdmin {
    # ORG=$1
    # CA_HOST=ca-${ORG}
    # waitPort "$CA_NAME to start" 90 $CA_LOGFILE $CA_HOST 7054
-   echo "Enrolling with $CA_HOST as bootstrap identity ..."
+   # echo "Enrolling with $CA_HOST as bootstrap identity ..."
    # export FABRIC_CA_CLIENT_HOME=$HOME/cas/$CA_NAME
    # export FABRIC_CA_CLIENT_TLS_CERTFILES=$CA_CHAINFILE
    fabric-ca-client enroll -d -u http://admin:adminpw@0.0.0.0:7054
@@ -84,23 +84,16 @@ function generateAdminCerts {
 }
 
 
-main
-echo "Enrolling CA admin ..."
+# main
+echo "------------------------------------------Enrolling CA admin---------------------------------------------"
 enrollCAAdmin # $ORG
-echo "Registering identities ..."
+echo "-----------------------------------------Registering identities---------------------------------------------------------------"
 registerOrdererIdentities
 registerPeerIdentities
-echo "Generating MSP folders ..."
+echo "-----------------------------------------Generating MSP folders------------------------------------------------------"
 getCACerts
-echo "Generating Admin Certs"
+echo "-----------------------------------------Generating Admin Certs------------------------------------------------"
 generateAdminCerts
 
 
-
-# TODO >> admins, tls 
-
 # steps >> bring up ca containers, generate crypto materials, bring up peer and ordering node containers
-
-# need a lot of sudos...
-
-# fabric-ca-client getcacert -d -u http://0.0.0.0:7054 -M $PWD/../data/orgs/ordsipher/msp

@@ -1,26 +1,16 @@
+#!/bin/bash
+
 set -e
 
-# function genClientTLSCert {
-#     ENROLLMENT_URL=$1
+# usage: wait_file <file>
+function wait_file {
+  local file="$1"; shift
+  local wait_seconds="${1:-10}"; shift # 10 seconds as default timeout
 
-#    if [ $# -ne 3 ]; then
-#       echo "Usage: genClientTLSCert <host name> <cert file> <key file>: $*"
-#       exit 1
-#    fi
+  until test $((wait_seconds--)) -eq 0 -o -f "$file" ; do sleep 1; done
 
-#    HOST_NAME=$2
-#    CERT_FILE=$3
-#    KEY_FILE=$4
-
-#    # Get a client cert
-#    fabric-ca-client enroll -d --enrollment.profile tls -u $ENROLLMENT_URL -M /tmp/tls --csr.hosts $HOST_NAME
-
-#    mkdir /data/tls || true
-#    cp /tmp/tls/signcerts/* $CERT_FILE
-#    cp /tmp/tls/keystore/* $KEY_FILE
-#    rm -rf /tmp/tls
-# }
-
+  ((++wait_seconds))
+}
 
 # Copy the org's admin cert into some target MSP directory
 # We do this for the peer nodes
@@ -34,20 +24,4 @@ function copyAdminCert {
    # dowait "$ORG administator to enroll" 60 $SETUP_LOGFILE $ORG_ADMIN_CERT
    cp $ORG_ADMIN_CERT $dstDir
 }
-
-# # Create the TLS directories of the MSP folder if they don't exist.
-# # The fabric-ca-client should do this.
-# function finishMSPSetup {
-#    if [ $# -ne 1 ]; then
-#       fatal "Usage: finishMSPSetup <targetMSPDIR>"
-#    fi
-#    if [ ! -d $1/tlscacerts ]; then
-#       mkdir $1/tlscacerts
-#       cp $1/cacerts/* $1/tlscacerts
-#       if [ -d $1/intermediatecerts ]; then
-#          mkdir $1/tlsintermediatecerts
-#          cp $1/intermediatecerts/* $1/tlsintermediatecerts
-#       fi
-#    fi
-# }
 
