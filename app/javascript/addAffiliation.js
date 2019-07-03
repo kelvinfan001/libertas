@@ -6,45 +6,42 @@
 
 'use strict';
 
+module.exports = { addAffiliation }
+
 const { FileSystemWallet, Gateway } = require('fabric-network');
-const path = require('path');
 
-const ccpPath = path.resolve(__dirname, '..', '..', 'libertas-dev-network', 'connection-sipher.json');
-
-async function main() {
+/**
+ * Adds a new affiliation affiliationName in the CA provided in connectionProfilePath
+ * by using the admin credentials in walletPath.
+ * Must be admin to add affiliation.
+ * @param {string} walletPath 
+ * @param {string} connectionProfilePath 
+ * @param {string} affiliationName 
+ */
+async function addAffiliation(walletPath, connectionProfilePath, affiliationName) {
     try {
         // Create a new file system wallet for managing identities.
-        const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = new FileSystemWallet(walletPath);
 
-        // Check to see if an admin user exists in wallet.
-        const adminExists = await wallet.exists('admin');
+        // Check to see if admin credentials exist in wallet.
+        const adminExists = await wallet.exists('admin')
         if (!adminExists) {
-            console.log('No identity for admin exists in the wallet yet. Run the enrollAdmin.js program first');
+            console.log('Cannot find admin identity in wallet.');
             return;
         }
 
         // Create a new gateway for connecting to peer node.
         const gateway = new Gateway();
-        await gateway.connect(ccpPath, { wallet, identity: 'admin', discovery: { enabled: true, asLocalhost: true } });
+        await gateway.connect(connectionProfilePath, { wallet, identity: 'admin', discovery: { enabled: true, asLocalhost: true } });
 
-        // Get CA client object from gateway for interacting with CA.
+        // Get CA client object from gateway for interacting with CA. 
         const ca = gateway.getClient().getCertificateAuthority();
         const adminIdentity = gateway.getCurrentIdentity();
 
-        try {
-            await ca.newAffiliationService().create({ "name": "voting_district1" }, adminIdentity);
-        } catch (error) {
-            console.error(`Failed to add affiliation "voting_district1": ${error}`);
-            process.exit(1);
-        }
+        await ca.newAffiliationService().create({ "name": affiliationName }, adminIdentity);
 
-        console.log('Succesffuly added affiliation "voting_district1"');
-
+        console.log("Successfully added affiliation: " + affiliationName);
     } catch (error) {
-        console.error(`Failed to add affiliation "voting_district1": ${error}`);
-        process.exit(1);
+        throw new Error(`Failed to add affiliation: ` + affiliationName + ` ${error}`);
     }
 }
-
-main()
