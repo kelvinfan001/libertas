@@ -6,7 +6,7 @@
 
 'use strict';
 
-module.exports = { enrollAdmin};
+module.exports = {enrollAdmin};
 
 const FabricCAServices = require('fabric-ca-client');
 const { FileSystemWallet, X509WalletMixin } = require('fabric-network');

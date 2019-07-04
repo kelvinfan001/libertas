@@ -6,8 +6,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This shell script sets up the network based on the specfications in configtx.yaml and crypto-config.yaml and 
-# instantiates the chaincode. 
+# This shell script sets up the network based on the specfications in configtx.yaml and crypto-config.yaml 
+# and instantiates the chaincode. 
 #
 # POLICIES: one peer from Sipher AND one peer from WhiteBoxPlatform
 

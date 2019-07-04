@@ -109,7 +109,6 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 		return shim.Error("Incorrect number of arguments. Expecting 4.")
 	}
 
-	// TODO: THIS PART IS NOT WORKING. COMMENTING OUT FOR NOW. DEPENDENCY PROBELMS. VENDOR???
 	// Get the identity of the person calling this function.
 	id, err = cid.GetID(stub)
 	if err != nil {
@@ -127,7 +126,7 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 	json.Unmarshal(accountsListBytes, &accountsList)
 
 	// If account with id already exists in accountsList, return error
-	accountExists := queryById(id, accountsList.Accounts)
+	accountExists := queryByID(id, accountsList.Accounts)
 	if accountExists {
 		return shim.Error("This ID already exists")
 	}
@@ -149,8 +148,8 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 	return shim.Success(nil)
 }
 
-// QueryById queries existing accounts in the ledger for id and returns whether it exists.
-func (t *Libertas) QueryById(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+// QueryByID queries existing accounts in the ledger for id and returns whether it exists.
+func (t *Libertas) QueryByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
 	var id string
 	id = args[0]
@@ -167,7 +166,7 @@ func (t *Libertas) QueryById(stub shim.ChaincodeStubInterface, args []string) pb
 	accountsList := AccountsList{}
 	json.Unmarshal(accountsListBytes, &accountsList)
 
-	exists := queryById(id, accountsList.Accounts)
+	exists := queryByID(id, accountsList.Accounts)
 
 	// Buffer is a string indicating whether the id exists.
 	var buffer bytes.Buffer
@@ -183,7 +182,7 @@ func (t *Libertas) QueryById(stub shim.ChaincodeStubInterface, args []string) pb
 }
 
 // queryById queries the Accounts array for id and returns whether it exists.
-func queryById(id string, accounts []Account) bool {
+func queryByID(id string, accounts []Account) bool {
 
 	for _, v := range accounts {
 		if v.ID == id {
