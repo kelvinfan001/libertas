@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
 )
@@ -109,16 +110,16 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 	}
 
 	// TODO: THIS PART IS NOT WORKING. COMMENTING OUT FOR NOW. DEPENDENCY PROBELMS. VENDOR???
-	// // Get the identity of the person calling this function.
-	// id, err = cid.GetID(stub)
-	// if err != nil {
-	// 	return shim.Error(err.Error())
-	// }
-	// // Check if caller is admin.
-	// // TODO: SHOULD CHECK CERTIFICATE TO BE MORE RIGOROUS!
-	// if id != "admin" {
-	// 	return shim.Error("Cannot find admin credentials")
-	// }
+	// Get the identity of the person calling this function.
+	id, err = cid.GetID(stub)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	// Check if caller is admin.
+	// TODO: SHOULD CHECK CERTIFICATE TO BE MORE RIGOROUS!
+	if id != "admin" {
+		return shim.Error("Cannot find admin credentials")
+	}
 
 	// Get list of accounts from the ledger
 	accountsListBytes, err = stub.GetState("Accounts List")
