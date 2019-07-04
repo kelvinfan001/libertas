@@ -127,7 +127,7 @@ docker exec \
         --cafile ${ORDERER_TLS_ROOTCERT_FILE} \
 
 # install chaincode and instantiate
-echo "Installing smart contract \"voting\" on peer0 of Sipher"
+echo "Installing smart contract \"libertas\" on peer0 of Sipher"
 docker exec \
     -e CORE_PEER_LOCALMSPID=SipherMSP \
     -e CORE_PEER_ADDRESS=peer0.libertas.sipher.co:7051 \
@@ -140,7 +140,7 @@ docker exec \
         -p "$CC_SRC_PATH" \
         #-l "$CC_RUNTIME_LANGUAGE"
 
-echo "Installing smart contract \"voting\" on peer0 of WhiteBoxPlatform"
+echo "Installing smart contract \"libertas\" on peer0 of WhiteBoxPlatform"
 docker exec \
     -e CORE_PEER_LOCALMSPID=WhiteBoxPlatformMSP \
     -e CORE_PEER_ADDRESS=peer0.libertas.whiteboxplatform.com:9051 \
@@ -153,7 +153,7 @@ docker exec \
         -p "$CC_SRC_PATH" \
         #-l "$CC_RUNTIME_LANGUAGE"
 
-echo "Instantiating smart contract \"voting\" on testchannel"
+echo "Instantiating smart contract \"libertas\" on testchannel"
 docker exec \
     -e CORE_PEER_LOCALMSPID=SipherMSP \
     -e CORE_PEER_MSPCONFIGPATH=${SIPHER_MSPCONFIGPATH} \
