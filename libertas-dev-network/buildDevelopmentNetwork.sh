@@ -10,7 +10,7 @@
 PATH=$PATH:/home/kai/go/bin
 sudo -E env "PATH=$PATH" "$@"
 
-export IMAGE_TAG=latest 
+export IMAGE_TAG=1.2.1 # specify version to use here
 export COMPOSE_PROJECT_NAME=libertas-dev-network 
 
 # source ./scripts/env.sh
@@ -64,4 +64,5 @@ docker-compose -f docker-compose-cli.yaml up
 # docker exec cli /bin/sh -c "scripts/run.sh"
 
 
-# TODO >> fix registration issue, admin for cli, logs and wait
+# TODO >> fix ordering node crash, admin for cli, logs and wait
+

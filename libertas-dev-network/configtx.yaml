@@ -259,8 +259,8 @@ Channel: &ChannelDefaults
     # Capabilities describes the channel level capabilities, see the
     # dedicated Capabilities section elsewhere in this file for a full
     # description
-    Capabilities:
-        <<: *ChannelCapabilities
+    # Capabilities:
+    #     <<: *ChannelCapabilities
 
 ################################################################################
 #
@@ -278,8 +278,8 @@ Profiles:
             <<: *OrdererDefaults
             Organizations:
                 - *OrdererOrg
-            Capabilities:
-                <<: *OrdererCapabilities
+            # Capabilities:
+            #     <<: *OrdererCapabilities
         Consortiums:
             SampleConsortium:
                 Organizations:
