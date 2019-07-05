@@ -86,9 +86,11 @@ func (t *Libertas) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	if function == "CreateAccount" {
 		// Create a new account
 		return t.CreateAccount(stub, args)
+	} else if function == "QueryByID" {
+		return t.QueryByID(stub, args)
 	}
 
-	return shim.Error("Invalid invoke function name. Expecting \"newAccount\"")
+	return shim.Error("Invalid invoke function name. Expecting \"CreateAccount\", \"QueryByID\"")
 }
 
 // CreateAccount creates an account, if it doesn't already exist. Only admin can create account.
