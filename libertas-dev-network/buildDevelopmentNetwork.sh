@@ -10,8 +10,16 @@
 PATH=$PATH:/home/kai/go/bin
 sudo -E env "PATH=$PATH" "$@"
 
-export IMAGE_TAG=1.2.1 # specify version to use here
+export IMAGE_TAG=1.4.1 # specify version to use here
 export COMPOSE_PROJECT_NAME=libertas-dev-network 
+
+# build docker images for peer and ordering nodes compatible with fabric ca
+function build_docker_images {
+  docker build -f dockerbuild/fabric-ca-peer.dockerfile -t hyperledger/fabric-ca-peer:1.4.1 .
+  docker build -f dockerbuild/fabric-ca-orderer.dockerfile -t hyperledger/fabric-ca-orderer:1.4.1 .
+  # clean dangling images
+  docker rmi $(docker images -f "dangling=true" -q)
+}
 
 # source ./scripts/env.sh
 function wait_file {
@@ -22,6 +30,11 @@ function wait_file {
 
   ((++wait_seconds))
 }
+
+#-----------------------------------------------------MAIN-------------------------------------------------------
+
+echo "----------------------------------------Building Docker Images--------------------------------------------"
+build_docker_images
 
 # bring up CA docker containers
 echo "----------------------------------------Bringing up CA containers-----------------------------------------"
