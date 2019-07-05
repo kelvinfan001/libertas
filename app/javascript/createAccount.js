@@ -6,6 +6,8 @@
 
 'use strict';
 
+module.exports = { createAccount };
+
 const { FileSystemWallet, Gateway } = require('fabric-network');
 const path = require('path');
 
