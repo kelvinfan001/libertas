@@ -25,7 +25,7 @@ async function createAccount(connectionProfilePath, walletPath, channelName, con
 
         // Create a new gateway for connecting to peer node.
         const gateway = new Gateway();
-        await gateway.connect(connectionProfilePath, { wallet, identity: username, discovery: { enabled: true, asLocalhost: true } });
+        await gateway.connect(connectionProfilePath, { wallet, identity: 'admin', discovery: { enabled: true, asLocalhost: true } });
 
         // Get the network (channel) that our contract is deployed to.
         const network = await gateway.getNetwork(channelName);
@@ -44,5 +44,3 @@ async function createAccount(connectionProfilePath, walletPath, channelName, con
         process.exit(1);
     }
 }
-
-main();

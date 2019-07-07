@@ -45,5 +45,3 @@ async function queryByID(connectionProfilePath, walletPath, username, channelNam
         process.exit(1);
     }
 }
-
-main();
