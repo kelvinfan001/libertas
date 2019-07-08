@@ -21,12 +21,12 @@ import (
 
 // Account represents a user account.
 type Account struct {
-	ID        string
-	Name      string
-	Email     string
-	Kind      string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID          string
+	Name        string
+	Email       string
+	AccountType string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 // AccountsList is a list of accounts
@@ -95,14 +95,13 @@ func (t *Libertas) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 
 // CreateAccount creates an account, if it doesn't already exist. Only admin can create account.
 func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	var id, name, email, kind string
+	var id, name, email, accountType string
 	var accountsListBytes []byte
-	var err error
 
 	id = args[0]
 	name = args[1]
 	email = args[2]
-	kind = args[3]
+	accountType = args[3]
 	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
 	// Convert protobuf timestamp to Time data structure
 	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
@@ -111,17 +110,17 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 		return shim.Error("Incorrect number of arguments. Expecting 4.")
 	}
 
-	// Get the identity of the person calling this function.
-	id, err = cid.GetID(stub)
+	// Get the identity of the user calling this function and check if arguments match attributes.
+	val, ok, err := cid.GetAttributeValue(stub, "hf.EnrollmentID")
 	if err != nil {
-		return shim.Error(err.Error())
+		return shim.Error("Error retrieving enrollment ID")
 	}
-	// Check if caller is admin.
-	// TODO: SHOULD CHECK CERTIFICATE TO BE MORE RIGOROUS!
-	if id != "admin" {
-		return shim.Error("Cannot find admin credentials")
+	if !ok {
+		return shim.Error("The client identity does not possess this attribute")
 	}
-
+	if val != "admin" {
+		return shim.Error(val + "... this is not what I wanted")
+	}
 	// Get list of accounts from the ledger
 	accountsListBytes, err = stub.GetState("Accounts List")
 	accountsList := AccountsList{}
@@ -134,7 +133,7 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 	}
 
 	// Else, create Account and add account to list
-	newAccount := Account{id, name, email, kind, transactionTime, transactionTime}
+	newAccount := Account{id, name, email, accountType, transactionTime, transactionTime}
 	accountsList.Accounts = append(accountsList.Accounts, newAccount)
 
 	// Update state and put state on ledger

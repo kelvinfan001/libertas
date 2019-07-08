@@ -23,7 +23,7 @@ const fs = require('fs');
  * @param {string} enrollmentID 
  * @param {string} role 
  */
-async function registerUser(connectionProfilePath, walletPath, affiliation, enrollmentID, role) {
+async function registerUser(connectionProfilePath, walletPath, affiliation, enrollmentID, role, name, accountType) {
     try {
 
         // Create a new file system wallet  object for managing identities.
@@ -52,8 +52,9 @@ async function registerUser(connectionProfilePath, walletPath, affiliation, enro
         const adminIdentity = gateway.getCurrentIdentity();
 
         // Register the user.
-        const secret = await ca.register({ affiliation: affiliation, enrollmentID: enrollmentID, role: role }, adminIdentity);
-        console.log('Successfully registered user: ' + enrollmentID)
+        const attributes = [{ name: 'name', value: name }, { name: accountType, value: accountType}];
+        const secret = await ca.register({ affiliation: affiliation, enrollmentID: enrollmentID, role: role, attributes: attributes }, adminIdentity);
+        console.log('Successfully registered user: ' + enrollmentID);
 
         return secret;
 

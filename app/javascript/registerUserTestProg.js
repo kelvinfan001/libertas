@@ -16,7 +16,7 @@ const walletPath = path.join(process.cwd(), 'wallet')
 async function main() {
 
     try {
-        const secret = await registerEnrollUserModule.registerUser(ccpPath, walletPath, "voting_district1", "user1", "client");
+        const secret = await registerEnrollUserModule.registerUser(ccpPath, walletPath, "voting_district1", "kelvinfan", "client", "Kelvin Fan", "Personal");
 
         registerEnrollUserModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, "user1", secret, "SipherMSP");
 

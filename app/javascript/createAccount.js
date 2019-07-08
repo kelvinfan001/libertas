@@ -11,21 +11,22 @@ module.exports = { createAccount };
 const { FileSystemWallet, Gateway } = require('fabric-network');
 const path = require('path');
 
-async function createAccount(connectionProfilePath, walletPath, channelName, contractName, id, name, email, kind) {
+async function createAccount(connectionProfilePath, walletPath, channelName, contractName, id, name, email, accountType) {
+
     try {
         // Create a new file system based walllet for managing identities.
         const wallet = new FileSystemWallet(walletPath);
 
-        // Check to see if admin credentials exist in wallet. This is only a precursory check. 
-        const adminExists = await wallet.exists('admin');
-        if (!adminExists) {
-            console.log('Admin credentials do not exist in the wallet.')
+        // Check to see if user credentials exist in wallet. This is only a precursory check. 
+        const userExists = await wallet.exists(id);
+        if (!userExists) {
+            console.log('User credentials with id: ' + id + ' do not exist in the wallet.')
             return;
         }
 
         // Create a new gateway for connecting to peer node.
         const gateway = new Gateway();
-        await gateway.connect(connectionProfilePath, { wallet, identity: 'admin', discovery: { enabled: true, asLocalhost: true } });
+        await gateway.connect(connectionProfilePath, { wallet, identity: id, discovery: { enabled: true, asLocalhost: true } });
 
         // Get the network (channel) that our contract is deployed to.
         const network = await gateway.getNetwork(channelName);
@@ -34,7 +35,7 @@ async function createAccount(connectionProfilePath, walletPath, channelName, con
         const contract = network.getContract(contractName);
 
         // Submit the transaction.
-        await contract.submitTransaction('CreateAccount', id, name, email, kind);
+        await contract.submitTransaction('CreateAccount', id, name, email, accountType);
         console.log('Transaction has been submitted');
 
         // Disconnect from the gateway.
