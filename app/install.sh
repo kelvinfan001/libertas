@@ -6,8 +6,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This shell script sets up the network based on the specfications in configtx.yaml and crypto-config.yaml and 
-# instantiates the chaincode. 
+# This shell script sets up the network based on the specfications in configtx.yaml and crypto-config.yaml 
+# and instantiates the chaincode. 
 #
 # POLICIES: one peer from Sipher AND one peer from WhiteBoxPlatform
 
@@ -127,7 +127,7 @@ docker exec \
         --cafile ${ORDERER_TLS_ROOTCERT_FILE} \
 
 # install chaincode and instantiate
-echo "Installing smart contract \"voting\" on peer0 of Sipher"
+echo "Installing smart contract \"libertas\" on peer0 of Sipher"
 docker exec \
     -e CORE_PEER_LOCALMSPID=SipherMSP \
     -e CORE_PEER_ADDRESS=peer0.libertas.sipher.co:7051 \
@@ -136,11 +136,11 @@ docker exec \
     cli \
     peer chaincode install \
         -n libertas \
-        -v 1.1 \
+        -v 1.5.7 \
         -p "$CC_SRC_PATH" \
         #-l "$CC_RUNTIME_LANGUAGE"
 
-echo "Installing smart contract \"voting\" on peer0 of WhiteBoxPlatform"
+echo "Installing smart contract \"libertas\" on peer0 of WhiteBoxPlatform"
 docker exec \
     -e CORE_PEER_LOCALMSPID=WhiteBoxPlatformMSP \
     -e CORE_PEER_ADDRESS=peer0.libertas.whiteboxplatform.com:9051 \
@@ -149,11 +149,11 @@ docker exec \
     cli \
     peer chaincode install \
         -n libertas \
-        -v 1.1 \
+        -v 1.5.7 \
         -p "$CC_SRC_PATH" \
         #-l "$CC_RUNTIME_LANGUAGE"
 
-echo "Instantiating smart contract \"voting\" on testchannel"
+echo "Instantiating smart contract \"libertas\" on testchannel"
 docker exec \
     -e CORE_PEER_LOCALMSPID=SipherMSP \
     -e CORE_PEER_MSPCONFIGPATH=${SIPHER_MSPCONFIGPATH} \
@@ -162,7 +162,7 @@ docker exec \
         -o orderer.sipher.co:7050 \
         -C $CHANNEL_NAME \
         -n libertas \
-        -v 1.1 \
+        -v 1.5.7 \
         -c '{"Args":["init", "123", "derp"]}' \
         -P "AND('SipherMSP.member','WhiteBoxPlatformMSP.member')" \
         --tls \

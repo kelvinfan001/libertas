@@ -21,9 +21,11 @@ const fs = require('fs');
  * @param {string} walletPath            Path to wallet where admin credentials are stored.
  * @param {string} affiliation  
  * @param {string} enrollmentID 
- * @param {string} role 
+ * @param {string} role
+ * @param {string} name                  User's legal name. Must also be the name of user's Libertas account.
+ * @param {string} accountType           User's account type for Libertas account.
  */
-async function registerUser(connectionProfilePath, walletPath, affiliation, enrollmentID, role) {
+async function registerUser(connectionProfilePath, walletPath, affiliation, enrollmentID, role, name, accountType) {
     try {
 
         // Create a new file system wallet  object for managing identities.
@@ -52,8 +54,9 @@ async function registerUser(connectionProfilePath, walletPath, affiliation, enro
         const adminIdentity = gateway.getCurrentIdentity();
 
         // Register the user.
-        const secret = await ca.register({ affiliation: affiliation, enrollmentID: enrollmentID, role: role }, adminIdentity);
-        console.log('Successfully registered user: ' + enrollmentID)
+        const attributes = [{ name: 'name', value: name, ecert: true }, { name: 'accountType', value: accountType, ecert: true }, { name: 'id', value: enrollmentID, ecert: true}]; // Create attributes
+        const secret = await ca.register({ affiliation: affiliation, enrollmentID: enrollmentID, role: role, attrs: attributes }, adminIdentity);
+        console.log('Successfully registered user: ' + enrollmentID);
 
         return secret;
 
