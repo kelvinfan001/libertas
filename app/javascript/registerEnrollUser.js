@@ -47,15 +47,23 @@ async function registerUser(connectionProfilePath, walletPath, affiliation, enro
 
         // Create a new gateway for connecting to peer node.
         const gateway = new Gateway();
-        await gateway.connect(connectionProfilePath, { wallet, identity: 'admin', discovery: { enabled: true, asLocalhost: true } });
+        await gateway.connect(connectionProfilePath, {
+            wallet, identity: 'admin',
+            discovery: { enabled: true, asLocalhost: true }
+        });
 
         // Get CA client object from gateway for interacting with CA.
         const ca = gateway.getClient().getCertificateAuthority(); // here be dragons (don't need FabricCAServices() here?)
         const adminIdentity = gateway.getCurrentIdentity();
 
         // Register the user.
-        const attributes = [{ name: 'name', value: name, ecert: true }, { name: 'accountType', value: accountType, ecert: true }, { name: 'id', value: enrollmentID, ecert: true}]; // Create attributes
-        const secret = await ca.register({ affiliation: affiliation, enrollmentID: enrollmentID, role: role, attrs: attributes }, adminIdentity);
+        const attributes = [{ name: 'name', value: name, ecert: true },
+            { name: 'accountType', value: accountType, ecert: true },
+            { name: 'id', value: enrollmentID, ecert: true }]; // Create attributes
+        const secret = await ca.register({
+            affiliation: affiliation, enrollmentID: enrollmentID,
+            role: role, attrs: attributes
+        }, adminIdentity);
         console.log('Successfully registered user: ' + enrollmentID);
 
         return secret;
@@ -79,7 +87,8 @@ async function registerUser(connectionProfilePath, walletPath, affiliation, enro
  * @param {string} enrollmentSecret 
  * @param {string} mspID 
  */
-async function enrollUser(connectionProfilePath, walletPath, caDomain, networkDirPath, enrollmentID, enrollmentSecret, mspID) {
+async function enrollUser(connectionProfilePath, walletPath, caDomain, networkDirPath, enrollmentID,
+    enrollmentSecret, mspID) {
 
     const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
     const ccp = JSON.parse(ccpJSON);

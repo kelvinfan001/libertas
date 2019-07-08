@@ -22,7 +22,8 @@ const path = require('path');
  * @param {string} email                 Email associated with new account.
  * @param {string} accountType           Account type for new account. Must be accountType registered with this ID.
  */
-async function createAccount(connectionProfilePath, walletPath, channelName, contractName, id, name, email, accountType) {
+async function createAccount(connectionProfilePath, walletPath, channelName, contractName,
+    id, name, email, accountType) {
 
     try {
         // Create a new file system based walllet for managing identities.
@@ -37,7 +38,10 @@ async function createAccount(connectionProfilePath, walletPath, channelName, con
 
         // Create a new gateway for connecting to peer node.
         const gateway = new Gateway();
-        await gateway.connect(connectionProfilePath, { wallet, identity: id, discovery: { enabled: true, asLocalhost: true } });
+        await gateway.connect(connectionProfilePath, {
+            wallet, identity: id,
+            discovery: { enabled: true, asLocalhost: true }
+        });
 
         // Get the network (channel) that our contract is deployed to.
         const network = await gateway.getNetwork(channelName);

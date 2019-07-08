@@ -27,7 +27,8 @@ const path = require('path');
  * @param {string} enrollmentSecret      Enrolment secret for admin.
  * @param {string} mspID                 MSP ID for creating identity object.
  */
-async function enrollAdmin(connectionProfilePath, caDomain, networkDirPath, walletPath, enrollmentID, enrollmentSecret, mspID) {
+async function enrollAdmin(connectionProfilePath, caDomain, networkDirPath, walletPath, enrollmentID,
+    enrollmentSecret, mspID) {
     const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
     const ccp = JSON.parse(ccpJSON);
 

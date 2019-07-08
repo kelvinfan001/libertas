@@ -58,7 +58,8 @@ func (t *Libertas) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	projectCreateTimeProtobuf, _ := stub.GetTxTimestamp()
 
 	// Convert protobuf timestamp to Time data structure
-	projectCreateTimeVal := time.Unix(projectCreateTimeProtobuf.Seconds, int64(projectCreateTimeProtobuf.Nanos))
+	projectCreateTimeVal := time.Unix(projectCreateTimeProtobuf.Seconds, 
+		int64(projectCreateTimeProtobuf.Nanos))
 
 	// Write state to ledger
 	err = stub.PutState(projectID, []byte(projectIDVal))
@@ -209,7 +210,8 @@ func checkParameters(stub shim.ChaincodeStubInterface, attribute string, paramet
 		return false, errors.New("The client identity does not possess attribute: " + attribute)
 	}
 	if val != parameter {
-		return false, errors.New("User is not registered with " + parameter + ". Must create account with registered attributes. See README.md for more details.")
+		return false, errors.New("User is not registered with " + parameter + 
+		". Must create account with registered attributes. See README.md for more details.")
 	}
 	return true, nil
 }
