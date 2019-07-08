@@ -11,6 +11,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -111,16 +112,19 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 	}
 
 	// Get the identity of the user calling this function and check if arguments match attributes.
-	val, ok, err := cid.GetAttributeValue(stub, "hf.EnrollmentID")
-	if err != nil {
-		return shim.Error("Error retrieving enrollment ID")
+	idOK, err := checkParameters(stub, "id", id)
+	if !idOK {
+		return shim.Error(err.Error())
 	}
-	if !ok {
-		return shim.Error("The client identity does not possess this attribute")
+	nameOK, err := checkParameters(stub, "name", name)
+	if !nameOK {
+		return shim.Error(err.Error())
 	}
-	if val != "admin" {
-		return shim.Error(val + "... this is not what I wanted")
+	accountTypeOK, err := checkParameters(stub, "accountType", accountType)
+	if !accountTypeOK {
+		return shim.Error(err.Error())
 	}
+
 	// Get list of accounts from the ledger
 	accountsListBytes, err = stub.GetState("Accounts List")
 	accountsList := AccountsList{}
@@ -194,9 +198,25 @@ func queryByID(id string, accounts []Account) bool {
 	return false
 }
 
+// checkParameters checks whether parameter matches with the caller's certificates attributes.
+// Returns true if attribute matches.
+func checkParameters(stub shim.ChaincodeStubInterface, attribute string, parameter string) (bool, error) {
+	val, ok, err := cid.GetAttributeValue(stub, attribute)
+	if err != nil {
+		return false, err
+	}
+	if !ok {
+		return false, errors.New("The client identity does not possess attribute: " + attribute)
+	}
+	if val != parameter {
+		return false, errors.New("User is not registered with " + parameter + ". Must create account with registered attributes. See README.md for more details.")
+	}
+	return true, nil
+}
+
 func main() {
 	err := shim.Start(new(Libertas))
 	if err != nil {
-		fmt.Printf("Error starting Account: %s", err)
+		fmt.Printf("Error starting Libertas: %s", err)
 	}
 }

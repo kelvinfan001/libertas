@@ -51,7 +51,7 @@ async function enrollAdmin(connectionProfilePath, caDomain, networkDirPath, wall
         // Enroll the admin user.
         const enrollment = await ca.enroll({ enrollmentID: enrollmentID, enrollmentSecret: enrollmentSecret });
         // Import the new identity into the wallet.
-        const identity = X509WalletMixin.createIdentity(mspID, enrollment.certificate, enrollment.key.toBytes());
+        const identity = await X509WalletMixin.createIdentity(mspID, enrollment.certificate, enrollment.key.toBytes());
         await wallet.import('admin', identity)
 
     } catch (error) {

@@ -136,7 +136,7 @@ docker exec \
     cli \
     peer chaincode install \
         -n libertas \
-        -v 1.5.1 \
+        -v 1.5.7 \
         -p "$CC_SRC_PATH" \
         #-l "$CC_RUNTIME_LANGUAGE"
 
@@ -149,7 +149,7 @@ docker exec \
     cli \
     peer chaincode install \
         -n libertas \
-        -v 1.5.1 \
+        -v 1.5.7 \
         -p "$CC_SRC_PATH" \
         #-l "$CC_RUNTIME_LANGUAGE"
 
@@ -162,7 +162,7 @@ docker exec \
         -o orderer.sipher.co:7050 \
         -C $CHANNEL_NAME \
         -n libertas \
-        -v 1.5.1 \
+        -v 1.5.7 \
         -c '{"Args":["init", "123", "derp"]}' \
         -P "AND('SipherMSP.member','WhiteBoxPlatformMSP.member')" \
         --tls \
