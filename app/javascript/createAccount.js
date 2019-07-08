@@ -11,6 +11,17 @@ module.exports = { createAccount };
 const { FileSystemWallet, Gateway } = require('fabric-network');
 const path = require('path');
 
+/**
+ * Calls the createAccount function on chaincode.
+ * @param {string} connectionProfilePath Path to connection profile.
+ * @param {string} walletPath 
+ * @param {string} channelName 
+ * @param {string} contractName 
+ * @param {string} id                    ID for new account. Must be same as enrollmentID.
+ * @param {string} name                  Name for new account. Must be name registered with this id.
+ * @param {string} email                 Email associated with new account.
+ * @param {string} accountType           Account type for new account. Must be accountType registered with this ID.
+ */
 async function createAccount(connectionProfilePath, walletPath, channelName, contractName, id, name, email, accountType) {
 
     try {
