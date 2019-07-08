@@ -1,5 +1,15 @@
-# Development Network
+# Libertas
 
+## App Usage
+### Step 1: Network-related registration.
+1. Administrator registers new user identities with the CA by providing **enrollmentID**, **affiliation**, and **role**. CA returns enrollment **secret** to administrator. Additionally, the administrator will need to provide the new user's legal **name** and **accountType** as attributes to be used by the Libertas account. 
+2. Administrator provides enrollment ID and secret to actual users (through mail, email, or other secure means).
+3. Users enroll their identities on the network with the provided enrollment ID and secret. 
+### Step 2: App-related registration.
+1. Users create Libertas account by providing their **id**, **name**, **email**, and **accountType**. The **id** must be the same as the network enrollment ID provided by the administrator, **name** must be the user's legal name, and **accountType** must be the correct **accountType**. The user may choose an **email** to be associated with this Libertas account.
+2. Users may call chaincode functions by providing their network identities (through their wallets), which are now associated with a unique Libertas account. 
+
+## Network
 Use buildDevelopmentNetwork.sh to bring up a two-organization, solo fabric network with credentials pre-generated 
 using the cryptogen tool. Docker containers are on debug mode. 
 
