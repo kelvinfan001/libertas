@@ -15,8 +15,8 @@ const walletPath = path.join(process.cwd(), 'wallet')
 async function main() {
 
     try {
-        var userExists = queryByIDModule.queryByID(ccpPath, walletPath, 'kelvinfan', 'test', 'libertas', 'kailonghuang');
-        if (userExists) {
+        const userExists = await queryByIDModule.queryByID(ccpPath, walletPath, 'kelvinfan', 'test', 'libertas', 'kailonghuang');
+        if (userExists === 'true') {
             console.log('ID kailonghuang exists');
         } else {
             console.log('ID kailonghuang does not exist');
