@@ -14,9 +14,9 @@ const path = require('path');
 /**
  * Calls the createAccount function on chaincode.
  * @param {string} connectionProfilePath Path to connection profile.
- * @param {string} walletPath 
- * @param {string} channelName 
- * @param {string} contractName 
+ * @param {string} walletPath            Path to wallet containing user certificate and private/public keys.
+ * @param {string} channelName           Name of network channel as specified in 'install.sh'
+ * @param {string} contractName          Name of contract installed as specified in 'install.sh'
  * @param {string} id                    ID for new account. Must be same as enrollmentID.
  * @param {string} name                  Name for new account. Must be name registered with this id.
  * @param {string} email                 Email associated with new account.

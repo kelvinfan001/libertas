@@ -22,7 +22,12 @@ CC_SRC_LANGUAGE=go
 CC_RUNTIME_LANGUAGE=golang
 # directory for chaincode to install
 CC_SRC_PATH=github.com/chaincode/libertas
+# set channel name
 export CHANNEL_NAME=test
+# set contract (chaincode) name
+CONTRACT_NAME=libertas
+# set chaincode version
+CHAINCODE_VERSION=1.5.8
 
 # clean the keystore
 rm -rf ./hfc-key-store
@@ -135,8 +140,8 @@ docker exec \
     -e CORE_PEER_TLS_ROOTCERT_FILE=${SIPHER_TLS_ROOTCERT_FILE} \
     cli \
     peer chaincode install \
-        -n libertas \
-        -v 1.5.7 \
+        -n $CONTRACT_NAME \
+        -v $CHAINCODE_VERSION \
         -p "$CC_SRC_PATH" \
         #-l "$CC_RUNTIME_LANGUAGE"
 
@@ -148,8 +153,8 @@ docker exec \
     -e CORE_PEER_TLS_ROOTCERT_FILE=${WHITEBOXPLATFORM_TLS_ROOTCERT_FILE} \
     cli \
     peer chaincode install \
-        -n libertas \
-        -v 1.5.7 \
+        -n $CONTRACT_NAME \
+        -v $CHAINCODE_VERSION \
         -p "$CC_SRC_PATH" \
         #-l "$CC_RUNTIME_LANGUAGE"
 
@@ -161,8 +166,8 @@ docker exec \
     peer chaincode instantiate \
         -o orderer.sipher.co:7050 \
         -C $CHANNEL_NAME \
-        -n libertas \
-        -v 1.5.7 \
+        -n $CONTRACT_NAME \
+        -v $CHAINCODE_VERSION \
         -c '{"Args":["init", "123", "derp"]}' \
         -P "AND('SipherMSP.member','WhiteBoxPlatformMSP.member')" \
         --tls \
