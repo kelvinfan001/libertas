@@ -25,13 +25,19 @@
     },
     "peers": {
         "peer0.libertas.sipher.co": {
-            "url": "grpc://localhost:7051",
+            "url": "grpcs://localhost:7051",
+            "tlsCACerts": {
+                "path": "crypto-config/peerOrganizations/libertas.sipher.co/tlsca/tlsca.libertas.sipher.co-cert.pem"
+            },
             "grpcOptions": {
                 "ssl-target-name-override": "peer0.libertas.sipher.co"
             }
         },
         "peer1.libertas.sipher.co": {
-            "url": "grpc://localhost:8051",
+            "url": "grpcs://localhost:8051",
+            "tlsCACerts": {
+                "path": "crypto-config/peerOrganizations/libertas.sipher.co/tlsca/tlsca.libertas.sipher.co-cert.pem"
+            },
             "grpcOptions": {
                 "ssl-target-name-override": "peer1.libertas.sipher.co"
             }
@@ -39,21 +45,14 @@
     },
     "certificateAuthorities": {
         "ca.libertas.sipher.co": {
-            "url": "http://0.0.0.0:7054",
+            "url": "https://localhost:7054",
             "caName": "ca-sipher",
+            "tlsCACerts": {
+                "path": "crypto-config/peerOrganizations/libertas.sipher.co/tlsca/tlsca.libertas.sipher.co-cert.pem"
+            },
             "httpOptions": {
                 "verify": false
             }
         }
-    },
-    "orderers": {
-        "orderer.sipher.co": {
-            "url": "grpc://localhost:7050",
-            "grpcOptions": {
-                "ssl-target-name-override": "orderer.sipher.co"
-            }
-        }
-    },
-    "initialize-with-discovery": true
+    }
 }
-

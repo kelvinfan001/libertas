@@ -15,47 +15,33 @@ services:
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-sipher
-      - FABRIC_CA_SERVER_TLS_ENABLED=false
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.libertas.sipher.co-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/${DEV_NETWORK_CA1_PRIVATE_KEY}
       - FABRIC_CA_SERVER_PORT=7054
-      - FABRIC_ORGS=ordsipher sipher whiteboxplatform #
-      # - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.libertas.sipher.co-cert.pem
-      # - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/${DEV_NETWORK_CA1_PRIVATE_KEY}
-
-      # - ORG=sipher
-      # - DEV_NETWORK_CA_PRIVATE_KEY=${DEV_NETWORK_CA1_PRIVATE_KEY}
     ports:
       - "7054:7054"
-    command: sh -c './scripts/start-ca.sh'
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.libertas.sipher.co-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/${DEV_NETWORK_CA1_PRIVATE_KEY} -b admin:adminpw -d'
     volumes:
-      # - ./crypto-config/peerOrganizations/libertas.sipher.co/ca/:/etc/hyperledger/fabric-ca-server-config
-      - ./data:/data
-      - ./scripts:/scripts
-    container_name: ca-sipher
+      - ./crypto-config/peerOrganizations/libertas.sipher.co/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerSipher
     networks:
       - dev_network
-  
 
   ca1:
-    image: hyperledger/fabric-ca:latest
+    image: hyperledger/fabric-ca:$IMAGE_TAG
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-whiteboxplatform
-      - FABRIC_CA_SERVER_TLS_ENABLED=false
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.libertas.whiteboxplatform.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/${DEV_NETWORK_CA2_PRIVATE_KEY}
       - FABRIC_CA_SERVER_PORT=8054
-      - FABRIC_ORGS=ordsipher sipher whiteboxplatform #
-
-      # - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.libertas.whiteboxplatform.com-cert.pem
-      # - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/${DEV_NETWORK_CA2_PRIVATE_KEY}
-
-      # - ORG=whiteboxplatform
-      # - DEV_NETWORK_CA_PRIVATE_KEY=${DEV_NETWORK_CA2_PRIVATE_KEY}
     ports:
       - "8054:8054"
-    command: sh -c './scripts/start-ca.sh'
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.libertas.whiteboxplatform.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/${DEV_NETWORK_CA2_PRIVATE_KEY} -b admin:adminpw -d'
     volumes:
-      # - ./crypto-config/peerOrganizations/libertas.whiteboxplatform.com/ca/:/etc/hyperledger/fabric-ca-server-config
-      - ./data:/data
-      - ./scripts:/scripts
-    container_name: ca-whitebox
+      - ./crypto-config/peerOrganizations/libertas.whiteboxplatform.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerWhiteBoxPlatform
     networks:
       - dev_network

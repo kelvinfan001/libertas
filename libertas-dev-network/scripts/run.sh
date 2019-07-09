@@ -3,8 +3,7 @@ cd ..
 # Create channel
 export CHANNEL_NAME=mychannel
 
-# peer channel create -o orderer.example.com:7050 -c $CHANNEL_NAME -f ./channel-artifacts/channel.tx --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
-peer channel create -o orderer.sipher.co:7050 -c $CHANNEL_NAME -f ./channel-artifacts/channel.tx 
+peer channel create -o orderer.example.com:7050 -c $CHANNEL_NAME -f ./channel-artifacts/channel.tx --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 echo "Channel creation complete"
 
 # Join channel

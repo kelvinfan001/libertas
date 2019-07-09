@@ -1,0 +1,59 @@
+{
+    "name": "my-network-sipher",
+    "version": "1.0.0",
+    "client": {
+        "organization": "Sipher",
+        "connection": {
+            "timeout": {
+                "peer": {
+                    "endorser": "300"
+                }
+            }
+        }
+    },
+    "organizations": {
+        "Sipher": {
+            "mspid": "SipherMSP",
+            "peers": [
+                "peer0.libertas.sipher.co",
+                "peer1.libertas.sipher.co"
+            ],
+            "certificateAuthorities": [
+                "ca.libertas.sipher.co"
+            ]
+        }
+    },
+    "peers": {
+        "peer0.libertas.sipher.co": {
+            "url": "grpc://localhost:7051",
+            "grpcOptions": {
+                "ssl-target-name-override": "peer0.libertas.sipher.co"
+            }
+        },
+        "peer1.libertas.sipher.co": {
+            "url": "grpc://localhost:8051",
+            "grpcOptions": {
+                "ssl-target-name-override": "peer1.libertas.sipher.co"
+            }
+        }
+    },
+    "certificateAuthorities": {
+        "ca.libertas.sipher.co": {
+            "url": "http://0.0.0.0:7054",
+            "caName": "ca-sipher",
+            "httpOptions": {
+                "verify": false
+            }
+        }
+    },
+    "orderers": {
+        "orderer.sipher.co": {
+            "url": "grpc://localhost:7050",
+            "grpcOptions": {
+                "ssl-target-name-override": "orderer.sipher.co"
+            }
+        }
+    },
+    "initialize-with-discovery": true
+}
+

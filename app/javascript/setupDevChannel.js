@@ -167,6 +167,13 @@ setupDevChannel(channelName, channeltxPath, ordererName, ccpPath)
 
 // need opcode stuff for args >> also need user to specify computer account name 
 
+// make cryptogen version support no TLS
+
 // eventually, support TLS
 
 // discovery feature for connection profile means that we just have to have a couple of nodes >> the rest are discovered
+
+
+
+curl -X POST --data-binary @../libertas-dev-network/channel-artifacts/genesis.block http://127.0.0.1:7059/protolator/decode/common.Block > genesis.json
+curl -X POST --data-binary @../libertas-dev-network/channel-artifacts/channel.tx http://127.0.0.1:7059/protolator/decode/common.Envelope > channel.json     

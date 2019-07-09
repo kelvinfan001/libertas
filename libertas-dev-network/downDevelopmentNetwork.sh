@@ -1,16 +1,16 @@
-#!/usr/bin/sudo bash
 # Use this script to bring down the network and clean network-specific artifacts.
 
 set -x
 
 # clean up docker containers
 docker kill $(docker ps -q)
+docker rm $(docker ps -aq)
 docker system prune --volumes << !
 y
 !
-docker rmi $(docker images -a)
 
 # delete blocks and certificates, if already existing
-rm -rf ./channel-artifacts/
-rm -rf ./crypto-config/
-rm -rf ./data/
+rm -f ./channel-artifacts/*
+rm -f -r ./crypto-config/*
+
+set +x
