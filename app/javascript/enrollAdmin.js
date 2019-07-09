@@ -6,7 +6,7 @@
 
 'use strict';
 
-module.exports = { enrollAdmin};
+module.exports = {enrollAdmin};
 
 const FabricCAServices = require('fabric-ca-client');
 const { FileSystemWallet, X509WalletMixin } = require('fabric-network');
@@ -27,7 +27,8 @@ const path = require('path');
  * @param {string} enrollmentSecret      Enrolment secret for admin.
  * @param {string} mspID                 MSP ID for creating identity object.
  */
-async function enrollAdmin(connectionProfilePath, caDomain, networkDirPath, walletPath, enrollmentID, enrollmentSecret, mspID) {
+async function enrollAdmin(connectionProfilePath, caDomain, networkDirPath, walletPath, enrollmentID,
+    enrollmentSecret, mspID) {
     const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
     const ccp = JSON.parse(ccpJSON);
 
@@ -54,7 +55,7 @@ async function enrollAdmin(connectionProfilePath, caDomain, networkDirPath, wall
         // Enroll the admin user.
         const enrollment = await ca.enroll({ enrollmentID: enrollmentID, enrollmentSecret: enrollmentSecret });
         // Import the new identity into the wallet.
-        const identity = X509WalletMixin.createIdentity(mspID, enrollment.certificate, enrollment.key.toBytes());
+        const identity = await X509WalletMixin.createIdentity(mspID, enrollment.certificate, enrollment.key.toBytes());
         await wallet.import('admin', identity)
 
     } catch (error) {

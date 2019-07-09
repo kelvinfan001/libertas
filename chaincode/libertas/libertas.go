@@ -11,21 +11,23 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
+	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
 )
 
 // Account represents a user account.
 type Account struct {
-	ID        string
-	Name      string
-	Email     string
-	Kind      string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID          string
+	Name        string
+	Email       string
+	AccountType string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 // AccountsList is a list of accounts
@@ -56,7 +58,8 @@ func (t *Libertas) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	projectCreateTimeProtobuf, _ := stub.GetTxTimestamp()
 
 	// Convert protobuf timestamp to Time data structure
-	projectCreateTimeVal := time.Unix(projectCreateTimeProtobuf.Seconds, int64(projectCreateTimeProtobuf.Nanos))
+	projectCreateTimeVal := time.Unix(projectCreateTimeProtobuf.Seconds, 
+		int64(projectCreateTimeProtobuf.Nanos))
 
 	// Write state to ledger
 	err = stub.PutState(projectID, []byte(projectIDVal))
@@ -85,21 +88,22 @@ func (t *Libertas) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	if function == "CreateAccount" {
 		// Create a new account
 		return t.CreateAccount(stub, args)
+	} else if function == "QueryByID" {
+		return t.QueryByID(stub, args)
 	}
 
-	return shim.Error("Invalid invoke function name. Expecting \"newAccount\"")
+	return shim.Error("Invalid invoke function name. Expecting \"CreateAccount\", \"QueryByID\"")
 }
 
 // CreateAccount creates an account, if it doesn't already exist. Only admin can create account.
 func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	var id, name, email, kind string
+	var id, name, email, accountType string
 	var accountsListBytes []byte
-	var err error
 
 	id = args[0]
 	name = args[1]
 	email = args[2]
-	kind = args[3]
+	accountType = args[3]
 	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
 	// Convert protobuf timestamp to Time data structure
 	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
@@ -108,17 +112,19 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 		return shim.Error("Incorrect number of arguments. Expecting 4.")
 	}
 
-	// TODO: THIS PART IS NOT WORKING. COMMENTING OUT FOR NOW. DEPENDENCY PROBELMS. VENDOR???
-	// // Get the identity of the person calling this function.
-	// id, err = cid.GetID(stub)
-	// if err != nil {
-	// 	return shim.Error(err.Error())
-	// }
-	// // Check if caller is admin.
-	// // TODO: SHOULD CHECK CERTIFICATE TO BE MORE RIGOROUS!
-	// if id != "admin" {
-	// 	return shim.Error("Cannot find admin credentials")
-	// }
+	// Get the identity of the user calling this function and check if arguments match attributes.
+	idOK, err := checkParameters(stub, "id", id)
+	if !idOK {
+		return shim.Error(err.Error())
+	}
+	nameOK, err := checkParameters(stub, "name", name)
+	if !nameOK {
+		return shim.Error(err.Error())
+	}
+	accountTypeOK, err := checkParameters(stub, "accountType", accountType)
+	if !accountTypeOK {
+		return shim.Error(err.Error())
+	}
 
 	// Get list of accounts from the ledger
 	accountsListBytes, err = stub.GetState("Accounts List")
@@ -126,13 +132,13 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 	json.Unmarshal(accountsListBytes, &accountsList)
 
 	// If account with id already exists in accountsList, return error
-	accountExists := queryById(id, accountsList.Accounts)
+	accountExists := queryByID(id, accountsList.Accounts)
 	if accountExists {
 		return shim.Error("This ID already exists")
 	}
 
 	// Else, create Account and add account to list
-	newAccount := Account{id, name, email, kind, transactionTime, transactionTime}
+	newAccount := Account{id, name, email, accountType, transactionTime, transactionTime}
 	accountsList.Accounts = append(accountsList.Accounts, newAccount)
 
 	// Update state and put state on ledger
@@ -148,8 +154,8 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 	return shim.Success(nil)
 }
 
-// QueryById queries existing accounts in the ledger for id and returns whether it exists.
-func (t *Libertas) QueryById(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+// QueryByID queries existing accounts in the ledger for id and returns whether it exists.
+func (t *Libertas) QueryByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
 	var id string
 	id = args[0]
@@ -166,7 +172,7 @@ func (t *Libertas) QueryById(stub shim.ChaincodeStubInterface, args []string) pb
 	accountsList := AccountsList{}
 	json.Unmarshal(accountsListBytes, &accountsList)
 
-	exists := queryById(id, accountsList.Accounts)
+	exists := queryByID(id, accountsList.Accounts)
 
 	// Buffer is a string indicating whether the id exists.
 	var buffer bytes.Buffer
@@ -182,7 +188,7 @@ func (t *Libertas) QueryById(stub shim.ChaincodeStubInterface, args []string) pb
 }
 
 // queryById queries the Accounts array for id and returns whether it exists.
-func queryById(id string, accounts []Account) bool {
+func queryByID(id string, accounts []Account) bool {
 
 	for _, v := range accounts {
 		if v.ID == id {
@@ -193,9 +199,26 @@ func queryById(id string, accounts []Account) bool {
 	return false
 }
 
+// checkParameters checks whether parameter matches with the caller's certificates attributes.
+// Returns true if attribute matches.
+func checkParameters(stub shim.ChaincodeStubInterface, attribute string, parameter string) (bool, error) {
+	val, ok, err := cid.GetAttributeValue(stub, attribute)
+	if err != nil {
+		return false, err
+	}
+	if !ok {
+		return false, errors.New("The client identity does not possess attribute: " + attribute)
+	}
+	if val != parameter {
+		return false, errors.New("User is not registered with " + parameter + 
+		". Must create account with registered attributes. See README.md for more details.")
+	}
+	return true, nil
+}
+
 func main() {
 	err := shim.Start(new(Libertas))
 	if err != nil {
-		fmt.Printf("Error starting Account: %s", err)
+		fmt.Printf("Error starting Libertas: %s", err)
 	}
 }
