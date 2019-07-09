@@ -9,7 +9,7 @@
 1. Users create Libertas account by providing their **id**, **name**, **email**, and **accountType**. The **id** must be the same as the network enrollment ID provided by the administrator, **name** must be the user's legal name, and **accountType** must be the correct **accountType**. The user may choose an **email** to be associated with this Libertas account.
 2. Users may call chaincode functions by providing their network identities (through their wallets), which are now associated with a unique Libertas account.
 
-Note: Steps 1.3 and 1.1 should probably seem like a single "Create Account" step in the UI.
+Note: Steps 1.3 and 2.1 should probably seem like a single "Create Account" step in the UI.
 
 ## Network
 Use buildDevelopmentNetwork.sh to bring up a two-organization, solo fabric network with credentials pre-generated 
