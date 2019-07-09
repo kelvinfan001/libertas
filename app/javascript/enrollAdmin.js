@@ -34,8 +34,11 @@ async function enrollAdmin(connectionProfilePath, caDomain, networkDirPath, wall
     try {
         // Create a new CA client for interacting with the CA.
         const caInfo = ccp.certificateAuthorities[caDomain];
-        const caTLSCACertsPath = path.resolve(networkDirPath, caInfo.tlsCACerts.path);
-        const caTLSCACerts = fs.readFileSync(caTLSCACertsPath);
+        // const caTLSCACertsPath = path.resolve(networkDirPath, caInfo.tlsCACerts.path);
+        // const caTLSCACerts = fs.readFileSync(caTLSCACertsPath);
+        
+        // need to disable TLS for now
+        const caTLSCACerts = []
         const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.Name);
 
         // Create a new file system based wallet for managing identities.

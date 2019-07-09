@@ -7,7 +7,7 @@
 
 # This shell script assumes that the required docker images have been installed
 
-PATH=$PATH:/home/kai/go/bin
+PATH=$PATH:/home/kai/go/bin # we can have an arg for user
 sudo -E env "PATH=$PATH" "$@"
 
 export IMAGE_TAG=1.4.1 # specify version to use here
@@ -55,7 +55,7 @@ export FABRIC_CFG_PATH=$PWD
 
 # # create genesis block
 # # channelID... here be dragons...
-export CHANNEL_NAME=channel
+export CHANNEL_NAME=mychannel
 mkdir channel-artifacts
 ../bin/configtxgen -profile TwoOrgsOrdererDevNetworkGenesis -channelID $CHANNEL_NAME -outputBlock ./channel-artifacts/genesis.block
 
@@ -77,5 +77,5 @@ docker-compose -f docker-compose-cli.yaml up
 # docker exec cli /bin/sh -c "scripts/run.sh"
 
 
-# TODO >> fix ordering node crash, admin for cli, logs and wait
+# TODO >> make admin user msp for cli, logs and wait
 
