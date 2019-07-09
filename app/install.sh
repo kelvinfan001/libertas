@@ -9,7 +9,7 @@
 # This shell script sets up the network based on the specfications in configtx.yaml and crypto-config.yaml 
 # and instantiates the chaincode. 
 #
-# POLICIES: one peer from Sipher AND one peer from WhiteBoxPlatform
+# POLICIES: one peer from Sipher AND one peer from WhiteBoxPlatform. Modifiable. 
 
 # Exit on first error
 set -e

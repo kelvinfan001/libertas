@@ -15,7 +15,8 @@ const walletPath = path.join(process.cwd(), 'wallet')
 async function main() {
 
     try {
-        createAccountModule.createAccount(ccpPath, walletPath, "test", "libertas", "kelvinfan", "Kelvin Fan", "kelvin@sipher.co", "Personal");
+        await createAccountModule.createAccount(ccpPath, walletPath, "test", "libertas", "kelvinfan", "Kelvin Fan", "kelvin@sipher.co", "Personal");
+        await createAccountModule.createAccount(ccpPath, walletPath, "test", "libertas", "kailonghuang", "Kailong Huang", "kailong@sipher.co", "Personal");
     } catch (error) {
         console.error(`${error}`);
         process.exit(1);
