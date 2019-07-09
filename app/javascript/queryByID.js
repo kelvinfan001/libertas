@@ -44,8 +44,8 @@ async function queryByID(connectionProfilePath, walletPath, id, channelName, con
         const contract = network.getContract(contractName);
 
         // Submit the transaction.
-        const queryResult = await contract.submitTransaction('QueryByID', idToQuery);
-        console.log('Transaction has been submitted');
+        const queryResult = await contract.evaluateTransaction('QueryByID', idToQuery);
+        console.log('Query Success.');
 
         // Disconnect from the gateway.
         await gateway.disconnect();
