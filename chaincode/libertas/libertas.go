@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  *
- * TODO: provide better documentation.
+ * TODO: provide better documentation. In dire need for refactoring :(
  */
 
 package main
@@ -30,7 +30,7 @@ type Account struct {
 	UpdatedAt   time.Time
 }
 
-// AccountsList is a list of accounts
+// AccountsList is a list of accounts.
 type AccountsList struct {
 	Accounts []Account
 }
@@ -50,30 +50,33 @@ func (t *Libertas) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	}
 
 	// Initialize fields for storing on ledger
-	projectID := "Project ID"
 	projectIDVal := args[0]
-	projectName := "Project Name"
 	projectNameVal := args[1]
-	projectCreateTime := "Project Create Time"
 	projectCreateTimeProtobuf, _ := stub.GetTxTimestamp()
-
 	// Convert protobuf timestamp to Time data structure
-	projectCreateTimeVal := time.Unix(projectCreateTimeProtobuf.Seconds, 
+	projectCreateTimeVal := time.Unix(projectCreateTimeProtobuf.Seconds,
 		int64(projectCreateTimeProtobuf.Nanos))
 
-	// Write state to ledger
-	err = stub.PutState(projectID, []byte(projectIDVal))
+	// Write initial state to ledger
+	err = stub.PutState("Project ID", []byte(projectIDVal))
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
-	err = stub.PutState(projectName, []byte(projectNameVal))
+	err = stub.PutState("Project Name", []byte(projectNameVal))
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
 	projectCreateTimeValBytes, _ := json.Marshal(projectCreateTimeVal)
-	err = stub.PutState(projectCreateTime, []byte(projectCreateTimeValBytes))
+	err = stub.PutState("Project Create Time", []byte(projectCreateTimeValBytes))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	accountsList := AccountsList{}
+	accountsListBytes, _ := json.Marshal(accountsList)
+	err = stub.PutState("Accounts List", accountsListBytes)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -177,7 +180,7 @@ func (t *Libertas) QueryByID(stub shim.ChaincodeStubInterface, args []string) pb
 	// Buffer is a string indicating whether the id exists.
 	var buffer bytes.Buffer
 
-	if exists {
+	if exists == true {
 		buffer.WriteString("true")
 	} else {
 		buffer.WriteString("false")
@@ -210,8 +213,8 @@ func checkParameters(stub shim.ChaincodeStubInterface, attribute string, paramet
 		return false, errors.New("The client identity does not possess attribute: " + attribute)
 	}
 	if val != parameter {
-		return false, errors.New("User is not registered with " + parameter + 
-		". Must create account with registered attributes. See README.md for more details.")
+		return false, errors.New("User is not registered with " + parameter +
+			". Must create account with registered attributes. See README.md for more details.")
 	}
 	return true, nil
 }
