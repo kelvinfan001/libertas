@@ -35,22 +35,6 @@ type AccountsList struct {
 	Accounts []Account
 }
 
-// VoterGroup is a group of voters.
-type VoterGroup struct {
-	ID          string
-	ProjectID   string
-	Name        string
-	RequestInfo RequestInformation
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-}
-
-// RequestInformation is a struct containing information for VoterGroup
-type RequestInformation struct {
-	InstitutionAccountID string
-	Key                  string
-}
-
 // Libertas represents a project on a network.
 type Libertas struct {
 }
@@ -172,25 +156,6 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 
 	return shim.Success(nil)
 }
-
-// // CreateVoterGroup creates a new voter group
-// func (t *Libertas) CreateVoterGroup(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-// 	var id, projectID, name, institutionAccountID, key string
-// 	var createdAt, updatedAt time.Time
-
-// 	id = args[0]
-// 	projectID = args[1]
-// 	name = args[2]
-// 	institutionAccountID = args[3]
-// 	key = args[4]
-// 	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
-// 	// Convert protobuf timestamp to Time data structure
-// 	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
-
-// 	if len(args) != 5 {
-// 		return shim.Error("Incorrect number of arguments. Expecting 5.")
-// 	}
-// }
 
 // QueryByID queries existing accounts in the ledger for id and returns whether it exists.
 func (t *Libertas) QueryByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {

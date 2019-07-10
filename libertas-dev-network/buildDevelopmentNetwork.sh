@@ -4,6 +4,8 @@
 
 # This shell script assumes that the required docker images have been installed
 
+# Builds development network for macOS.
+
 # generate cryptographic materials
 ../bin/cryptogen generate --config=./crypto-config.yaml
 
