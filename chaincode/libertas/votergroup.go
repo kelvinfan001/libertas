@@ -4,16 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package votergroup
+package main
 
 import (
 	"encoding/json"
 	"fmt"
 	"time"
 
-	"../utility"
-
 	"github.com/hyperledger/fabric/core/chaincode/shim"
+	pb "github.com/hyperledger/fabric/protos/peer"
 )
 
 // VoterGroupsList is a list of voter groups.
@@ -37,7 +36,7 @@ func (t *Libertas) CreateVoterGroup(stub shim.ChaincodeStubInterface, args []str
 	var createdAt, updatedAt time.Time
 	var voters []Voter
 
-	ownerID = utility.GetCertAttribute(stub, "id")
+	ownerID = GetCertAttribute(stub, "id")
 	projectID = args[0]
 	name = args[1]
 	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
@@ -50,7 +49,7 @@ func (t *Libertas) CreateVoterGroup(stub shim.ChaincodeStubInterface, args []str
 	}
 
 	// Require that the account calling this function is an Institution Account.
-	accountTypeOK, err := utility.CheckCertAttribute(stub, "accountType", "Institution")
+	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution")
 	if !accountTypeOK {
 		return shim.Error(err.Error())
 	}
@@ -81,4 +80,16 @@ func (t *Libertas) CreateVoterGroup(stub shim.ChaincodeStubInterface, args []str
 	fmt.Println("New Voter Group added")
 
 	return shim.Success(nil)
+}
+
+// queryByVoterGroupsId queries the VoterGroups array for id and returns whether it exists.
+func queryVoterGroupsByID(id string, voterGroups []VoterGroup) bool {
+
+	for _, v := range voterGroups {
+		if v.ID == id {
+			return true
+		}
+	}
+
+	return false
 }

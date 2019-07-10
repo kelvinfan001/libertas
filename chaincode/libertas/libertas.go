@@ -14,9 +14,6 @@ import (
 	"fmt"
 	"time"
 
-	"./utility"
-	"./votergroup"
-
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
 )
@@ -84,7 +81,7 @@ func (t *Libertas) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	}
 
 	// Initialize voter groups list
-	voterGroupsList := votergroup.VoterGroupsList{}
+	voterGroupsList := VoterGroupsList{}
 	voterGroupsListBytes, _ := json.Marshal(voterGroupsList)
 	err = stub.PutState("Voter Groups List", voterGroupsListBytes)
 	if err != nil {
@@ -126,15 +123,15 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 	}
 
 	// Get the identity of the user calling this function and check if arguments match attributes.
-	idOK, err := utility.CheckCertAttribute(stub, "id", id)
+	idOK, err := CheckCertAttribute(stub, "id", id)
 	if !idOK {
 		return shim.Error(err.Error())
 	}
-	nameOK, err := utility.CheckCertAttribute(stub, "name", name)
+	nameOK, err := CheckCertAttribute(stub, "name", name)
 	if !nameOK {
 		return shim.Error(err.Error())
 	}
-	accountTypeOK, err := utility.CheckCertAttribute(stub, "accountType", accountType)
+	accountTypeOK, err := CheckCertAttribute(stub, "accountType", accountType)
 	if !accountTypeOK {
 		return shim.Error(err.Error())
 	}
