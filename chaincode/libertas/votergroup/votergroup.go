@@ -38,6 +38,6 @@ func (t *Libertas) CreateVoterGroup(stub shim.ChaincodeStubInterface, args []str
 		return shim.Error("Incorrect number of arguments. Expecting 3.")
 	}
 
-	// Require that the account calling this function is an Institution Account.
+	// Require that the account calling this function is an Institution Account..
 
 }
