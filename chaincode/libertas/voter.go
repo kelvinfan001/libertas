@@ -5,7 +5,7 @@
  *
  */
 
-package voter
+package main
 
 import (
 	"encoding/json"
