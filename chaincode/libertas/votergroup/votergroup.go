@@ -7,10 +7,19 @@
 package votergroup
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
+
+	"../utility"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
+
+// VoterGroupsList is a list of voter groups.
+type VoterGroupsList struct {
+	VoterGroups []VoterGroup
+}
 
 // VoterGroup is a group of voters.
 type VoterGroup struct {
@@ -24,20 +33,52 @@ type VoterGroup struct {
 
 // CreateVoterGroup creates a new voter group
 func (t *Libertas) CreateVoterGroup(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	var id, projectID, name, creatorID string
+	var projectID, name, ownerID string
 	var createdAt, updatedAt time.Time
+	var voters []Voter
 
-	id = args[0]
-	projectID = args[1]
-	name = args[2]
+	ownerID = utility.GetCertAttribute(stub, "id")
+	projectID = args[0]
+	name = args[1]
 	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
 	// Convert protobuf timestamp to Time data structure
 	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
+	voters = make([]Voter, 1)
 
-	if len(args) != 3 {
-		return shim.Error("Incorrect number of arguments. Expecting 3.")
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2.")
 	}
 
-	// Require that the account calling this function is an Institution Account..
+	// Require that the account calling this function is an Institution Account.
+	accountTypeOK, err := utility.CheckCertAttribute(stub, "accountType", "Institution")
+	if !accountTypeOK {
+		return shim.Error(err.Error())
+	}
 
+	// Get list of VoterGroups from the ledger
+	voterGroupsListBytes, err = stub.GetState("Voter Groups List")
+	voterGroupsList := VoterGroupsList{}
+	json.Unmarshal(voterGroupsListBytes, &voterGroupsList)
+
+	// If voter group with id already exists in voterGroupsList, return Error
+	voterGroupExists := queryVoterGroupsByID(id, voterGroupsList.VoterGroups)
+	if voterGroupExists {
+		return shim.Error("Voter group with this ID already exists.")
+	}
+
+	// Else, create VoterGroup and add it to list
+	newVoterGroup := VoterGroup{ownerID, ProjectID, name, transactionTime, transactionTime, voters}
+	voterGroupsList.VoterGroups = append(voterGroupsList.VoterGroups, newVoterGroup)
+
+	// Update state and put state on ledger
+	voterGroupsListBytes, _ = json.Marshal(voterGroupsList)
+
+	err = stub.PutState("Voter Groups List", voterGroupsListBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	fmt.Println("New Voter Group added")
+
+	return shim.Success(nil)
 }
