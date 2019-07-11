@@ -45,15 +45,15 @@ func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []strin
 		return shim.Error("Incorrect number of argumens. Expecting 5.")
 	}
 
-	startStr = args[3]
-	endStr = args[4]
+	startStr := args[3]
+	endStr := args[4]
 
 	// Convert start and end arguments from string to int
 	startInt, err := strconv.Atoi(startStr)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-	endInt, err = strconv.Atoi(endStr)
+	endInt, err := strconv.Atoi(endStr)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -65,8 +65,8 @@ func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []strin
 	id = args[0]
 	name = args[1]
 	kind = args[2]
-	start = time.Unix(startInt)
-	end = time.Unix(endInt)
+	start = time.Unix(int64(startInt), 0)
+	end = time.Unix(int64(endInt), 0)
 
 	// Create an empty slice of VoterGroups
 	campaignVoterGroups = make([]VoterGroup, 0)
@@ -78,7 +78,7 @@ func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []strin
 	}
 
 	// Get list of Campaigns from the ledger
-	campaignsListBytes, err = stub.GetState("Campaigns List")
+	campaignsListBytes, err := stub.GetState("Campaigns List")
 	campaignsList := CampaignsList{}
 	json.Unmarshal(campaignsListBytes, &campaignsList)
 
