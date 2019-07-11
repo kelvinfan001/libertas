@@ -16,13 +16,14 @@ import (
 	pb "github.com/hyperledger/fabric/protos/peer"
 )
 
-// CampaignList is a list of campaigns.
+// CampaignsList is a list of campaigns.
 type CampaignsList struct {
 	Campaigns []Campaign
 }
 
-// Campaign is a campagin.
+// Campaign is a campaign.
 type Campaign struct {
+	ownerID             string
 	ID                  string
 	Name                string
 	Kind                string
@@ -37,12 +38,18 @@ type Campaign struct {
 // Takes in parameters id, name, kind, start, and end.
 // start and end are number of seconds after Unix epoch.
 func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	var id, name, kind string
+	var ownerID, id, name, kind string
 	var start, end time.Time
 	var campaignVoterGroups []VoterGroup
 
 	if len(args) != 5 {
 		return shim.Error("Incorrect number of argumens. Expecting 5.")
+	}
+
+	// Get owner's ID
+	ownerID, err := GetCertAttribute(stub, "id")
+	if err != nil {
+		return shim.Error(err.Error())
 	}
 
 	startStr := args[3]
@@ -89,7 +96,7 @@ func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []strin
 	}
 
 	// Else, create Campaign and add it to list
-	newCampaign := Campaign{id, name, kind, start, end, transactionTime, transactionTime, campaignVoterGroups}
+	newCampaign := Campaign{ownerID, id, name, kind, start, end, transactionTime, transactionTime, campaignVoterGroups}
 	campaignsList.Campaigns = append(campaignsList.Campaigns, newCampaign)
 
 	// Update state and put state on ledger
@@ -116,3 +123,5 @@ func queryCampaignsByID(id string, campaigns []Campaign) bool {
 
 	return false
 }
+
+// AddVoterGroupToCampaign adds a VoterGroup to Campaign with ID id.

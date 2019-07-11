@@ -22,6 +22,7 @@ type VoterGroupsList struct {
 
 // VoterGroup is a group of voters.
 type VoterGroup struct {
+	ownerID    string
 	ID         string
 	CampaignID string
 	Name       string
@@ -32,16 +33,23 @@ type VoterGroup struct {
 
 // CreateVoterGroup creates a new voter group
 func (t *Libertas) CreateVoterGroup(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	var campaignID, name, ownerID string
+	var id, campaignID, name, ownerID string
 	var voters []Voter
+	var err error
 
-	if len(args) != 2 {
-		return shim.Error("Incorrect number of arguments. Expecting 2.")
+	if len(args) != 3 {
+		return shim.Error("Incorrect number of arguments. Expecting 3.")
 	}
 
-	ownerID = GetCertAttribute(stub, "id")
-	campaignID = args[0]
-	name = args[1]
+	// Get owner's ID
+	ownerID, err = GetCertAttribute(stub, "id")
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	id = args[0]
+	campaignID = args[1]
+	name = args[2]
 	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
 	// Convert protobuf timestamp to Time data structure
 	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
@@ -56,7 +64,7 @@ func (t *Libertas) CreateVoterGroup(stub shim.ChaincodeStubInterface, args []str
 	}
 
 	// Get list of VoterGroups from the ledger
-	voterGroupsListBytes, err = stub.GetState("Voter Groups List")
+	voterGroupsListBytes, err := stub.GetState("Voter Groups List")
 	voterGroupsList := VoterGroupsList{}
 	json.Unmarshal(voterGroupsListBytes, &voterGroupsList)
 
@@ -67,7 +75,7 @@ func (t *Libertas) CreateVoterGroup(stub shim.ChaincodeStubInterface, args []str
 	}
 
 	// Else, create VoterGroup and add it to list
-	newVoterGroup := VoterGroup{ownerID, campaignID, name, transactionTime, transactionTime, voters}
+	newVoterGroup := VoterGroup{ownerID, id, campaignID, name, transactionTime, transactionTime, voters}
 	voterGroupsList.VoterGroups = append(voterGroupsList.VoterGroups, newVoterGroup)
 
 	// Update state and put state on ledger
