@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Sipher Inc
+ * Copyright 2019 Sipher Inc.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -11,11 +11,9 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 
-	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
 )
@@ -74,9 +72,18 @@ func (t *Libertas) Init(stub shim.ChaincodeStubInterface) pb.Response {
 		return shim.Error(err.Error())
 	}
 
+	// Initialize accounts list
 	accountsList := AccountsList{}
 	accountsListBytes, _ := json.Marshal(accountsList)
 	err = stub.PutState("Accounts List", accountsListBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	// Initialize voter groups list
+	voterGroupsList := VoterGroupsList{}
+	voterGroupsListBytes, _ := json.Marshal(voterGroupsList)
+	err = stub.PutState("Voter Groups List", voterGroupsListBytes)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -91,11 +98,11 @@ func (t *Libertas) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	if function == "CreateAccount" {
 		// Create a new account
 		return t.CreateAccount(stub, args)
-	} else if function == "QueryByID" {
-		return t.QueryByID(stub, args)
+	} else if function == "QueryAccountsByID" {
+		return t.QueryAccountsByID(stub, args)
 	}
 
-	return shim.Error("Invalid invoke function name. Expecting \"CreateAccount\", \"QueryByID\"")
+	return shim.Error("Invalid invoke function name. Expecting \"CreateAccount\", \"QueryAccountsByID\"")
 }
 
 // CreateAccount creates an account, if it doesn't already exist. Only admin can create account.
@@ -116,15 +123,15 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 	}
 
 	// Get the identity of the user calling this function and check if arguments match attributes.
-	idOK, err := checkParameters(stub, "id", id)
+	idOK, err := CheckCertAttribute(stub, "id", id)
 	if !idOK {
 		return shim.Error(err.Error())
 	}
-	nameOK, err := checkParameters(stub, "name", name)
+	nameOK, err := CheckCertAttribute(stub, "name", name)
 	if !nameOK {
 		return shim.Error(err.Error())
 	}
-	accountTypeOK, err := checkParameters(stub, "accountType", accountType)
+	accountTypeOK, err := CheckCertAttribute(stub, "accountType", accountType)
 	if !accountTypeOK {
 		return shim.Error(err.Error())
 	}
@@ -158,7 +165,7 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 }
 
 // QueryByID queries existing accounts in the ledger for id and returns whether it exists.
-func (t *Libertas) QueryByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *Libertas) QueryAccountsByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
 	var id string
 	id = args[0]
@@ -175,7 +182,7 @@ func (t *Libertas) QueryByID(stub shim.ChaincodeStubInterface, args []string) pb
 	accountsList := AccountsList{}
 	json.Unmarshal(accountsListBytes, &accountsList)
 
-	exists := queryByID(id, accountsList.Accounts)
+	exists := queryAccountsByID(id, accountsList.Accounts)
 
 	// Buffer is a string indicating whether the id exists.
 	var buffer bytes.Buffer
@@ -190,8 +197,8 @@ func (t *Libertas) QueryByID(stub shim.ChaincodeStubInterface, args []string) pb
 
 }
 
-// queryById queries the Accounts array for id and returns whether it exists.
-func queryByID(id string, accounts []Account) bool {
+// queryByAccountsId queries the Accounts array for id and returns whether it exists.
+func queryAccountsByID(id string, accounts []Account) bool {
 
 	for _, v := range accounts {
 		if v.ID == id {
@@ -200,23 +207,6 @@ func queryByID(id string, accounts []Account) bool {
 	}
 
 	return false
-}
-
-// checkParameters checks whether parameter matches with the caller's certificates attributes.
-// Returns true if attribute matches.
-func checkParameters(stub shim.ChaincodeStubInterface, attribute string, parameter string) (bool, error) {
-	val, ok, err := cid.GetAttributeValue(stub, attribute)
-	if err != nil {
-		return false, err
-	}
-	if !ok {
-		return false, errors.New("The client identity does not possess attribute: " + attribute)
-	}
-	if val != parameter {
-		return false, errors.New("User is not registered with " + parameter +
-			". Must create account with registered attributes. See README.md for more details.")
-	}
-	return true, nil
 }
 
 func main() {

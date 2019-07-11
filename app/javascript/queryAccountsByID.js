@@ -6,7 +6,7 @@
 
 'use strict';
 
-module.exports = { queryByID };
+module.exports = { queryAccountsByID };
 
 const { FileSystemWallet, Gateway } = require('fabric-network');
 const path = require('path');
@@ -20,7 +20,7 @@ const path = require('path');
  * @param {string} contractName Name of contract installed as specified in 'install.sh'
  * @param {string} idToQuery ID of user to query.
  */
-async function queryByID(connectionProfilePath, walletPath, id, channelName, contractName, idToQuery) {
+async function queryAccountsByID(connectionProfilePath, walletPath, id, channelName, contractName, idToQuery) {
 
     try {
         // Create a new file system based walllet for managing identities.
