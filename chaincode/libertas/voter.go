@@ -27,8 +27,8 @@ type Voter struct {
 //----------------------------------------------------------------------------------------------------------------
 // List lists all the voters that belong to voterGroupID on currentPage
 func (t *Libertas) ListVoters(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	voterGroupID := args[0]
-	currentPage := args[1]
+	// voterGroupID := args[0]
+	// currentPage := args[1]
 
 	if len(args) != 2 {
 		return shim.Error("Incorrect number of arguments. Expecting 2.")
@@ -47,7 +47,7 @@ func (t *Libertas) CreateVoter(stub shim.ChaincodeStubInterface, args []string) 
 	}
 
 	newVoter := _getNewVoter(stub, args)
-	personalAccountID := args[0]
+	// personalAccountID := args[0]
 	voterGroupID := args[1]
 
 	// Get list of accounts from the ledger
