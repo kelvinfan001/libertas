@@ -80,7 +80,7 @@ func (t *Libertas) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	fmt.Println("Election Invoke")
 	function, args := stub.GetFunctionAndParameters()
 	if function == "CreateAccount" {
-		// Create new account
+		// Create a new account
 		return t.CreateAccount(stub, args)
 	} else if function == "QueryAccountsByID" {
 		return t.QueryAccountsByID(stub, args)
