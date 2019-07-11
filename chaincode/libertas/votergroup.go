@@ -22,33 +22,32 @@ type VoterGroupsList struct {
 
 // VoterGroup is a group of voters.
 type VoterGroup struct {
-	ID        string
-	ProjectID string
-	Name      string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Voters    []Voter
+	ID         string
+	CampaignID string
+	Name       string
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	Voters     []Voter
 }
 
 // CreateVoterGroup creates a new voter group
 func (t *Libertas) CreateVoterGroup(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	var projectID, name, ownerID string
-	var createdAt, updatedAt time.Time
+	var campaignID, name, ownerID string
 	var voters []Voter
-
-	ownerID = GetCertAttribute(stub, "id")
-	projectID = args[0]
-	name = args[1]
-	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
-	// Convert protobuf timestamp to Time data structure
-	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
-	// Create an empty list of voters
-
-	voters = make([]Voter, 1)
 
 	if len(args) != 2 {
 		return shim.Error("Incorrect number of arguments. Expecting 2.")
 	}
+
+	ownerID = GetCertAttribute(stub, "id")
+	campaignID = args[0]
+	name = args[1]
+	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
+	// Convert protobuf timestamp to Time data structure
+	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
+
+	// Create an empty slice of voters
+	voters = make([]Voter, 0)
 
 	// Require that the account calling this function is an Institution Account.
 	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution")
@@ -68,7 +67,7 @@ func (t *Libertas) CreateVoterGroup(stub shim.ChaincodeStubInterface, args []str
 	}
 
 	// Else, create VoterGroup and add it to list
-	newVoterGroup := VoterGroup{ownerID, ProjectID, name, transactionTime, transactionTime, voters}
+	newVoterGroup := VoterGroup{ownerID, campaignID, name, transactionTime, transactionTime, voters}
 	voterGroupsList.VoterGroups = append(voterGroupsList.VoterGroups, newVoterGroup)
 
 	// Update state and put state on ledger
@@ -84,7 +83,7 @@ func (t *Libertas) CreateVoterGroup(stub shim.ChaincodeStubInterface, args []str
 	return shim.Success(nil)
 }
 
-// queryByVoterGroupsId queries the VoterGroups array for id and returns whether it exists.
+// queryByVoterGroupsID queries the VoterGroups array for id and returns whether it exists.
 func queryVoterGroupsByID(id string, voterGroups []VoterGroup) bool {
 
 	for _, v := range voterGroups {
