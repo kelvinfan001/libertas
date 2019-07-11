@@ -31,7 +31,7 @@ func (t *Libertas) Init(stub shim.ChaincodeStubInterface) pb.Response {
 		return shim.Error("Incorrect number of arguments. Expecting 2.")
 	}
 
-	// Initialize fields for storing on ledger
+	// Initialize fields for storing on ledger.
 	projectIDVal := args[0]
 	projectNameVal := args[1]
 	projectCreateTimeProtobuf, _ := stub.GetTxTimestamp()
