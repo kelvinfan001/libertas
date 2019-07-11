@@ -68,7 +68,7 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 	json.Unmarshal(accountsListBytes, &accountsList)
 
 	// If account with id already exists in accountsList, return error
-	accountExists := queryByID(id, accountsList.Accounts)
+	accountExists := queryAccountsByID(id, accountsList.Accounts)
 	if accountExists {
 		return shim.Error("This ID already exists")
 	}
