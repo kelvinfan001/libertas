@@ -42,6 +42,8 @@ func (t *Libertas) CreateVoterGroup(stub shim.ChaincodeStubInterface, args []str
 	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
 	// Convert protobuf timestamp to Time data structure
 	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
+	// Create an empty list of voters
+
 	voters = make([]Voter, 1)
 
 	if len(args) != 2 {
