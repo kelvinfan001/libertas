@@ -8,8 +8,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -23,50 +21,8 @@ type Voter struct {
 	UpdatedAt         time.Time
 }
 
-type VotersList struct {
-	Voters []Voter
-}
-
-type VoterChaincode struct {
-}
-
-// Init interface method
-func (t *VoterChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
-	fmt.Println("Voter Chaincode Init")
-	// _, args := stub.GetFunctionAndParameters()
-
-	// if len(args) != 2 { // vat
-	// 	return shim.Error("Incorrect number of arguments. Expecting 2.")
-	// }
-
-	votersList := VotersList{}
-	voterssListBytes, _ := json.Marshal(accountsList)
-	err = stub.PutState("Voters List", accountsListBytes)
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-
-	return shim.Success(nil)
-}
-
-// Invoke interface method
-func (t *VoterChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
-	fmt.Println("Voter Chaincode Invoke")
-	function, args := stub.GetFunctionAndParameters()
-
-	if function == "List" {
-		return t.List(stub, args)
-	} else if function == "Create" {
-		return t.Create(stub, args)
-	} else if function == "Edit" {
-		return t.Edit(stub, args)
-	}
-
-	return shim.Error("Invalid invoke function name. Expecting \"List\", \"Create\", \"Edit\"")
-}
-
 // List lists all the voters that belong to voterGroupID on currentPage
-func (t *VoterChaincode) List(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *Libertas) ListVoters(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	voterGroupID := args[0]
 	currentPage := args[1]
 
@@ -78,36 +34,36 @@ func (t *VoterChaincode) List(stub shim.ChaincodeStubInterface, args []string) p
 }
 
 // Create
-func (t *VoterChaincode) Create(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	
-	isArgsValid, err := !isArgsValid(args)
-	if (!isArgsValid) {
-		return err;
-	}
+func (t *Libertas) CreateVoter(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
-	newVoter := getNewVoter(args)
-	
-	// Get list of accounts from the ledger
-	votersListBytes, err = stub.GetState("Voter List")
-	votersList := VotersList{}
-	json.Unmarshal(votersListBytes, &votersList)
+	// isArgsValid, err := !isArgsValid(args)
+	// if !isArgsValid {
+	// 	return err
+	// }
 
-	// check if voter has already been added
-	if isVoterExists(personalAccountID, votersList) {
-		return shim.Error("Voter with given ID already exists")
-	}
+	// newVoter := getNewVoter(args)
 
-	// add voter
-	votersList.Voters = append(votersList.Voters, newVoter)
+	// // Get list of accounts from the ledger
+	// votersListBytes, err := stub.GetState("Voter List")
+	// votersList := VotersList{}
+	// json.Unmarshal(votersListBytes, &votersList)
 
-	// put state on ledger
-	votersListBytes, _ = json.Marshal(votersList)
-	err = stub.PutState("Voters List", votersListBytes)
-	if err != nil {
-		return shim.Error(err.Error())
-	}
+	// // check if voter has already been added
+	// if isVoterExists(personalAccountID, votersList) {
+	// 	return shim.Error("Voter with given ID already exists")
+	// }
 
-	fmt.Println("New voter added.")
+	// // add voter
+	// votersList.Voters = append(votersList.Voters, newVoter)
+
+	// // put state on ledger
+	// votersListBytes, _ = json.Marshal(votersList)
+	// err = stub.PutState("Voters List", votersListBytes)
+	// if err != nil {
+	// 	return shim.Error(err.Error())
+	// }
+
+	// fmt.Println("New voter added.")
 
 	return shim.Success(nil)
 }
@@ -123,23 +79,25 @@ func getNewVoter(stub shim.ChaincodeStubInterface, args []string) Voter {
 }
 
 // TODO: finish this
-func isArgsValid(args string[]) bool, pb.Response {
-	if len(args) != 2 {
-		return false, shim.Error("Incorrect number of arguments. Expecting 2.")
-	}
+func isArgsValid(args []string) (bool, pb.Response) {
+	// if len(args) != 2 {
+	// 	return false, shim.Error("Incorrect number of arguments. Expecting 2.")
+	// }
 
-	institutionalAccountID := args[0]
-	personalAccountID := args[1]
+	// institutionalAccountID := args[0]
+	// personalAccountID := args[1]
 
-	// Get the identity of the user calling this function and check if arguments match attributes.
-	iIDOK, err := checkParameters(stub, "id", id) // 
-	if !idOK {
-		return false, shim.Error(err.Error())
-	}
-	pIDOK, err := checkParameters(stub, "name", name)
-	if !nameOK {
-		return false, shim.Error(err.Error())
-	}
+	// // Get the identity of the user calling this function and check if arguments match attributes.
+	// iIDOK, err := checkParameters(stub, "id", id) //
+	// if !idOK {
+	// 	return false, shim.Error(err.Error())
+	// }
+	// pIDOK, err := checkParameters(stub, "name", name)
+	// if !nameOK {
+	// 	return false, shim.Error(err.Error())
+	// }
+
+	return true, shim.Success(nil)
 }
 
 func isVoterExists(personalAccountID string, votersList []Voter) bool {
@@ -153,15 +111,8 @@ func isVoterExists(personalAccountID string, votersList []Voter) bool {
 }
 
 // patch
-func (t *VoterChaincode) Edit(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *Libertas) EditVoter(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	return shim.Success(nil)
 }
 
-func main() {
-	err := shim.Start(new(VoterChaincode))
-	if err != nil {
-		fmt.Printf("Error starting VoterChaincode: %s", err)
-	}
-}
-
-// one network, one project >> not possible for a given network to have multiple voters for a given account
+// campaigns can be presidential or city wise >> so one account can belong to mulitple voter groups
