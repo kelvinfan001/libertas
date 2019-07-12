@@ -29,7 +29,7 @@ can enroll directly using ID: admin and Secret: adminpw after the network is set
 
 This is NOT production ready.
 
-# Dependencies
+## Dependencies
 * Nodejs
 * NPM
 * Golang
