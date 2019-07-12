@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/sudo bash
 #
 # Copyright IBM Corp All Rights Reserved
 #
@@ -27,15 +27,18 @@ export CHANNEL_NAME=test
 # set contract (chaincode) name
 CONTRACT_NAME=libertas
 # set chaincode version
-CHAINCODE_VERSION=1.6.1
+CHAINCODE_VERSION=$2 # 1.6.1
 
 # clean the keystore
 rm -rf ./hfc-key-store
 
 # launch network
 cd ../libertas-dev-network
-./buildDevelopmentNetwork.sh
-
+if [$1 -eq "mac"]; then
+    ./buildDevelopmentNetwork.sh
+else 
+    ./buildDevelopmentNetwork-linux.sh
+fi
 
 CONFIG_ROOT=/opt/gopath/src/github.com/hyperledger/fabric/peer
 
