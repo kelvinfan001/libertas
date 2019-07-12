@@ -36,3 +36,4 @@ This is NOT production ready.
 * Docker
 * Docker-compose
 * build-essentials(for linux)
+* Fabric binaries
