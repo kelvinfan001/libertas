@@ -11,11 +11,17 @@
 
 Note: Steps 1.3 and 2.1 should probably seem like a single "Create Account" step in the UI.
 
+## Fabric Installation
+Install Samples, Binaries and Docker Images: https://hyperledger-fabric.readthedocs.io/en/release-1.4/install.html
+1. cd into root directory
+2. curl -sSL http://bit.ly/2ysbOFE | bash -s -- 1.4.1 1.4.1
+
 ## Network
+
 Use buildDevelopmentNetwork.sh to bring up a two-organization, solo fabric network with credentials pre-generated 
 using the cryptogen tool. Docker containers are on debug mode. 
 
-TODO: Replace CLI
+TODO: Replace CLI, implement raft ordering service
 
 Current Implementation:
 Cryptogen pre-generates the private/public key pairs and the corresponding certificates at system setup. Admin user
@@ -23,10 +29,11 @@ can enroll directly using ID: admin and Secret: adminpw after the network is set
 
 This is NOT production ready.
 
-# Dependencies
+## Dependencies
 * Nodejs
 * NPM
 * Golang
 * Docker
 * Docker-compose
+* build-essentials(for linux)
 * Fabric binaries
