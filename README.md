@@ -35,3 +35,4 @@ This is NOT production ready.
 * Golang
 * Docker
 * Docker-compose
+* build-essentials(for linux)
