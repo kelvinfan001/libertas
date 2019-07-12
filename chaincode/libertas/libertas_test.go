@@ -7,7 +7,9 @@
 package main
 
 import (
+	"encoding/json"
 	"testing"
+	"time"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
@@ -24,23 +26,30 @@ func TestLibertas_Init(t *testing.T) {
 	// TODO: check state for 'Project Create Time'
 }
 
-// func TestLibertas_Invoke(t *testing.T) {
-// 	scc := new(Libertas)
-// 	stub := shim.NewMockStub("libertas", scc)
+// Cannot test create account due to lack of support to mock certificates.
 
-// 	// Init "Project ID"="123", "Project Name"="Derp Project"
-// 	checkInit(t, stub, [][]byte{[]byte("init"), []byte("123"), []byte("Derp Project")})
+// Tests QueryAccount
+func TestLibertas_QueryAccount(t *testing.T) {
+	scc := new(Libertas)
+	stub := shim.NewMockStub("libertas", scc)
 
-// 	// Make a creator identity
-// 	sid := &msp.SerializedIdentity{Mspid: "SipherMSP", IdBytes: []byte(certWithAttrs)}
+	// Init "Project ID"="123", "Project Name"="Derp Project"
+	checkInit(t, stub, [][]byte{[]byte("init"), []byte("123"), []byte("Derp Project")})
+	stub.MockTransactionStart("derp")
 
-// 	b, err := proto.Marshal(sid)
-// 	stub
+	// Create some accounts
+	accountsList := AccountsList{}
+	newAccount1 := Account{"kelvinfan", "Kelvin Fan", "kelvin@sipher.co", "Personal", time.Now(), time.Now()}
+	newAccount2 := Account{"kailonghuang", "Kailong Huang", "kailong@sipher.co", "Personal", time.Now(), time.Now()}
+	accountsList.Accounts = append(accountsList.Accounts, newAccount1)
+	accountsList.Accounts = append(accountsList.Accounts, newAccount2)
+	accountsListBytes, _ := json.Marshal(accountsList)
+	// Put on state
+	stub.PutState("Accounts List", accountsListBytes)
 
-// 	// Invoke "CreateAccount"
-// 	checkInvoke(t, stub, [][]byte{[]byte("CreateAccount"), []byte("kelvinfan"), []byte("Kelvin Fan"), []byte("kelvinfan001@gmail.com"), []byte("Personal")})
-
-// 	checkStateAccountListExists(t, stub)
-// }
-
-// Can't test stuff cuz Fabric aint ready. Not our fault.
+	checkStateAccountListExists(t, stub)
+	got := returnInvoke(t, stub, [][]byte{[]byte("QueryAccountsByID"), []byte("kelvinfan")})
+	if string(got.GetPayload()) != "true" {
+		t.Errorf("Account: kelvinfan should exist. Instead, got not exist.")
+	}
+}

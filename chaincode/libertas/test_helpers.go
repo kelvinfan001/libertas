@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
+	"github.com/hyperledger/fabric/protos/peer"
 )
 
 func checkInit(t *testing.T, stub *shim.MockStub, args [][]byte) {
@@ -76,4 +77,13 @@ func checkInvoke(t *testing.T, stub *shim.MockStub, args [][]byte) {
 		fmt.Println("Invoke", args, "failed", string(res.Message))
 		t.FailNow()
 	}
+}
+
+func returnInvoke(t *testing.T, stub *shim.MockStub, args [][]byte) peer.Response {
+	res := stub.MockInvoke("1", args)
+	if res.Status != shim.OK {
+		fmt.Println("Invoke", args, "failed", string(res.Message))
+		t.FailNow()
+	}
+	return res
 }
