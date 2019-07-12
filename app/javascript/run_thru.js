@@ -28,30 +28,38 @@ async function main() {
 
     try {
          // Enroll the pre-registered admin
-        await enrollAdminModule.enrollAdmin(ccpPath, 'ca.libertas.sipher.co', networkDirPath, path.join(process.cwd(), 'wallet'), 'admin', 'adminpw', 'SipherMSP');
+        await enrollAdminModule.enrollAdmin(ccpPath, 'ca.libertas.sipher.co',
+            networkDirPath, path.join(process.cwd(), 'wallet'), 'admin', 'adminpw', 'SipherMSP');
 
         // Add new affiliation for new users
         await addAffiliationModule.addAffiliation(walletPath, ccpPath, 'voting_district1');
 
         // Register and enroll new users with id 'kelvinfan' and 'kailonghuang'
-        var secret = await registerEnrollUserModule.registerUser(ccpPath, walletPath, "voting_district1", "kelvinfan", "client", "Kelvin Fan", "Personal");
+        var secret = await registerEnrollUserModule.registerUser(ccpPath, walletPath,
+            "voting_district1", "kelvinfan", "client", "Kelvin Fan", "Personal");
 
-        await registerEnrollUserModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, "kelvinfan", secret, "SipherMSP");
+        await registerEnrollUserModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co",
+            networkDirPath, "kelvinfan", secret, "SipherMSP");
 
         console.log(secret);
 
-        secret = await registerEnrollUserModule.registerUser(ccpPath, walletPath, "voting_district1", "kailonghuang", "client", "Kailong Huang", "Personal");
+        secret = await registerEnrollUserModule.registerUser(ccpPath, walletPath,
+            "voting_district1", "kailonghuang", "client", "Kailong Huang", "Personal");
 
-        await registerEnrollUserModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, "kailonghuang", secret, "SipherMSP");
+        await registerEnrollUserModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co",
+            networkDirPath, "kailonghuang", secret, "SipherMSP");
 
         console.log(secret);
 
         // Create new accounts with id 'kelvinfan' and 'kailonghuang'
-        await createAccountModule.createAccount(ccpPath, walletPath, "test", "libertas", "kelvinfan", "Kelvin Fan", "kelvin@sipher.co", "Personal");
-        await createAccountModule.createAccount(ccpPath, walletPath, "test", "libertas", "kailonghuang", "Kailong Huang", "kailong@sipher.co", "Personal");
+        await createAccountModule.createAccount(ccpPath, walletPath, "test", "libertas",
+            "kelvinfan", "Kelvin Fan", "kelvin@sipher.co", "Personal");
+        await createAccountModule.createAccount(ccpPath, walletPath, "test", "libertas",
+            "kailonghuang", "Kailong Huang", "kailong@sipher.co", "Personal");
 
         // Query for id 'kailonghuang'
-        const userExists = await queryByIDModule.queryAccountsByID(ccpPath, walletPath, 'kelvinfan', 'test', 'libertas', 'kailonghuang');
+        const userExists = await queryByIDModule.queryAccountsByID(ccpPath, walletPath,
+            'kelvinfan', 'test', 'libertas', 'kailonghuang');
         if (userExists === 'true') {
             console.log('ID kailonghuang exists');
         } else {
