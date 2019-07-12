@@ -15,7 +15,7 @@ export FABRIC_CFG_PATH=$PWD
 # channelID... here be dragons...
 ../bin/configtxgen-mac -profile TwoOrgsOrdererDevNetworkGenesis -channelID herebedragons -outputBlock ./channel-artifacts/genesis.block
 
-
+CHANNEL_NAME=test
 # create channel configuration transaction
 ../bin/configtxgen-mac -profile TwoOrgsChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID $CHANNEL_NAME
 
