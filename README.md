@@ -28,3 +28,10 @@ Cryptogen pre-generates the private/public key pairs and the corresponding certi
 can enroll directly using ID: admin and Secret: adminpw after the network is set up.
 
 This is NOT production ready.
+
+# Dependencies
+* Nodejs
+* NPM
+* Golang
+* Docker
+* Docker-compose
