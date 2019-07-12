@@ -27,18 +27,15 @@ export CHANNEL_NAME=test
 # set contract (chaincode) name
 CONTRACT_NAME=libertas
 # set chaincode version
-CHAINCODE_VERSION=$2 # 1.6.1
+CHAINCODE_VERSION=$1 # 1.6.1
 
 # clean the keystore
 rm -rf ./hfc-key-store
 
 # launch network
 cd ../libertas-dev-network
-if [$1 -eq "mac"]; then
-    ./buildDevelopmentNetwork.sh
-else 
-    ./buildDevelopmentNetwork-linux.sh
-fi
+./buildDevelopmentNetwork.sh
+
 
 CONFIG_ROOT=/opt/gopath/src/github.com/hyperledger/fabric/peer
 
