@@ -90,7 +90,7 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 	return shim.Success(nil)
 }
 
-// QueryByID queries existing accounts in the ledger for id and returns whether it exists.
+// QueryAccountsByID queries existing accounts in the ledger for id and returns whether it exists.
 func (t *Libertas) QueryAccountsByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
 	var id string
