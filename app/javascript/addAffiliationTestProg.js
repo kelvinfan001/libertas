@@ -15,7 +15,7 @@ const ccpPath = path.resolve(__dirname, '..', '..', 'libertas-dev-network', 'con
 async function main() {
 
     try {
-        await addAffiliationModule.addAffiliation(walletPath, ccpPath, 'voting_district1')
+        await addAffiliationModule.addAffiliation(walletPath, ccpPath, 'voting_district1');
     } catch (error) {
         console.error(`${error}`);
         process.exit(1);
