@@ -29,3 +29,4 @@ This is NOT production ready.
 * Golang
 * Docker
 * Docker-compose
+* Fabric binaries
