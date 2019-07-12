@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/sudo bash
 #
 # Copyright IBM Corp All Rights Reserved
 #
@@ -34,8 +34,11 @@ rm -rf ./hfc-key-store
 
 # launch network
 cd ../libertas-dev-network
-./buildDevelopmentNetwork.sh
-
+if [$1 -eq "mac"]; then
+    ./buildDevelopmentNetwork.sh
+else 
+    ./buildDevelopmentNetwork-linux.sh
+fi
 
 CONFIG_ROOT=/opt/gopath/src/github.com/hyperledger/fabric/peer
 
