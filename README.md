@@ -14,7 +14,7 @@ Note: Steps 1.3 and 2.1 should probably seem like a single "Create Account" step
 ## Fabric Installation
 Install Samples, Binaries and Docker Images: https://hyperledger-fabric.readthedocs.io/en/release-1.4/install.html
 1. cd into root directory
-2. curl -sSL http://bit.ly/2ysbOFE | bash -s -- 1.4.1 1.4.1 0.4.15
+2. curl -sSL http://bit.ly/2ysbOFE | bash -s -- 1.4.1 1.4.1
 
 ## Network
 
