@@ -6,7 +6,7 @@
 
 'use strict';
 
-const registerEnrollUserModule = require('..', './registerEnrollUser.js');
+const registerEnrollUserModule = require('../registerEnrollUser.js');
 const path = require('path');
 
 const ccpPath = path.resolve(__dirname, '..', '..', '..', 'libertas-dev-network', 'connection-sipher.json');
@@ -17,9 +17,9 @@ async function main() {
 
     try {
 
-        secret1 = process.argv[2];
+        const secret1 = process.argv[2];
 
-        secret2 = process.argv[3];
+        const secret2 = process.argv[3];
 
         await registerEnrollUserModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, "kelvinfan", secret1, "SipherMSP");
 
