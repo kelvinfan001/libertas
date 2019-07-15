@@ -6,7 +6,7 @@
 
 'use strict';
 
-const registerEnrollUserModule = require('../registerEnrollUser.js');
+const registrationEnrollmentModule = require('../registrationEnrollment');
 const path = require('path');
 
 const ccpPath = path.resolve(__dirname, '..', '..', '..', 'libertas-dev-network', 'connection-sipher-server.json');
@@ -16,11 +16,11 @@ const walletPath = path.join(process.cwd(), 'wallet')
 async function main() {
 
     try {
-        var secret = await registerEnrollUserModule.registerUser(ccpPath, walletPath, "voting_district1", "kelvinfan", "client", "Kelvin Fan", "Personal");
+        var secret = await registrationEnrollmentModule.registerUser(ccpPath, walletPath, "voting_district1", "kelvinfan", "client", "Kelvin Fan", "Personal");
 
         console.log("kelvinfan's secret: " + secret);
 
-        secret = await registerEnrollUserModule.registerUser(ccpPath, walletPath, "voting_district1", "kailonghuang", "client", "Kailong Huang", "Personal");
+        secret = await registrationEnrollmentModule.registerUser(ccpPath, walletPath, "voting_district1", "kailonghuang", "client", "Kailong Huang", "Personal");
 
         console.log("kailonghuang's secret: " + secret)
 

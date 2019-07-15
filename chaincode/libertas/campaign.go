@@ -96,7 +96,8 @@ func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []strin
 	}
 
 	// Else, create Campaign and add it to list
-	newCampaign := Campaign{ownerID, id, name, kind, start, end, transactionTime, transactionTime, campaignVoterGroups}
+	newCampaign := Campaign{ownerID, id, name, kind, start, end, transactionTime,
+		transactionTime, campaignVoterGroups}
 	campaignsList.Campaigns = append(campaignsList.Campaigns, newCampaign)
 
 	// Update state and put state on ledger

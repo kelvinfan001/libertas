@@ -7,7 +7,7 @@
 
 'use strict';
 
-const enrollAdminModule = require('../enrollAdmin.js');
+const registrationEnrollmentModule = require('../registrationEnrollment');
 const path = require('path');
 
 const ccpPath = path.resolve(__dirname, '..', '..', '..', 'libertas-dev-network', 'connection-sipher-server.json');
@@ -16,7 +16,7 @@ const networkDirPath = path.resolve(__dirname, '..', '..', '..', 'libertas-dev-n
 async function main() {
 
     try {
-        enrollAdminModule.enrollAdmin(ccpPath, 'ca.libertas.sipher.co', networkDirPath, path.join(process.cwd(), 'wallet'), 'admin', 'adminpw', 'SipherMSP');
+        registrationEnrollmentModule.enrollAdmin(ccpPath, 'ca.libertas.sipher.co', networkDirPath, path.join(process.cwd(), 'wallet'), 'admin', 'adminpw', 'SipherMSP');
     } catch (error) {
         console.error(`${error}`);
         process.exit(1);
