@@ -10,7 +10,7 @@
 const enrollAdminModule = require('../enrollAdmin.js');
 const path = require('path');
 
-const ccpPath = path.resolve(__dirname, '..', '..', '..', 'libertas-dev-network', 'connection-sipher.json');
+const ccpPath = path.resolve(__dirname, '..', '..', '..', 'libertas-dev-network', 'connection-sipher-server.json');
 const networkDirPath = path.resolve(__dirname, '..', '..', '..', 'libertas-dev-network')
 
 async function main() {

@@ -9,7 +9,7 @@
 const registerEnrollUserModule = require('../registerEnrollUser.js');
 const path = require('path');
 
-const ccpPath = path.resolve(__dirname, '..', '..', '..', 'libertas-dev-network', 'connection-sipher.json');
+const ccpPath = path.resolve(__dirname, '..', '..', '..', 'libertas-dev-network', 'connection-sipher-server.json');
 const networkDirPath = path.resolve(__dirname, '..', '..', '..', 'libertas-dev-network')
 const walletPath = path.join(process.cwd(), 'wallet')
 
