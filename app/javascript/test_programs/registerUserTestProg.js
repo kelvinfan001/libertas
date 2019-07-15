@@ -6,7 +6,7 @@
 
 'use strict';
 
-const registerEnrollUserModule = require('..', './registerEnrollUser.js');
+const registerEnrollUserModule = require('../registerEnrollUser.js');
 const path = require('path');
 
 const ccpPath = path.resolve(__dirname, '..', '..', '..', 'libertas-dev-network', 'connection-sipher.json');
