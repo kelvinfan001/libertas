@@ -43,7 +43,7 @@ func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []strin
 	var campaignVoterGroups []VoterGroup
 
 	if len(args) != 5 {
-		return shim.Error("Incorrect number of argumens. Expecting 5.")
+		return shim.Error("Incorrect number of arguments. Expecting 5.")
 	}
 
 	// Get owner's ID

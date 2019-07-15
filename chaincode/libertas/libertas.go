@@ -100,6 +100,8 @@ func (t *Libertas) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.CreateVoter(stub, args)
 	} else if function == "EditVoter" {
 		return t.EditVoter(stub, args)
+	} else if function == "CreateCampaign" {
+		return t.CreateCampaign(stub, args)
 	}
 
 	return shim.Error("Invalid invoke function name. Expecting \"CreateAccount\", \"QueryAccountsByID\", \"CreateVoterGroup\"")

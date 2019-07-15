@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  * 
  * This module deals with frontend JavaScript calls related to accounts.
- * 
  */
 
 'use strict';
@@ -29,13 +28,13 @@ async function createAccount(connectionProfilePath, walletPath, channelName, con
     id, name, email, accountType) {
 
     try {
-        // Create a new file system based walllet for managing identities.
+        // Create a new file system based wallet for managing identities.
         const wallet = new FileSystemWallet(walletPath);
 
         // Check to see if user credentials exist in wallet. This is only a precursory check. 
         const userExists = await wallet.exists(id);
         if (!userExists) {
-            console.log('User credentials with id: ' + id + ' do not exist in the wallet.')
+            console.log('User credentials with id: ' + id + ' do not exist in the wallet.');
             return;
         }
 
@@ -54,7 +53,7 @@ async function createAccount(connectionProfilePath, walletPath, channelName, con
 
         // Submit the transaction.
         await contract.submitTransaction('CreateAccount', id, name, email, accountType);
-        console.log('Transaction has been submitted');
+        console.log('CreateAccount transaction has been submitted');
 
         // Disconnect from the gateway.
         await gateway.disconnect();
