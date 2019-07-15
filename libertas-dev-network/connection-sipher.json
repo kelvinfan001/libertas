@@ -25,7 +25,7 @@
     },
     "peers": {
         "peer0.libertas.sipher.co": {
-            "url": "grpcs://localhost:7051",
+            "url": "grpcs://155.138.134.91:7051",
             "tlsCACerts": {
                 "path": "crypto-config/peerOrganizations/libertas.sipher.co/tlsca/tlsca.libertas.sipher.co-cert.pem"
             },
@@ -34,7 +34,7 @@
             }
         },
         "peer1.libertas.sipher.co": {
-            "url": "grpcs://localhost:8051",
+            "url": "grpcs://155.138.134.91:8051",
             "tlsCACerts": {
                 "path": "crypto-config/peerOrganizations/libertas.sipher.co/tlsca/tlsca.libertas.sipher.co-cert.pem"
             },
@@ -45,7 +45,7 @@
     },
     "certificateAuthorities": {
         "ca.libertas.sipher.co": {
-            "url": "https://localhost:7054",
+            "url": "https://155.138.134.91:7054",
             "caName": "ca-sipher",
             "tlsCACerts": {
                 "path": "crypto-config/peerOrganizations/libertas.sipher.co/tlsca/tlsca.libertas.sipher.co-cert.pem"
