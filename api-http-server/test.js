@@ -1,11 +1,11 @@
 // test script for HTTP server
 
-
+const path = require('path');
 const fetch = require('node-fetch');
 const registrationEnrollmentModule = require('../app/javascript/registrationEnrollment');
 
-const ccpPath = path.resolve(__dirname, '..', '..', '..', 'libertas-dev-network', 'connection-sipher.json');
-const networkDirPath = path.resolve(__dirname, '..', '..', '..', 'libertas-dev-network')
+const ccpPath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connection-sipher.json');
+const networkDirPath = path.resolve(__dirname, '..', 'libertas-dev-network')
 const walletPath = path.join(process.cwd(), 'wallet')
 
 //--------------------------------------------Register and Enroll----------------------------------------
@@ -23,7 +23,6 @@ async function register() {
 
 
 async function enroll(secret) {
-
     try {
         await registrationEnrollmentModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, "jingleman", secret, "SipherMSP");
     } catch (error) {
