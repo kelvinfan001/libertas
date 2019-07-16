@@ -1,6 +1,6 @@
 const path = require('path');
 const express = require('express');
-const app = express();
+const router = express();
 const accountsModule = require('../app/javascript/accounts')
 
 // Set paths to connection profile and wallet
@@ -10,7 +10,7 @@ const walletPath = path.join(__dirname, 'app', 'javascript', 'wallet')
 
 //-----------------------------------------ACCOUNT FUNCTIONS--------------------------------------------------
 
-app.post('/createAccount', (req, res) => {
+router.post('/createAccount', async (req, res) => {
     // get params
     var id = req.body.id;
     var name = req.body.name;
@@ -20,7 +20,7 @@ app.post('/createAccount', (req, res) => {
     await accountsModule.createAccount(ccpPath, walletPath, "test", "libertas", id, name, email, accountType);
 });
 
-app.get('/queryAccountByID', (req, res) => {
+router.get('/queryAccountByID', async (req, res) => {
     // get params
     var idToQuery = req.query.idToQuery;
 
@@ -28,7 +28,7 @@ app.get('/queryAccountByID', (req, res) => {
     res.send(result);
 });
 
-app.listen(80, () => console.log("Listening on port 80"));
+router.listen(80, () => console.log("Listening on port 80"));
 
 
 
