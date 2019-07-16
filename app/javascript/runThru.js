@@ -14,7 +14,8 @@
 // Import the required modules
 const path = require('path');
 const registrationEnrollmentModule = require('./registrationEnrollment');
-const accountsModule = require('./accounts');
+const accountModule = require('./accounts');
+const campaignModule = require('./campaign');
 
 // Set paths to connection profile and wallet
 const ccpPath = path.resolve(__dirname, '..', '..', 'libertas-dev-network', 'connection-sipher.json');
@@ -47,17 +48,35 @@ async function main() {
 
         await registrationEnrollmentModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co",
             networkDirPath, "kailonghuang", secret, "SipherMSP");
+        
+        // Register and enroll City of Toronto as institution account.
+        var secret = await registrationEnrollmentModule.registerUser(ccpPath, walletPath,
+            "voting_district1", "cityoftoronto", "client", "City of Toronto", "Institution");
 
-        // Create new accounts with id 'kelvinfan' and 'kailonghuang'
-        await accountsModule.createAccount(ccpPath, walletPath, "test", "libertas",
+        console.log(secret);
+
+        await registrationEnrollmentModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co",
+            networkDirPath, "cityoftoronto", secret, "SipherMSP");
+
+        // Create new accounts with id 'kelvinfan', 'kailonghuang', and 'cityoftoronto'.
+        await accountModule.createAccount(ccpPath, walletPath, "test", "libertas",
             "kelvinfan", "Kelvin Fan", "kelvin@sipher.co", "Personal");
-        await accountsModule.createAccount(ccpPath, walletPath, "test", "libertas",
+        await accountModule.createAccount(ccpPath, walletPath, "test", "libertas",
             "kailonghuang", "Kailong Huang", "kailong@sipher.co", "Personal");
+        await accountModule.createAccount(ccpPath, walletPath, "test", "libertas",
+            "cityoftoronto", "City of Toronto", "city@toronto.ca", "Institution");
 
         // Query for id 'kailonghuang'
-        const account = await accountsModule.queryAccountByID(ccpPath, walletPath,
+        const account = await accountModule.queryAccountByID(ccpPath, walletPath,
             'kelvinfan', 'test', 'libertas', 'kailonghuang');
         console.log(account)
+
+        // Create a campaign
+        var start = Date.parse('2019-7-16');
+        var end = Date.parse('2019-8-1');
+        var startStr = start.toString();
+        var endStr = end.toString();
+        await campaignModule.createCampaign(ccpPath, walletPath, "test", "libertas", "torontomayoralelection", "Toronto Mayoral Election", "Mayoral Election", startStr, endStr, 'cityoftoronto');
 
     } catch (error) {
         console.error(`${error}`);

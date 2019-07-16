@@ -10,7 +10,7 @@
 
 module.exports = {createCampaign}
 
-import { FileSystemWallet, Gateway } from "fabric-network";
+const { FileSystemWallet, Gateway } = require('fabric-network');
 
 /**
  * 
@@ -20,21 +20,21 @@ import { FileSystemWallet, Gateway } from "fabric-network";
  * @param {*} contractName 
  * @param {*} id 
  * @param {*} name 
- * @param {*} kind 
+ * @param {*} campaignType 
  * @param {string} start 
  * @param {string} end 
- * @param {*} username 
+ * @param {*} username ID of user in wallet attemptign to create campaign.
  */
-async function createCampaign(connectionProfilePath, walletPath, channelName, contractName, id, name, kind, start, end, username) {
+async function createCampaign(connectionProfilePath, walletPath, channelName, contractName, id, name, campaignType, start, end, username) {
 
     try {
         // Create a new file system based wallet for managing identities.
-        const walet = new FileSystemWallet(walletPath);
+        const wallet = new FileSystemWallet(walletPath);
 
         // Check to see if user credentials exist in wallet.
         const userExists = await wallet.exists(username);
         if (!userExists) {
-            console.log('User credentials with id: ' + id + ' do not exist in the wallet');
+            console.log('User credentials with id: ' + username + ' do not exist in the wallet');
             return;
         }
 
@@ -49,7 +49,7 @@ async function createCampaign(connectionProfilePath, walletPath, channelName, co
         const contract = network.getContract(contractName);
 
         // Submit the transaction.
-        await contract.submitTransaction('CreateCampaign', id, name, kind, start, end);
+        await contract.submitTransaction('CreateCampaign', id, name, campaignType, start, end);
         console.log('CreateCampaign transaction has been submitted');
 
         // Disconnect from the gateway.

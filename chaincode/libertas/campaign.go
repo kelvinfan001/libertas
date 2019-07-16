@@ -26,7 +26,7 @@ type Campaign struct {
 	ownerID             string
 	ID                  string
 	Name                string
-	Kind                string
+	CampaignType        string
 	Start               time.Time
 	End                 time.Time
 	CreatedAt           time.Time
@@ -35,10 +35,10 @@ type Campaign struct {
 }
 
 // CreateCampaign creates a new campaign.
-// Takes in parameters id, name, kind, start, and end.
+// Takes in parameters id, name, campaignType, start, and end.
 // start and end are number of seconds after Unix epoch.
 func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	var ownerID, id, name, kind string
+	var ownerID, id, name, campaignType string
 	var start, end time.Time
 	var campaignVoterGroups []VoterGroup
 
@@ -71,7 +71,7 @@ func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []strin
 
 	id = args[0]
 	name = args[1]
-	kind = args[2]
+	campaignType = args[2]
 	start = time.Unix(int64(startInt), 0)
 	end = time.Unix(int64(endInt), 0)
 
@@ -96,7 +96,7 @@ func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []strin
 	}
 
 	// Else, create Campaign and add it to list
-	newCampaign := Campaign{ownerID, id, name, kind, start, end, transactionTime,
+	newCampaign := Campaign{ownerID, id, name, campaignType, start, end, transactionTime,
 		transactionTime, campaignVoterGroups}
 	campaignsList.Campaigns = append(campaignsList.Campaigns, newCampaign)
 
@@ -108,7 +108,7 @@ func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []strin
 		return shim.Error(err.Error())
 	}
 
-	fmt.Println("New Campaign added")
+	fmt.Println("New Campaign Added")
 
 	return shim.Success(nil)
 }
