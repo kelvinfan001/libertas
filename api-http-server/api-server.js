@@ -25,7 +25,7 @@ router.get('/queryAccountByID', async (req, res) => {
     var idToQuery = req.query.idToQuery;
 
     result = await accountsModule.queryAccountByID(ccpPath, walletPath,
-        'kailonghuang', 'test', 'libertas', 'kailonghuang');
+        'jingleman', 'test', 'libertas', idToQuery);
     res.send(result);
 });
 
