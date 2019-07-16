@@ -5,7 +5,7 @@ const accountsModule = require('../app/javascript/accounts')
 
 // Set paths to connection profile and wallet
 const ccpPath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connection-sipher.json');
-const networkDirPath = path.resolve(__dirname, '..', 'libertas-dev-network')
+// const networkDirPath = path.resolve(__dirname, '..', 'libertas-dev-network')
 const walletPath = path.join(__dirname, 'app', 'javascript', 'wallet')
 
 app.post('/createAccount', (req, res) => {
@@ -18,7 +18,7 @@ app.post('/createAccount', (req, res) => {
     accountsModule.createAccount(ccpPath, walletPath, "test", "libertas", id, name, email, accountType);
 });
 
-app.listen(3000, () => console.log("Listening on port 3000"));
+app.listen(80, () => console.log("Listening on port 3000"));
 
 
 
