@@ -116,15 +116,6 @@ func (t *Libertas) QueryAccountByID(stub shim.ChaincodeStubInterface, args []str
 
 	accountBytes, _ := json.Marshal(account)
 
-	// // Buffer is a string indicating whether the id exists.
-	// var buffer bytes.Buffer
-
-	// if exists == true {
-	// 	buffer.WriteString("true")
-	// } else {
-	// 	buffer.WriteString("false")
-	// }
-
 	return shim.Success(accountBytes)
 
 }

@@ -35,18 +35,18 @@ async function main() {
         var secret = await registrationEnrollmentModule.registerUser(ccpPath, walletPath,
             "voting_district1", "kelvinfan", "client", "Kelvin Fan", "Personal");
 
+        console.log(secret);
+
         await registrationEnrollmentModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co",
             networkDirPath, "kelvinfan", secret, "SipherMSP");
-
-        console.log(secret);
 
         secret = await registrationEnrollmentModule.registerUser(ccpPath, walletPath,
             "voting_district1", "kailonghuang", "client", "Kailong Huang", "Personal");
 
+        console.log(secret);
+
         await registrationEnrollmentModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co",
             networkDirPath, "kailonghuang", secret, "SipherMSP");
-
-        console.log(secret);
 
         // Create new accounts with id 'kelvinfan' and 'kailonghuang'
         await accountsModule.createAccount(ccpPath, walletPath, "test", "libertas",
@@ -58,7 +58,6 @@ async function main() {
         const account = await accountsModule.queryAccountByID(ccpPath, walletPath,
             'kelvinfan', 'test', 'libertas', 'kailonghuang');
         console.log(account)
-
 
     } catch (error) {
         console.error(`${error}`);

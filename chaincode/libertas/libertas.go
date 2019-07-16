@@ -83,28 +83,28 @@ func (t *Libertas) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	return shim.Success(nil)
 }
 
-// Invoke invokes stuff
+// Invoke invokes funcitions
 func (t *Libertas) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	fmt.Println("Election Invoke")
 	function, args := stub.GetFunctionAndParameters()
 
-	if function == "CreateAccount" { // Account Related Functions
+	if function == "CreateAccount" { // Account-related functions
 		return t.CreateAccount(stub, args)
 	} else if function == "QueryAccountByID" {
 		return t.QueryAccountByID(stub, args)
-	} else if function == "CreateVoterGroup" {
+	} else if function == "CreateVoterGroup" { // Votergroup-related functions
 		return t.CreateVoterGroup(stub, args)
-	} else if function == "ListVoters" { // Voter Related Functions
+	} else if function == "ListVoters" { // Voter-related functions
 		return t.ListVoters(stub, args)
 	} else if function == "CreateVoter" {
 		return t.CreateVoter(stub, args)
 	} else if function == "EditVoter" {
 		return t.EditVoter(stub, args)
-	} else if function == "CreateCampaign" {
+	} else if function == "CreateCampaign" { // Campaign-related functions
 		return t.CreateCampaign(stub, args)
 	}
 
-	return shim.Error("Invalid invoke function name. Expecting \"CreateAccount\", \"QueryAccountsByID\", \"CreateVoterGroup\"")
+	return shim.Error("Invalid invoke function name.")
 }
 
 func main() {
