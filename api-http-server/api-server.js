@@ -18,7 +18,7 @@ app.post('/createAccount', (req, res) => {
     accountsModule.createAccount(ccpPath, walletPath, "test", "libertas", id, name, email, accountType);
 });
 
-app.listen(3000, () => console.log("Listening on port 3000"));
+app.listen(80, () => console.log("Listening on port 3000"));
 
 
 
