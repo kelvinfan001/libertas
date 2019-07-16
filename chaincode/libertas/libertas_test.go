@@ -28,7 +28,7 @@ func TestLibertas_Init(t *testing.T) {
 
 // Cannot test create account due to lack of support to mock certificates.
 
-// Tests QueryAccount
+// Tests QueryAccountExists
 func TestLibertas_QueryAccount(t *testing.T) {
 	scc := new(Libertas)
 	stub := shim.NewMockStub("libertas", scc)
@@ -48,8 +48,12 @@ func TestLibertas_QueryAccount(t *testing.T) {
 	stub.PutState("Accounts List", accountsListBytes)
 
 	checkStateAccountListExists(t, stub)
-	got := returnInvoke(t, stub, [][]byte{[]byte("QueryAccountsByID"), []byte("kelvinfan")})
-	if string(got.GetPayload()) != "true" {
-		t.Errorf("Account: kelvinfan should exist. Instead, got not exist.")
+
+	got := returnInvoke(t, stub, [][]byte{[]byte("QueryAccountByID"), []byte("kelvinfan")})
+	payload := got.GetPayload()
+	account := Account{}
+	json.Unmarshal(payload, &account)
+	if account.ID != "kelvinfan" {
+		t.Errorf("The queried account kelvinfan should have id kelvinfan.")
 	}
 }
