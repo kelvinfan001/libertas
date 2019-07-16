@@ -6,20 +6,22 @@
 
 'use strict';
 
-const registrationEnrollmentModule = require('../registrationEnrollment');
-const path = require('path');
+const accountModule = require('../accounts');
+const path = require('path')
 
-const walletPath = path.join(process.cwd(), 'wallet')
 const ccpPath = path.resolve(__dirname, '..', '..', '..', 'libertas-dev-network', 'connection-sipher.json');
+const walletPath = path.join(process.cwd(), 'wallet')
 
 async function main() {
 
     try {
-        await registrationEnrollmentModule.addAffiliation(walletPath, ccpPath, 'voting_district1')
+        const result = await accountModule.queryAccountByID(ccpPath, walletPath, "kelvinfan", "test", "libertas", "kailonghuang");
+        console.log(result)
     } catch (error) {
         console.error(`${error}`);
         process.exit(1);
     }
+
 }
 
-main()
+main();

@@ -7,8 +7,8 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -68,7 +68,7 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 	json.Unmarshal(accountsListBytes, &accountsList)
 
 	// If account with id already exists in accountsList, return error
-	accountExists := queryAccountsByID(id, accountsList.Accounts)
+	accountExists := queryAccountExistsByID(id, accountsList.Accounts)
 	if accountExists {
 		return shim.Error("This ID already exists")
 	}
@@ -91,7 +91,7 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 }
 
 // QueryAccountsByID queries existing accounts in the ledger for id and returns whether it exists.
-func (t *Libertas) QueryAccountsByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *Libertas) QueryAccountByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
 	var id string
 	id = args[0]
@@ -108,23 +108,41 @@ func (t *Libertas) QueryAccountsByID(stub shim.ChaincodeStubInterface, args []st
 	accountsList := AccountsList{}
 	json.Unmarshal(accountsListBytes, &accountsList)
 
-	exists := queryAccountsByID(id, accountsList.Accounts)
+	account, err := queryAccountsByID(id, accountsList.Accounts)
 
-	// Buffer is a string indicating whether the id exists.
-	var buffer bytes.Buffer
-
-	if exists == true {
-		buffer.WriteString("true")
-	} else {
-		buffer.WriteString("false")
+	if err != nil {
+		return shim.Error(err.Error())
 	}
 
-	return shim.Success(buffer.Bytes())
+	accountBytes, _ := json.Marshal(account)
+
+	// // Buffer is a string indicating whether the id exists.
+	// var buffer bytes.Buffer
+
+	// if exists == true {
+	// 	buffer.WriteString("true")
+	// } else {
+	// 	buffer.WriteString("false")
+	// }
+
+	return shim.Success(accountBytes)
 
 }
 
-// queryByAccountsId queries the Accounts array for id and returns whether it exists.
-func queryAccountsByID(id string, accounts []Account) bool {
+// queryByAccountsId queries the Accounts array for id and returns the account with id.
+func queryAccountsByID(id string, accounts []Account) (Account, error) {
+
+	for _, v := range accounts {
+		if v.ID == id {
+			return v, nil
+		}
+	}
+
+	return Account{}, errors.New("Account with id: " + id + " does not exist.")
+}
+
+// queryByAccountExistsById queries the Accounts array for id and returns whether it exists.
+func queryAccountExistsByID(id string, accounts []Account) bool {
 
 	for _, v := range accounts {
 		if v.ID == id {

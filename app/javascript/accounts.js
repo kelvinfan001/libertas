@@ -8,7 +8,7 @@
 
 'use strict';
 
-module.exports = { createAccount, queryAccountsByID };
+module.exports = { createAccount, queryAccountByID };
 
 const { FileSystemWallet, Gateway } = require('fabric-network');
 const path = require('path');
@@ -65,7 +65,7 @@ async function createAccount(connectionProfilePath, walletPath, channelName, con
 
 
 /**
- * Calls chaincode function queryByID.
+ * Calls chaincode function queryAccountByID.
  * @param {string} connectionProfilePath Path to connection profile.
  * @param {string} walletPath Path to wallet containing user certificate and private/public keys.
  * @param {string} id ID of user making call. Same as enrollment ID.
@@ -73,7 +73,7 @@ async function createAccount(connectionProfilePath, walletPath, channelName, con
  * @param {string} contractName Name of contract installed as specified in 'install.sh'
  * @param {string} idToQuery ID of user to query.
  */
-async function queryAccountsByID(connectionProfilePath, walletPath, id, channelName, contractName, idToQuery) {
+async function queryAccountByID(connectionProfilePath, walletPath, id, channelName, contractName, idToQuery) {
 
     try {
         // Create a new file system based walllet for managing identities.
@@ -97,7 +97,7 @@ async function queryAccountsByID(connectionProfilePath, walletPath, id, channelN
         const contract = network.getContract(contractName);
 
         // Submit the transaction.
-        const queryResult = await contract.evaluateTransaction('QueryAccountsByID', idToQuery);
+        const queryResult = await contract.evaluateTransaction('QueryAccountByID', idToQuery);
         console.log('Query Success.');
 
         // Disconnect from the gateway.

@@ -55,13 +55,9 @@ async function main() {
             "kailonghuang", "Kailong Huang", "kailong@sipher.co", "Personal");
 
         // Query for id 'kailonghuang'
-        const userExists = await accountsModule.queryAccountsByID(ccpPath, walletPath,
+        const account = await accountsModule.queryAccountByID(ccpPath, walletPath,
             'kelvinfan', 'test', 'libertas', 'kailonghuang');
-        if (userExists === 'true') {
-            console.log('ID kailonghuang exists');
-        } else {
-            console.log('ID kailonghuang does not exist');
-        }
+        console.log(account)
 
 
     } catch (error) {
