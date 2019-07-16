@@ -77,6 +77,10 @@ async function main() {
         var startStr = start.toString();
         var endStr = end.toString();
         await campaignModule.createCampaign(ccpPath, walletPath, "test", "libertas", "torontomayoralelection", "Toronto Mayoral Election", "Mayoral Election", startStr, endStr, 'cityoftoronto');
+        
+        // Query for campaign with id 'torontomayoralelection'
+        const campaign = await campaignModule.queryCampaignByID(ccpPath, walletPath, 'kelvinfan', 'test', 'libertas', 'torontomayoralelection');
+        console.log(campaign)
 
     } catch (error) {
         console.error(`${error}`);

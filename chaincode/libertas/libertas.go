@@ -102,6 +102,8 @@ func (t *Libertas) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.EditVoter(stub, args)
 	} else if function == "CreateCampaign" { // Campaign-related functions
 		return t.CreateCampaign(stub, args)
+	} else if function == "QueryCampaignByID" {
+		return t.QueryCampaignByID(stub, args)
 	}
 
 	return shim.Error("Invalid invoke function name.")
