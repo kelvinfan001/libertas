@@ -122,7 +122,7 @@ async function registerUser(connectionProfilePath, walletPath, affiliation, enro
         // Check to see if user is already enrolled.
         const userExists = await wallet.exists(enrollmentID);
         if (userExists) {
-            console.log(enrollmentID + "identity already exists in the wallet");
+            console.log(enrollmentID + " identity already exists in the wallet");
             return;
         }
 
