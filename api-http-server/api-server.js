@@ -8,6 +8,8 @@ const ccpPath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connectio
 // const networkDirPath = path.resolve(__dirname, '..', 'libertas-dev-network')
 const walletPath = path.join(__dirname, 'app', 'javascript', 'wallet')
 
+//-----------------------------------------ACCOUNT FUNCTIONS--------------------------------------------------
+
 app.post('/createAccount', (req, res) => {
     // get params
     var id = req.body.id;
@@ -15,10 +17,18 @@ app.post('/createAccount', (req, res) => {
     var email = req.body.email;
     var accountType = req.body.accountType;
 
-    accountsModule.createAccount(ccpPath, walletPath, "test", "libertas", id, name, email, accountType);
+    await accountsModule.createAccount(ccpPath, walletPath, "test", "libertas", id, name, email, accountType);
 });
 
-app.listen(80, () => console.log("Listening on port 3000"));
+app.get('/queryAccountByID', (req, res) => {
+    // get params
+    var idToQuery = req.query.idToQuery;
+
+    result = await accountsModule.queryAccountByID(ccpPath, walletPath, "test", "libertas", idToQuery);
+    res.send(result);
+});
+
+app.listen(80, () => console.log("Listening on port 80"));
 
 
 
