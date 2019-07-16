@@ -8,6 +8,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -90,7 +91,7 @@ func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []strin
 	json.Unmarshal(campaignsListBytes, &campaignsList)
 
 	// If campaign with id already exists in campaignList, return Error
-	campaignExists := queryCampaignsByID(id, campaignsList.Campaigns)
+	campaignExists := queryCampaignExistsByID(id, campaignsList.Campaigns)
 	if campaignExists {
 		return shim.Error("Campaign with this ID already exists.")
 	}
@@ -113,8 +114,8 @@ func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []strin
 	return shim.Success(nil)
 }
 
-// queryCampaignsByID queries the Campaigns array for id and returns whether it exists.
-func queryCampaignsByID(id string, campaigns []Campaign) bool {
+// queryCampaignExistsByID queries the Campaigns array for id and returns whether it exists.
+func queryCampaignExistsByID(id string, campaigns []Campaign) bool {
 
 	for _, v := range campaigns {
 		if v.ID == id {
@@ -123,6 +124,46 @@ func queryCampaignsByID(id string, campaigns []Campaign) bool {
 	}
 
 	return false
+}
+
+// queryCampaignByID is a helper that queries the Campaigns array for id and returns it.
+func queryCampaignByID(id string, campaigns []Campaign) (Campaign, error) {
+
+	for _, v := range campaigns {
+		if v.ID == id {
+			return v, nil
+		}
+	}
+
+	return Campaign{}, errors.New("Campaign with id: " + id + " does not exist.")
+}
+
+// QueryCampaignByID queries the Campaigns array for id and returns it.
+func (t *Libertas) QueryCampaignByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	var id string
+	id = args[0]
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1.")
+	}
+
+	// Get list of campaigns from the world state.
+	campaignsListBytes, err := stub.GetState("Campaigns List")
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	campaignsList := CampaignsList{}
+	json.Unmarshal(campaignsListBytes, &campaignsList)
+
+	campaign, err := queryCampaignByID(id, campaignsList.Campaigns)
+
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	campaignBytes, _ := json.Marshal(campaign)
+
+	return shim.Success(campaignBytes)
 }
 
 // AddVoterGroupToCampaign adds a VoterGroup to Campaign with ID id.

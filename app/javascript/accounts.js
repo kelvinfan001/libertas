@@ -65,7 +65,7 @@ async function createAccount(connectionProfilePath, walletPath, channelName, con
 
 
 /**
- * Calls chaincode function queryAccountByID.
+ * Calls chaincode function QueryAccountByID.
  * @param {string} connectionProfilePath Path to connection profile.
  * @param {string} walletPath Path to wallet containing user certificate and private/public keys.
  * @param {string} id ID of user making call. Same as enrollment ID.

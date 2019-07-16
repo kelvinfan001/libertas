@@ -108,7 +108,7 @@ func (t *Libertas) QueryAccountByID(stub shim.ChaincodeStubInterface, args []str
 	accountsList := AccountsList{}
 	json.Unmarshal(accountsListBytes, &accountsList)
 
-	account, err := queryAccountsByID(id, accountsList.Accounts)
+	account, err := queryAccountByID(id, accountsList.Accounts)
 
 	if err != nil {
 		return shim.Error(err.Error())
@@ -120,8 +120,8 @@ func (t *Libertas) QueryAccountByID(stub shim.ChaincodeStubInterface, args []str
 
 }
 
-// queryByAccountsId queries the Accounts array for id and returns the account with id.
-func queryAccountsByID(id string, accounts []Account) (Account, error) {
+// queryAccountByID is a helper that queries the Accounts array for id and returns the account with id.
+func queryAccountByID(id string, accounts []Account) (Account, error) {
 
 	for _, v := range accounts {
 		if v.ID == id {
