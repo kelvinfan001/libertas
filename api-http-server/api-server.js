@@ -12,16 +12,20 @@ const walletPath = path.join(__dirname, '..', 'app', 'javascript', 'test_program
 
 router.post('/createAccount', async function (req, res) {
     try {
-        let id = req.body.id;
-        let name = req.body.name;
-        let email = req.body.email;
-        let accountType = req.body.accountType;
+        // let id = req.body.id;
+        // let name = req.body.name;
+        // let email = req.body.email;
+        // let accountType = req.body.accountType;
+
+        // get JSON params
+        console.log(req.body)
 
         // await accountsModule.createAccount(ccpPath, walletPath, "test", "libertas", id, name, email, accountType);
     } catch (error) {
         console.log(error)
     }
 });
+
 
 // router.get('/queryAccountByID', async function (req, res) {
 //     try {
