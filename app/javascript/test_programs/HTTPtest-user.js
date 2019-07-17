@@ -6,6 +6,11 @@ const ccpPath = path.resolve(__dirname, '..', '..', '..', 'libertas-dev-network'
 const networkDirPath = path.resolve(__dirname, '..', '..', '..', 'libertas-dev-network')
 
 //--------------------------------------------Register and Enroll----------------------------------------
+async function registerAndEnroll() {
+    secret = await register()
+    await enroll(secret)
+}
+
 async function register() {
 
     try {
@@ -29,5 +34,4 @@ async function enroll(secret) {
     }
 }
 
-secret = register()
-enroll(secret)
+registerAndEnroll()
