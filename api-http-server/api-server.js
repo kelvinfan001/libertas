@@ -10,31 +10,30 @@ const walletPath = path.join(__dirname, '..', 'app', 'javascript', 'test_program
 
 //-----------------------------------------ACCOUNT FUNCTIONS--------------------------------------------------
 
-router.post('/createAccount', async function(req, res) {
-    // get params
-    var id = req.body.id;
-    var name = req.body.name;
-    var email = req.body.email;
-    var accountType = req.body.accountType;
+router.post('/createAccount', async function (req, res) {
+    try {
+        let id = req.body.id;
+        let name = req.body.name;
+        let email = req.body.email;
+        let accountType = req.body.accountType;
 
-    await accountsModule.createAccount(ccpPath, walletPath, "test", "libertas", id, name, email, accountType);
+        await accountsModule.createAccount(ccpPath, walletPath, "test", "libertas", id, name, email, accountType);
+    } catch (error) {
+        console.log(error)
+    }
+
 });
 
-router.get('/queryAccountByID', async function(req, res) {
-    // get params
-    var idToQuery = req.query.idToQuery;
-
-    result = await accountsModule.queryAccountByID(ccpPath, walletPath,
-        'jingleman', 'test', 'libertas', idToQuery);
-    res.send(result);
+router.get('/queryAccountByID', async function (req, res) {
+    try {
+        let idToQuery = req.query.idToQuery;
+    
+        let result = await accountsModule.queryAccountByID(ccpPath, walletPath,
+            'jingleman', 'test', 'libertas', idToQuery);
+        res.send(result);
+    } catch (error) {
+        console.log(error)
+    }
 });
 
 router.listen(80, () => console.log("Listening on port 80"));
-
-
-
-
-
-
-
-

@@ -3,16 +3,16 @@
 const fetch = require('node-fetch');
 
 fetch('http://155.138.134.91/createAccount', {
-    method: 'POST',
+    method: 'post',
     body: JSON.stringify({
         id: 'jingleman',
         name: 'Jingle Man',
         email: 'jingle@sipher.co',
         accountType: 'Personal'
     }),
-    headers: {
+    headers: new fetch.Headers({
         'Content-Type': 'application/json',
-    }
+    })
 });
 
 let url = 'http://155.138.134.91/queryAccountByID?idToQuery=jingleman'
