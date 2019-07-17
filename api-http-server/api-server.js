@@ -13,21 +13,22 @@ const walletPath = path.join(__dirname, '..', 'app', 'javascript', 'test_program
 router.post('/createAccount', async (req, res) => {
     // get params
     var id = req.body.id;
-    var name = req.body.name;
-    var email = req.body.email;
-    var accountType = req.body.accountType;
+    console.log(id);
+    // var name = req.body.name;
+    // var email = req.body.email;
+    // var accountType = req.body.accountType;
 
     await accountsModule.createAccount(ccpPath, walletPath, "test", "libertas", id, name, email, accountType);
 });
 
-router.get('/queryAccountByID', async (req, res) => {
-    // get params
-    var idToQuery = req.query.idToQuery;
+// router.get('/queryAccountByID', async (req, res) => {
+//     // get params
+//     var idToQuery = req.query.idToQuery;
 
-    result = await accountsModule.queryAccountByID(ccpPath, walletPath,
-        'jingleman', 'test', 'libertas', idToQuery);
-    res.send(result);
-});
+//     result = await accountsModule.queryAccountByID(ccpPath, walletPath,
+//         'jingleman', 'test', 'libertas', idToQuery);
+//     res.send(result);
+// });
 
 router.listen(80, () => console.log("Listening on port 80"));
 
