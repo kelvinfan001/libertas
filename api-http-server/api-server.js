@@ -9,8 +9,10 @@ const ccpPath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connectio
 const walletPath = path.join(__dirname, '..', 'app', 'javascript', 'test_programs', 'wallet')
 
 // JSON parser 
-router.use(express.urlencoded({ extended: false }))
-.use(express.json());
+router.use(express.urlencoded({
+        extended: false
+    }))
+    .use(express.json());
 
 //-----------------------------------------ACCOUNT FUNCTIONS--------------------------------------------------
 
@@ -28,14 +30,14 @@ router.post('/createAccount', async function (req, res) {
 });
 
 
-router.get('/queryAccountsByID', async function (req, res) {
+router.get('/queryAccountByID', async function (req, res) {
     try {
         let idToQuery = req.query.idToQuery;
         console.log(idToQuery)
-    
-        // let result = await accountsModule.queryAccountByID(ccpPath, walletPath,
-        //     'jingleman', 'test', 'libertas', idToQuery);
-        // res.send(result);
+
+        let result = await accountsModule.queryAccountByID(ccpPath, walletPath,
+            'jingleman', 'test', 'libertas', idToQuery);
+        res.send(result);
     } catch (error) {
         console.log(error)
     }
