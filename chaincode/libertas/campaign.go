@@ -24,7 +24,7 @@ type CampaignsList struct {
 
 // Campaign is a campaign.
 type Campaign struct {
-	ownerID             string
+	OwnerID             string
 	ID                  string
 	Name                string
 	CampaignType        string
@@ -87,6 +87,9 @@ func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []strin
 
 	// Get list of Campaigns from the ledger
 	campaignsListBytes, err := stub.GetState("Campaigns List")
+	if err != nil {
+		shim.Error(err.Error())
+	}
 	campaignsList := CampaignsList{}
 	json.Unmarshal(campaignsListBytes, &campaignsList)
 

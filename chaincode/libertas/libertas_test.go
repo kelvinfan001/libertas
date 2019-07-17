@@ -86,14 +86,19 @@ func TestLibertas_Campaign(t *testing.T) {
 	// Put on state
 	stub.PutState("Campaigns List", campaignsListBytes)
 
+	// checkInvoke(t, stub, [][]byte{[]byte("CreateCampaign"), []byte("torontomayoralelection"), []byte("Toronto Mayoral Election"), []byte("Mayoral Election"), []byte("0"), []byte("1000")})
+
+	// checkInvoke(t, stub, [][]byte{[]byte("CreateCampaign"), []byte("torontomayoralelection"), []byte("Toronto Mayoral Election"), []byte("Mayoral Election"), []byte("0"), []byte("1000")})
+
 	// Query for campaign with id "torontomayoralelection"
 	got := returnInvoke(t, stub, [][]byte{[]byte("QueryCampaignByID"), []byte("torontomayoralelection")})
 	payload := got.GetPayload()
 	campaign := Campaign{}
 	json.Unmarshal(payload, &campaign)
 	if campaign.ID != "torontomayoralelection" {
-		t.Errorf("The queried campaign should have id 'torontomayoralelection'")
+		// t.Errorf("The queried campaign should have id 'torontomayoralelection'")
+		t.Errorf(string(payload))
 	}
 }
 
-// Cannot test campaign due to lack of support for mock certificates.
+// Cannot test create campaign due to lack of support for mock certificates.

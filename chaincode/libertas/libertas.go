@@ -75,7 +75,7 @@ func (t *Libertas) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	// Initialize campaign list
 	campaignList := CampaignsList{}
 	campaignListBytes, _ := json.Marshal(campaignList)
-	err = stub.PutState("Campaign List", campaignListBytes)
+	err = stub.PutState("Campaigns List", campaignListBytes)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
