@@ -6,7 +6,7 @@ const accountsModule = require('../app/javascript/accounts')
 // Set paths to connection profile and wallet
 const ccpPath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connection-sipher.json');
 // const networkDirPath = path.resolve(__dirname, '..', 'libertas-dev-network')
-const walletPath = path.join(__dirname, 'app', 'javascript', 'test_programs', 'wallet')
+const walletPath = path.join(__dirname, '..', 'app', 'javascript', 'test_programs', 'wallet')
 
 //-----------------------------------------ACCOUNT FUNCTIONS--------------------------------------------------
 
