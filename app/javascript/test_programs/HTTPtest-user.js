@@ -15,6 +15,7 @@ async function register() {
         process.exit(1);
     }
 
+    console.log(secret)
     return secret
 }
 
