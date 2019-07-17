@@ -28,16 +28,16 @@ router.post('/createAccount', async function (req, res) {
 });
 
 
-router.get('/queryAccountByID', async function (req, res) {
-    try {
-        let idToQuery = req.query.idToQuery;
+// router.get('/queryAccountsByID', async function (req, res) {
+//     try {
+//         let idToQuery = req.query.idToQuery;
     
-        let result = await accountsModule.queryAccountByID(ccpPath, walletPath,
-            'jingleman', 'test', 'libertas', idToQuery);
-        res.send(result);
-    } catch (error) {
-        console.log(error)
-    }
-});
+//         let result = await accountsModule.queryAccountByID(ccpPath, walletPath,
+//             'jingleman', 'test', 'libertas', idToQuery);
+//         res.send(result);
+//     } catch (error) {
+//         console.log(error)
+//     }
+// });
 
 router.listen(80, () => console.log("Listening on port 80"));
