@@ -14,27 +14,28 @@ router.use(express.urlencoded({ extended: false }))
 
 //-----------------------------------------ACCOUNT FUNCTIONS--------------------------------------------------
 
-// router.post('/createAccount', async function (req, res) {
-//     try {
-//         let id = req.body.id;
-//         let name = req.body.name;
-//         let email = req.body.email;
-//         let accountType = req.body.accountType;
+router.post('/createAccount', async function (req, res) {
+    try {
+        let id = req.body.id;
+        let name = req.body.name;
+        let email = req.body.email;
+        let accountType = req.body.accountType;
 
-//         await accountsModule.createAccount(ccpPath, walletPath, "test", "libertas", id, name, email, accountType);
-//     } catch (error) {
-//         console.log(error)
-//     }
-// });
+        await accountsModule.createAccount(ccpPath, walletPath, "test", "libertas", id, name, email, accountType);
+    } catch (error) {
+        console.log(error)
+    }
+});
 
 
 router.get('/queryAccountsByID', async function (req, res) {
     try {
         let idToQuery = req.query.idToQuery;
+        console.log(idToQuery)
     
-        let result = await accountsModule.queryAccountByID(ccpPath, walletPath,
-            'jingleman', 'test', 'libertas', idToQuery);
-        res.send(result);
+        // let result = await accountsModule.queryAccountByID(ccpPath, walletPath,
+        //     'jingleman', 'test', 'libertas', idToQuery);
+        // res.send(result);
     } catch (error) {
         console.log(error)
     }
