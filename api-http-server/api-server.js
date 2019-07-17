@@ -9,7 +9,7 @@ const ccpPath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connectio
 const walletPath = path.join(__dirname, '..', 'app', 'javascript', 'test_programs', 'wallet')
 
 // JSON parser 
-app.use(express.urlencoded({ extended: false }))
+router.use(express.urlencoded({ extended: false }))
 .use(express.json());
 
 //-----------------------------------------ACCOUNT FUNCTIONS--------------------------------------------------
