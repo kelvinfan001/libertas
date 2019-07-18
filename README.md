@@ -38,8 +38,8 @@ This is NOT production ready.
 * build-essentials(for linux)
 * Fabric binaries
 
-# Priorities
-## 1 - Finish connecting backend and frontend, chaincode, HTTP APIs
-## 2 - Fix GRPC and private key server issue
-## 3 - Finish no-more-cli and get no-more-cryptogen running  
+## Priorities
+* Finish connecting backend and frontend, chaincode, HTTP APIs
+* Fix GRPC and private key server issue
+* Finish no-more-cli and get no-more-cryptogen running  
 
