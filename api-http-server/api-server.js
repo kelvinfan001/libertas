@@ -23,6 +23,7 @@ router.post('/createAccount', async function (req, res) {
         let accountType = req.body.accountType;
 
         await accountsModule.createAccount(ccpPath, walletPath, "test", "libertas", id, name, email, accountType);
+        res.send('Success');
     } catch (error) {
         console.log(error)
     }
@@ -32,10 +33,7 @@ router.post('/createAccount', async function (req, res) {
 router.get('/queryAccountByID', async function (req, res) {
     try {
         let idToQuery = req.query.idToQuery;
-        console.log(idToQuery)
-
-        let result = await accountsModule.queryAccountByID(ccpPath, walletPath,
-            'jingleman', 'test', 'libertas', idToQuery);
+        let result = await accountsModule.queryAccountByID(ccpPath, walletPath, 'jingleman', 'test', 'libertas', idToQuery);
         res.send(result);
     } catch (error) {
         console.log(error)
@@ -64,13 +62,26 @@ router.post('/createCampaign', async function (req, res) {
 router.get('/queryCampaignByID', async function (req, res) {
     try {
         let idToQuery = req.query.idToQuery;
-        console.log(idToQuery)
-
-        let result = await accountsModule.queryCampaignByID(ccpPath, walletPath,
-            'jingleman', 'test', 'libertas', idToQuery);
+        let result = await accountsModule.queryCampaignByID(ccpPath, walletPath, 'jingleman', 'test', 'libertas', idToQuery);
         res.send(result);
     } catch (error) {
         console.log(error)
     }
 });
 
+//-----------------------------------------VOTER GROUP FUNCTIONS--------------------------------------------------
+
+
+// TODO:
+
+
+
+
+//-----------------------------------------VOTER FUNCTIONS--------------------------------------------------
+
+// TODO:
+
+
+//-----------------------------------------VOTE FUNCTIONS--------------------------------------------------
+
+// TODO:
