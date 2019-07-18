@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Sipher Inc
+ * Copyright 2019 Sipher Inc.
  *
  * SPDX-License-Identifier: Apache-2.0
  * 
@@ -13,7 +13,7 @@ module.exports = {createCampaign, queryCampaignByID}
 const { FileSystemWallet, Gateway } = require('fabric-network');
 
 /**
- * 
+ * Calls chaincode function CreateCampaign.
  * @param {*} connectionProfilePath 
  * @param {*} walletPath 
  * @param {*} channelName 
