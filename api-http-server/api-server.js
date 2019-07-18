@@ -1,7 +1,11 @@
 const path = require('path');
 const express = require('express');
 const router = express();
+
+// modules
 const accountsModule = require('../app/javascript/accounts')
+const campaignModule = require('../app/javascript/campaign')
+
 
 // environment variables
 const ccpPath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connection-sipher.json');
@@ -53,7 +57,7 @@ router.post('/createCampaign', async function (req, res) {
         let end = req.body.end;
         let username = req.body.username;
 
-        await accountsModule.createCampaign(ccpPath, walletPath, 'jingleman', 'test', 'libertas', id, name, campaignType, start, end, username);
+        await campaignModule.createCampaign(ccpPath, walletPath, 'jingleman', 'test', 'libertas', id, name, campaignType, start, end, username);
     } catch (error) {
         console.log(error)
     }
@@ -62,7 +66,7 @@ router.post('/createCampaign', async function (req, res) {
 router.get('/queryCampaignByID', async function (req, res) {
     try {
         let idToQuery = req.query.idToQuery;
-        let result = await accountsModule.queryCampaignByID(ccpPath, walletPath, 'jingleman', 'test', 'libertas', idToQuery);
+        let result = await campaignModule.queryCampaignByID(ccpPath, walletPath, 'jingleman', 'test', 'libertas', idToQuery);
         res.send(result);
     } catch (error) {
         console.log(error)
