@@ -37,3 +37,9 @@ This is NOT production ready.
 * Docker-compose
 * build-essentials(for linux)
 * Fabric binaries
+
+# Priorities
+## 1 - Finish connecting backend and frontend, chaincode, HTTP APIs
+## 2 - Fix GRPC and private key server issue
+## 3 - Finish no-more-cli and get no-more-cryptogen running  
+
