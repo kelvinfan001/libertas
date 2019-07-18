@@ -31,7 +31,7 @@
             },
             "grpcOptions": {
                 "ssl-target-name-override": "peer0.libertas.sipher.co",
-                "request-timeout": "12000100000"
+                "request-timeout": "120001000000000000"
             }
         },
         "peer1.libertas.sipher.co": {
@@ -41,7 +41,7 @@
             },
             "grpcOptions": {
                 "ssl-target-name-override": "peer1.libertas.sipher.co",
-                "request-timeout": "12000100000"
+                "request-timeout": "120001000000000000"
             }
         }
     },
