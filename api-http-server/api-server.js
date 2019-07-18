@@ -57,7 +57,7 @@ router.post('/createCampaign', async function (req, res) {
         let end = req.body.end;
         let username = req.body.username;
 
-        await campaignModule.createCampaign(ccpPath, walletPath, 'jingleman', 'test', 'libertas', id, name, campaignType, start, end, username);
+        await campaignModule.createCampaign(ccpPath, walletPath, 'test', 'libertas', id, name, campaignType, start, end, username);
     } catch (error) {
         console.log(error)
     }
