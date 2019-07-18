@@ -40,6 +40,7 @@ This is NOT production ready.
 
 ## Priorities
 * Finish connecting backend and frontend, chaincode, HTTP APIs
-* Fix GRPC and private key server issue
+* Fix private key server issue
+* Fix GRPC
 * Finish no-more-cli and get no-more-cryptogen running  
 
