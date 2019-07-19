@@ -27,6 +27,12 @@ async function createAccount(username, name, email, accountType) {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
         }
+    }).then(function (res) {
+        res.stringify().then(function (data) {
+            console.log(data);
+        })
+    }).catch(function (error) {
+        console.log(error)
     });
 
     // signStuff >> signed cert for transaction
@@ -75,8 +81,13 @@ async function createCampaign(id, name, campaignType, start, end, username) {
             // 'Accept': 'application/json',
             'Content-Type': 'application/json',
         }
+    }).then(function (res) {
+        res.stringify().then(function (data) {
+            console.log(data);
+        })
+    }).catch(function (error) {
+        console.log(error)
     });
-
 }
 
 /**
@@ -103,8 +114,8 @@ async function queryCampaignByID(username, idToQuery) {
 // Here are some sample API calls 
 
 // Account: we create an instituion account 
-// createAccount('ciudad7', 'Ciudad', 'ciudad@sipher.co', 'Institution');
-// queryAccountByID('ciudad6', 'ciudad6');
+createAccount('ciudad8', 'Ciudad', 'ciudad@sipher.co', 'Institution');
+queryAccountByID('ciudad8', 'ciudad8');
 
 
 // Campaign: using our institution account, we create a new campaign
@@ -112,5 +123,5 @@ var start = Date.parse('2019-7-16');
 var end = Date.parse('2019-8-1');
 var startStr = start.toString();
 var endStr = end.toString();
-createCampaign('ciudad7', 'Ciudad7 Election', 'Mayoral Election', startStr, endStr, 'ciudad7');
+createCampaign('ciudad8', 'Ciudad8 Election', 'Mayoral Election', startStr, endStr, 'ciudad8');
 // queryCampaignByID('ciudad');

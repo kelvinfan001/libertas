@@ -49,6 +49,7 @@ async function createCampaign(connectionProfilePath, walletPath, channelName, co
         const contract = network.getContract(contractName);
 
         // Submit the transaction.
+        console.log('ABOUT TO DO IT');
         await contract.submitTransaction('CreateCampaign', id, name, campaignType, start, end);
         console.log('CreateCampaign transaction has been submitted');
 

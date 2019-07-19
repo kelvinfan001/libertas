@@ -62,6 +62,7 @@ router.post('/createCampaign', async function (req, res) {
         const username = req.body.username;
 
         await campaignModule.createCampaign(ccpPath, walletPath, 'test', 'libertas', id, name, campaignType, start, end, username);
+        res.send('Success');
     } catch (error) {
         console.log(error)
     }
