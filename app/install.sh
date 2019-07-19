@@ -27,7 +27,7 @@ export CHANNEL_NAME=test
 # set contract (chaincode) name
 CONTRACT_NAME=libertas
 # set chaincode version
-CHAINCODE_VERSION=1.7.5
+CHAINCODE_VERSION=1.6.1
 
 # clean the keystore
 rm -rf ./hfc-key-store
@@ -113,7 +113,8 @@ docker exec \
     -e CORE_PEER_TLS_ROOTCERT_FILE=${SIPHER_TLS_ROOTCERT_FILE} \
     cli \
     peer channel update \
-        -o orderer.sipher.co:7050 -c $CHANNEL_NAME \
+        -o orderer.sipher.co:7050 \
+        -c $CHANNEL_NAME \
         -f ./channel-artifacts/SipherMSPanchors.tx \
         --tls \
         --cafile ${ORDERER_TLS_ROOTCERT_FILE} \

@@ -8,10 +8,164 @@
 
 'use strict';
 
-module.exports = { createAccount, queryAccountByID };
+module.exports = { createAccount, queryAccountByID, createAccountOffline };
 
-const { FileSystemWallet, Gateway } = require('fabric-network');
+const fs = require('fs');
 const path = require('path');
+
+const FabricCAService = require('fabric-ca-client');
+const Client = require('fabric-client');
+const hash = require('fabric-client/lib/hash');
+
+const jsrsa = require('jsrsasign');
+const { KEYUTIL } = jsrsa;
+const elliptic = require('elliptic');
+const EC = elliptic.ec;
+
+const PRIVATE_KEY_PATH = path.resolve(__dirname, './wallet/kelvinfan/933fff033e5b0f4025e254f597dd794a160896f63da1dd478674ff0290d262b4-priv');
+const PRIVATE_KEY = fs.readFileSync(PRIVATE_KEY_PATH, 'utf8');
+
+// this ordersForCurve comes from CryptoSuite_ECDSA_AES.js and will be part of the
+// stand alone fabric-sig package in future.
+const ordersForCurve = {
+    'secp256r1': {
+        'halfOrder': elliptic.curves.p256.n.shrn(1),
+        'order': elliptic.curves.p256.n
+    },
+    'secp384r1': {
+        'halfOrder': elliptic.curves.p384.n.shrn(1),
+        'order': elliptic.curves.p384.n
+    }
+};
+
+// this function comes from CryptoSuite_ECDSA_AES.js and will be part of the
+// stand alone fabric-sig package in future.
+function _preventMalleability(sig, curveParams) {
+    const halfOrder = ordersForCurve[curveParams.name].halfOrder;
+    if (!halfOrder) {
+        throw new Error('Can not find the half order needed to calculate "s" value for immalleable signatures. Unsupported curve name: ' + curveParams.name);
+    }
+
+    // in order to guarantee 's' falls in the lower range of the order, as explained in the above link,
+    // first see if 's' is larger than half of the order, if so, it needs to be specially treated
+    if (sig.s.cmp(halfOrder) === 1) { // module 'bn.js', file lib/bn.js, method cmp()
+        // convert from BigInteger used by jsrsasign Key objects and bn.js used by elliptic Signature objects
+        const bigNum = ordersForCurve[curveParams.name].order;
+        sig.s = bigNum.sub(sig.s);
+    }
+
+    return sig;
+}
+
+/**
+ * this method is used for test at this moment. In future this
+ * would be a stand alone package that running at the browser/cellphone/PAD
+ *
+ * @param {string} privateKey PEM encoded private key
+ * @param {Buffer} proposalBytes proposal bytes
+ */
+function sign(privateKey, proposalBytes, algorithm, keySize) {
+    const hashAlgorithm = algorithm.toUpperCase();
+    const hashFunction = hash[`${hashAlgorithm}_${keySize}`];
+    const ecdsaCurve = elliptic.curves[`p${keySize}`];
+    const ecdsa = new EC(ecdsaCurve);
+    const key = KEYUTIL.getKey(privateKey);
+
+    const signKey = ecdsa.keyFromPrivate(key.prvKeyHex, 'hex');
+    const digest = hashFunction(proposalBytes);
+
+    let sig = ecdsa.sign(Buffer.from(digest, 'hex'), signKey);
+    sig = _preventMalleability(sig, key.ecparams);
+
+    return Buffer.from(sig.toDER());
+}
+
+function signProposal(proposalBytes, privateKeyPem) {
+    const signature = sign(privateKeyPem, proposalBytes, 'sha2', 256);
+    const signedProposal = { signature, proposal_bytes: proposalBytes };
+    return signedProposal;
+}
+
+async function setupChannel(connectionProfilePath, channelName, adminCertificate, adminKey, mspID) {
+    // Set fabric-client to use discovery
+    Client.setConfigSetting('initialize-with-discovery', true);
+    const client = await Client.loadFromConfig(connectionProfilePath);
+    client.setAdminSigningIdentity(adminKey, adminCertificate, mspID);
+    client.setTlsClientCertAndKey(adminCertificate, adminKey);
+    const channel = client.getChannel(channelName);
+    // await channel.initialize({
+    //     discover: true});
+    return channel;
+}
+
+
+async function createAccountOffline(connectionProfilePath, channelName, contractName, mspID, userCertPEM, adminCertificate, adminKey, id, name, email, accountType) {
+    // Get connection profile
+    const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
+    const ccp = JSON.parse(ccpJSON);
+
+    try {
+        /**
+         * Start endorsement step
+         */
+
+        // Create Channel instance
+        const channel = await setupChannel(connectionProfilePath, channelName, adminCertificate, adminKey, mspID);
+
+        // Package the transaction proposal
+        const transactionProposalReq = {
+            fcn: 'CreateAccount',
+            args: [id, name, email, accountType],
+            chaincodeId: contractName,
+            channelId: channelName,
+        };
+
+        // Generate an unsigned transaction proposal
+        const { proposal, txId } = channel.generateUnsignedProposal(transactionProposalReq, mspID, userCertPEM);
+
+        // Sign the transaction proposal
+        // TODO: this will be done by app
+        const signedProposal = signProposal(proposal.toBuffer(), PRIVATE_KEY);
+
+        // Send signed proposal
+        const proposalResponses = await channel.sendSignedProposal(signedProposal);
+
+        /**
+         * End endorsement step.
+         * Start commit transaction step.
+         */
+        const commitReq = {
+            proposalResponses,
+            proposal,
+        };
+
+        // Generate unsigned commit proposal
+        const commitProposal = channel.generateUnsignedTransaction(commitReq);
+
+        // Sign unsigned commit proposal
+        // TODO: this will be done by app
+        const signedCommitProposal = signProposal(commitProposal.toBuffer(), PRIVATE_KEY);
+
+        // Send signed transaction
+        const response = await channel.sendSignedTransaction({
+            signedProposal: signedCommitProposal,
+            request: commitReq,
+        });
+    } catch (error) {
+        console.error(`Failed to submit transaction: ${error}`);
+        process.exit(1);
+    }
+}
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Calls the createAccount function on chaincode.
