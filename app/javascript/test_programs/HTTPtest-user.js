@@ -35,7 +35,7 @@ async function registerAndEnroll() {
 
 async function register() {
     try {
-        var secret = await registrationEnrollmentModule.registerUser(ccpPath, walletPath, "voting_district1", "city", "client", "City", "Institutional");
+        var secret = await registrationEnrollmentModule.registerUser(ccpPath, walletPath, "voting_district1", "city1", "client", "City1", "Institution");
     } catch (error) {
         console.error(`${error}`);
         process.exit(1);
@@ -48,7 +48,7 @@ async function register() {
 
 async function enroll(secret) {
     try {
-        await registrationEnrollmentModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, "city", secret, "SipherMSP");
+        await registrationEnrollmentModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, "city1", secret, "SipherMSP");
     } catch (error) {
         console.error(`${error}`);
         process.exit(1);
