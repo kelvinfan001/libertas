@@ -7,19 +7,19 @@ const fetch = require('node-fetch');
 
 /**
  * 
- * @param {string} id jingleman
- * @param {string} name Jingle Man
- * @param {string} email jingle@sipher.co
- * @param {string} accountType Personal
+ * @param {string} username the name to be registered with the certifate authority
+ * @param {string} name 
+ * @param {string} email 
+ * @param {string} accountType may be 'Personal' or 'Institution'
  */
-async function createAccount(id, name, email, accountType) {
+async function createAccount(username, name, email, accountType) {
     // enroll >> extra secret
 
     let url = 'http://155.138.134.91/createAccount'; // digest >> also give certificate >> for user identity
     await fetch(url, {
         method: 'POST',
         body: JSON.stringify({
-            id: id,
+            username: username,
             name: name,
             email: email,
             accountType: accountType
@@ -37,10 +37,11 @@ async function createAccount(id, name, email, accountType) {
 
 /**
  * 
- * @param {string} idToQuery jingleman
+ * @param {string} username username for the user calling this function
+ * @param {string} idToQuery username with respect to the query
  */
-async function queryAccountByID(idToQuery) {
-    let url = 'http://155.138.134.91/queryAccountByID?idToQuery=' + idToQuery;
+async function queryAccountByID(username, idToQuery) {
+    let url = 'http://155.138.134.91/queryAccountByID?username=' + username + '&idToQuery=' + idToQuery;
     fetch(url, {
         method: 'GET'
     }).then(function (res) {
@@ -87,8 +88,8 @@ async function queryCampaignByID() {
 
 //----------------------------------------------------TEST----------------------------------------------------
 
-createAccount('ciudad3', 'Ciudad', 'ciudad@sipher.co', 'Institution');
-// queryAccountByID('ciudad1');
+// createAccount('ciudad6', 'Ciudad', 'ciudad@sipher.co', 'Institution');
+queryAccountByID('ciudad6');
 
 // var start = Date.parse('2019-7-16');
 // var end = Date.parse('2019-8-1');

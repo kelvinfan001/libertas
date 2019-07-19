@@ -22,15 +22,15 @@ router.use(express.urlencoded({
 
 router.post('/createAccount', async function (req, res) {
     try {
-        let id = req.body.id;
-        let name = req.body.name;
-        let email = req.body.email;
-        let accountType = req.body.accountType;
+        const username = req.body.username;
+        const name = req.body.name;
+        const email = req.body.email;
+        const accountType = req.body.accountType;
 
         // TODO: remove this once offline private key stuff works 
-	 await registerAndEnroll(id, name, accountType);
+        await registerAndEnroll(id, name, accountType);
 
-        await accountsModule.createAccount(ccpPath, walletPath, "test", "libertas", id, name, email, accountType);
+        await accountsModule.createAccount(ccpPath, walletPath, "test", "libertas", username, name, email, accountType);
         res.send('Success');
     } catch (error) {
         console.log(error)
@@ -40,7 +40,7 @@ router.post('/createAccount', async function (req, res) {
 
 router.get('/queryAccountByID', async function (req, res) {
     try {
-	const username = req.query.username;
+        const username = req.query.username;
         const idToQuery = req.query.idToQuery;
         const result = await accountsModule.queryAccountByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
         res.send(result);
@@ -53,13 +53,13 @@ router.get('/queryAccountByID', async function (req, res) {
 
 router.post('/createCampaign', async function (req, res) {
     try {
-        let id = req.body.id;
-        let name = req.body.name;
-        let campaignType = req.body.campaignType;
-        let start = req.body.start;
-        let end = req.body.end;
-        let username = req.body.username;
-        
+        const id = req.body.id;
+        const name = req.body.name;
+        const campaignType = req.body.campaignType;
+        const start = req.body.start;
+        const end = req.body.end;
+        const username = req.body.username;
+
         await campaignModule.createCampaign(ccpPath, walletPath, 'test', 'libertas', id, name, campaignType, start, end, username);
     } catch (error) {
         console.log(error)
@@ -68,8 +68,8 @@ router.post('/createCampaign', async function (req, res) {
 
 router.get('/queryCampaignByID', async function (req, res) {
     try {
-        let idToQuery = req.query.idToQuery;
-        let result = await campaignModule.queryCampaignByID(ccpPath, walletPath, 'jingleman', 'test', 'libertas', idToQuery);
+        const idToQuery = req.query.idToQuery;
+        const result = await campaignModule.queryCampaignByID(ccpPath, walletPath, 'jingleman', 'test', 'libertas', idToQuery);
         res.send(result);
     } catch (error) {
         console.log(error)
@@ -118,7 +118,7 @@ async function enroll(id, secret) {
         await registrationEnrollmentModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, id, secret, "SipherMSP");
     } catch (error) {
         console.log(id + " " + secret);
-	console.error(`${error}`);
+        console.error(`${error}`);
         process.exit(1);
     }
 }
