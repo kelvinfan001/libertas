@@ -11,10 +11,31 @@ async function registerAndEnroll() {
     await enroll(secret)
 }
 
-async function register() {
+// async function register() {
+//     try {
+//         var secret = await registrationEnrollmentModule.registerUser(ccpPath, walletPath, "voting_district1", "jingleman", "client", "Jingle Man", "Personal");
+//     } catch (error) {
+//         console.error(`${error}`);
+//         process.exit(1);
+//     }
 
+//     console.log(secret)
+//     return secret
+// }
+
+
+// async function enroll(secret) {
+//     try {
+//         await registrationEnrollmentModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, "jingleman", secret, "SipherMSP");
+//     } catch (error) {
+//         console.error(`${error}`);
+//         process.exit(1);
+//     }
+// }
+
+async function register() {
     try {
-        var secret = await registrationEnrollmentModule.registerUser(ccpPath, walletPath, "voting_district1", "jingleman", "client", "Jingle Man", "Personal");
+        var secret = await registrationEnrollmentModule.registerUser(ccpPath, walletPath, "voting_district1", "city", "client", "City", "Institutional");
     } catch (error) {
         console.error(`${error}`);
         process.exit(1);
@@ -27,7 +48,7 @@ async function register() {
 
 async function enroll(secret) {
     try {
-        await registrationEnrollmentModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, "jingleman", secret, "SipherMSP");
+        await registrationEnrollmentModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, "city", secret, "SipherMSP");
     } catch (error) {
         console.error(`${error}`);
         process.exit(1);
