@@ -5,7 +5,7 @@ const router = express();
 // modules
 const accountsModule = require('../app/javascript/accounts')
 const campaignModule = require('../app/javascript/campaign')
-
+const registrationEnrollmentModule = require('../app/javascript/registrationEnrollment');
 
 // environment variables
 const ccpPath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connection-sipher.json');

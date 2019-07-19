@@ -51,34 +51,48 @@ async function queryAccountByID(idToQuery) {
 }
 
 //---------------------------------------CAMPAIGN FUNCTIONS------------------------------------------------
+async function createCampaign(id, name, campaignType, start, end, username) {
+    fetch('http://155.138.134.91/createCampaign', {
+        method: 'POST',
+        body: JSON.stringify({
+            id: "city1",
+            name: "City1",
+            campaignType: "Mayoral Election",
+            start: startStr,
+            end: endStr,
+            username: 'city1'
+        }),
+        headers: {
+            // 'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        }
+    });
+
+}
+
+async function queryCampaignByID() {
+    let url = 'http://155.138.134.91/queryCampaignByID?idToQuery=city1';
+    fetch(url, {
+        method: 'GET'
+    }).then(function (res) {
+        res.json().then(function (data) {
+            console.log(data);
+        })
+    }).catch(function (error) {
+        console.log(error)
+    });
+}
+
+
+
+//----------------------------------------------------TEST----------------------------------------------------
+
+createAccount('ciudad', 'Ciudad', 'ciudad@sipher.co', 'Institution');
+// queryAccountByID('ciudad');
+
 // var start = Date.parse('2019-7-16');
 // var end = Date.parse('2019-8-1');
 // var startStr = start.toString();
 // var endStr = end.toString();
-
-// fetch('http://155.138.134.91/createCampaign', {
-//     method: 'POST',
-//     body: JSON.stringify({
-//         id: "city1",
-//         name: "City1",
-//         campaignType: "Mayoral Election",
-//         start: startStr,    
-//         end: endStr,
-//         username: 'city1'
-//     }),
-//     headers: {
-//         // 'Accept': 'application/json',
-//         'Content-Type': 'application/json',
-//     }
-// });
-
-let url = 'http://155.138.134.91/queryCampaignByID?idToQuery=city1';
-fetch(url, {
-    method: 'GET'
-}).then(function (res) {
-    res.json().then(function (data) {
-        console.log(data);
-    })
-}).catch(function(error) {
-    console.log(error)
-});
+// createCampaign('ciudad', 'Ciudad Election', 'Mayoral Election', startStr, endStr, 'ciudad');
+// queryCampaignByID('ciudad');
