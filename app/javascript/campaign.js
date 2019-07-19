@@ -53,6 +53,7 @@ async function createCampaign(connectionProfilePath, walletPath, channelName, co
         console.log('CreateCampaign transaction has been submitted');
 
         // Disconnect from the gateway.
+        console.log('NOT YET!')
         await gateway.disconnect();
         console.log('ALL DONE!')
     } catch (error) {

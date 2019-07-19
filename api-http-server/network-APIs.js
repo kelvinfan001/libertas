@@ -41,7 +41,7 @@ async function createAccount(username, name, email, accountType) {
  */
 async function queryAccountByID(username, idToQuery) {
     let url = 'http://155.138.134.91/queryAccountByID?username=' + username + '&idToQuery=' + idToQuery;
-    fetch(url, {
+    await fetch(url, {
         method: 'GET'
     }).then(function (res) {
         res.json().then(function (data) {
@@ -86,7 +86,7 @@ async function createCampaign(id, name, campaignType, start, end, username) {
  */
 async function queryCampaignByID(username, idToQuery) {
     let url = 'http://155.138.134.91/queryCampaignByID?username=' + username + '&idToQuery=' + idToQuery;
-    fetch(url, {
+    await fetch(url, {
         method: 'GET'
     }).then(function (res) {
         res.json().then(function (data) {
@@ -103,8 +103,8 @@ async function queryCampaignByID(username, idToQuery) {
 // Here are some sample API calls 
 
 // Account: we create an instituion account 
-await createAccount('ciudad7', 'Ciudad', 'ciudad@sipher.co', 'Institution');
-await queryAccountByID('ciudad6', 'ciudad6');
+// createAccount('ciudad7', 'Ciudad', 'ciudad@sipher.co', 'Institution');
+// queryAccountByID('ciudad6', 'ciudad6');
 
 
 // Campaign: using our institution account, we create a new campaign
@@ -112,5 +112,5 @@ var start = Date.parse('2019-7-16');
 var end = Date.parse('2019-8-1');
 var startStr = start.toString();
 var endStr = end.toString();
-await createCampaign('ciudad7', 'Ciudad7 Election', 'Mayoral Election', startStr, endStr, 'ciudad7');
-await queryCampaignByID('ciudad');
+createCampaign('ciudad7', 'Ciudad7 Election', 'Mayoral Election', startStr, endStr, 'ciudad7');
+// queryCampaignByID('ciudad');
