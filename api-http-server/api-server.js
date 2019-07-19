@@ -28,7 +28,7 @@ router.post('/createAccount', async function (req, res) {
         let accountType = req.body.accountType;
 
         // TODO: remove this once offline private key stuff works 
-        registerAndEnroll(id, name, accountType);
+	 await registerAndEnroll(id, name, accountType);
 
         await accountsModule.createAccount(ccpPath, walletPath, "test", "libertas", id, name, email, accountType);
         res.send('Success');
@@ -40,8 +40,9 @@ router.post('/createAccount', async function (req, res) {
 
 router.get('/queryAccountByID', async function (req, res) {
     try {
-        let idToQuery = req.query.idToQuery;
-        let result = await accountsModule.queryAccountByID(ccpPath, walletPath, 'jingleman', 'test', 'libertas', idToQuery);
+	const username = req.query.username;
+        const idToQuery = req.query.idToQuery;
+        const result = await accountsModule.queryAccountByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
         res.send(result);
     } catch (error) {
         console.log(error)
@@ -96,7 +97,7 @@ router.get('/queryCampaignByID', async function (req, res) {
 //-----------------------------------------TEMP FUNCTIONS-----------------------------------------------------
 async function registerAndEnroll(id, name, accountType) {
     secret = await register(id, name, accountType)
-    await enroll(secret)
+    await enroll(id, secret)
 }
 
 async function register(id, name, accountType) {
@@ -116,7 +117,8 @@ async function enroll(id, secret) {
     try {
         await registrationEnrollmentModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, id, secret, "SipherMSP");
     } catch (error) {
-        console.error(`${error}`);
+        console.log(id + " " + secret);
+	console.error(`${error}`);
         process.exit(1);
     }
 }
