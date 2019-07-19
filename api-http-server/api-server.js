@@ -10,6 +10,7 @@ const registrationEnrollmentModule = require('../app/javascript/registrationEnro
 // environment variables
 const ccpPath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connection-sipher.json');
 const walletPath = path.join(__dirname, '..', 'app', 'javascript', 'test_programs', 'wallet')
+const networkDirPath = path.resolve(__dirname, '..', 'libertas-dev-network')
 
 // JSON parser 
 router.use(express.urlencoded({
@@ -106,14 +107,14 @@ async function register(id, name, accountType) {
         process.exit(1);
     }
 
-    console.log(secret)
+    console.log(id, secret)
     return secret
 }
 
 
-async function enroll(secret) {
+async function enroll(id, secret) {
     try {
-        await registrationEnrollmentModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, "city1", secret, "SipherMSP");
+        await registrationEnrollmentModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, id, secret, "SipherMSP");
     } catch (error) {
         console.error(`${error}`);
         process.exit(1);

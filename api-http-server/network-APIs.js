@@ -87,8 +87,8 @@ async function queryCampaignByID() {
 
 //----------------------------------------------------TEST----------------------------------------------------
 
-createAccount('ciudad', 'Ciudad', 'ciudad@sipher.co', 'Institution');
-// queryAccountByID('ciudad');
+createAccount('ciudad1', 'Ciudad', 'ciudad@sipher.co', 'Institution');
+// queryAccountByID('ciudad1');
 
 // var start = Date.parse('2019-7-16');
 // var end = Date.parse('2019-8-1');
