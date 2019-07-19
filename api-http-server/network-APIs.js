@@ -88,12 +88,12 @@ async function queryCampaignByID() {
 
 //----------------------------------------------------TEST----------------------------------------------------
 
-// createAccount('ciudad6', 'Ciudad', 'ciudad@sipher.co', 'Institution');
-queryAccountByID('ciudad6');
+createAccount('ciudad7', 'Ciudad', 'ciudad@sipher.co', 'Institution');
+// queryAccountByID('ciudad6', 'ciudad6');
 
 // var start = Date.parse('2019-7-16');
 // var end = Date.parse('2019-8-1');
 // var startStr = start.toString();
 // var endStr = end.toString();
-// createCampaign('ciudad', 'Ciudad Election', 'Mayoral Election', startStr, endStr, 'ciudad');
+// createCampaign('ciudad6', 'Ciudad Election', 'Mayoral Election', startStr, endStr, 'ciudad');
 // queryCampaignByID('ciudad');

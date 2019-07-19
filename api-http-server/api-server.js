@@ -28,7 +28,7 @@ router.post('/createAccount', async function (req, res) {
         const accountType = req.body.accountType;
 
         // TODO: remove this once offline private key stuff works 
-        await registerAndEnroll(id, name, accountType);
+        await registerAndEnroll(username, name, accountType);
 
         await accountsModule.createAccount(ccpPath, walletPath, "test", "libertas", username, name, email, accountType);
         res.send('Success');
