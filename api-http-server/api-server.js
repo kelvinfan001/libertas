@@ -43,6 +43,7 @@ router.get('/queryAccountByID', async function (req, res) {
         const username = req.query.username;
         const idToQuery = req.query.idToQuery;
         const result = await accountsModule.queryAccountByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
+        
         res.send(result);
     } catch (error) {
         console.log(error)
@@ -68,8 +69,10 @@ router.post('/createCampaign', async function (req, res) {
 
 router.get('/queryCampaignByID', async function (req, res) {
     try {
+        const username = req.query.username;
         const idToQuery = req.query.idToQuery;
-        const result = await campaignModule.queryCampaignByID(ccpPath, walletPath, 'jingleman', 'test', 'libertas', idToQuery);
+        const result = await campaignModule.queryCampaignByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
+        
         res.send(result);
     } catch (error) {
         console.log(error)
@@ -117,8 +120,6 @@ async function enroll(id, secret) {
     try {
         await registrationEnrollmentModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, id, secret, "SipherMSP");
     } catch (error) {
-        console.log(id + " " + secret);
-        console.error(`${error}`);
         process.exit(1);
     }
 }

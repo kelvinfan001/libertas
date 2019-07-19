@@ -54,6 +54,7 @@ async function createCampaign(connectionProfilePath, walletPath, channelName, co
 
         // Disconnect from the gateway.
         await gateway.disconnect();
+        console.log('ALL DONE!')
     } catch (error) {
         console.error(`Failed to submit CreateCampaign transaction: ${error}`);
         process.exit(1);

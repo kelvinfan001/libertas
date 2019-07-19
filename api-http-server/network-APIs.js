@@ -1,5 +1,4 @@
-// test script for HTTP server
-// Usage: enroll admin and add affiliation. Then run HTTPapi-test.js in the server and finally the fetch tests individually(so have the other fetch calls commented out).
+// API for app to interact with the Hyperledger Network
 
 const fetch = require('node-fetch');
 
@@ -52,8 +51,17 @@ async function queryAccountByID(username, idToQuery) {
 }
 
 //---------------------------------------CAMPAIGN FUNCTIONS------------------------------------------------
+/**
+ * 
+ * @param {string} id 
+ * @param {string} name name of the campaign
+ * @param {string} campaignType 
+ * @param {string} start start date for the campaign
+ * @param {string} end end date fo rthe campaign
+ * @param {string} username username for the user calling this function
+ */
 async function createCampaign(id, name, campaignType, start, end, username) {
-    fetch('http://155.138.134.91/createCampaign', {
+    await fetch('http://155.138.134.91/createCampaign', {
         method: 'POST',
         body: JSON.stringify({
             id: "city1",
@@ -71,8 +79,13 @@ async function createCampaign(id, name, campaignType, start, end, username) {
 
 }
 
-async function queryCampaignByID() {
-    let url = 'http://155.138.134.91/queryCampaignByID?idToQuery=city1';
+/**
+ * 
+ * @param {string} username username for the user calling this function
+ * @param {string} idToQuery username with respect to the query
+ */
+async function queryCampaignByID(username, idToQuery) {
+    let url = 'http://155.138.134.91/queryCampaignByID?username=' + username + '&idToQuery=' + idToQuery;
     fetch(url, {
         method: 'GET'
     }).then(function (res) {
@@ -87,13 +100,17 @@ async function queryCampaignByID() {
 
 
 //----------------------------------------------------TEST----------------------------------------------------
+// Here are some sample API calls 
 
-createAccount('ciudad7', 'Ciudad', 'ciudad@sipher.co', 'Institution');
-// queryAccountByID('ciudad6', 'ciudad6');
+// Account: we create an instituion account 
+await createAccount('ciudad7', 'Ciudad', 'ciudad@sipher.co', 'Institution');
+await queryAccountByID('ciudad6', 'ciudad6');
 
-// var start = Date.parse('2019-7-16');
-// var end = Date.parse('2019-8-1');
-// var startStr = start.toString();
-// var endStr = end.toString();
-// createCampaign('ciudad6', 'Ciudad Election', 'Mayoral Election', startStr, endStr, 'ciudad');
-// queryCampaignByID('ciudad');
+
+// Campaign: using our institution account, we create a new campaign
+var start = Date.parse('2019-7-16');
+var end = Date.parse('2019-8-1');
+var startStr = start.toString();
+var endStr = end.toString();
+await createCampaign('ciudad7', 'Ciudad7 Election', 'Mayoral Election', startStr, endStr, 'ciudad7');
+await queryCampaignByID('ciudad');
