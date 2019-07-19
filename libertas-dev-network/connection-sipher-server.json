@@ -30,7 +30,8 @@
                 "path": "crypto-config/peerOrganizations/libertas.sipher.co/tlsca/tlsca.libertas.sipher.co-cert.pem"
             },
             "grpcOptions": {
-                "ssl-target-name-override": "peer0.libertas.sipher.co"
+                "ssl-target-name-override": "peer0.libertas.sipher.co",
+                "request-timeout": "120001000000000000"
             }
         },
         "peer1.libertas.sipher.co": {
@@ -39,7 +40,8 @@
                 "path": "crypto-config/peerOrganizations/libertas.sipher.co/tlsca/tlsca.libertas.sipher.co-cert.pem"
             },
             "grpcOptions": {
-                "ssl-target-name-override": "peer1.libertas.sipher.co"
+                "ssl-target-name-override": "peer1.libertas.sipher.co",
+                "request-timeout": "120001000000000000"
             }
         }
     },

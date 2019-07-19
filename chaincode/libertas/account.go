@@ -90,7 +90,7 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 	return shim.Success(nil)
 }
 
-// QueryAccountsByID queries existing accounts in the ledger for id and returns whether it exists.
+// QueryAccountByID queries existing accounts in the ledger for id and returns whether it exists.
 func (t *Libertas) QueryAccountByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
 	var id string
@@ -108,7 +108,7 @@ func (t *Libertas) QueryAccountByID(stub shim.ChaincodeStubInterface, args []str
 	accountsList := AccountsList{}
 	json.Unmarshal(accountsListBytes, &accountsList)
 
-	account, err := queryAccountsByID(id, accountsList.Accounts)
+	account, err := queryAccountByID(id, accountsList.Accounts)
 
 	if err != nil {
 		return shim.Error(err.Error())
@@ -116,21 +116,12 @@ func (t *Libertas) QueryAccountByID(stub shim.ChaincodeStubInterface, args []str
 
 	accountBytes, _ := json.Marshal(account)
 
-	// // Buffer is a string indicating whether the id exists.
-	// var buffer bytes.Buffer
-
-	// if exists == true {
-	// 	buffer.WriteString("true")
-	// } else {
-	// 	buffer.WriteString("false")
-	// }
-
 	return shim.Success(accountBytes)
 
 }
 
-// queryByAccountsId queries the Accounts array for id and returns the account with id.
-func queryAccountsByID(id string, accounts []Account) (Account, error) {
+// queryAccountByID is a helper that queries the Accounts array for id and returns the account with id.
+func queryAccountByID(id string, accounts []Account) (Account, error) {
 
 	for _, v := range accounts {
 		if v.ID == id {
