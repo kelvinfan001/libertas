@@ -88,7 +88,7 @@ func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []strin
 	// Get list of Campaigns from the ledger
 	campaignsListBytes, err := stub.GetState("Campaigns List")
 	if err != nil {
-		shim.Error(err.Error())
+		return shim.Error(err.Error())
 	}
 	campaignsList := CampaignsList{}
 	json.Unmarshal(campaignsListBytes, &campaignsList)
