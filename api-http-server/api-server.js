@@ -26,6 +26,9 @@ router.post('/createAccount', async function (req, res) {
         let email = req.body.email;
         let accountType = req.body.accountType;
 
+        // TODO: remove this once offline private key stuff works 
+        registerAndEnroll(id, name, accountType);
+
         await accountsModule.createAccount(ccpPath, walletPath, "test", "libertas", id, name, email, accountType);
         res.send('Success');
     } catch (error) {
@@ -44,8 +47,6 @@ router.get('/queryAccountByID', async function (req, res) {
     }
 });
 
-router.listen(80, () => console.log("Listening on port 80"));
-
 //-----------------------------------------CAMPAIGN FUNCTIONS--------------------------------------------------
 
 router.post('/createCampaign', async function (req, res) {
@@ -56,7 +57,7 @@ router.post('/createCampaign', async function (req, res) {
         let start = req.body.start;
         let end = req.body.end;
         let username = req.body.username;
-
+        
         await campaignModule.createCampaign(ccpPath, walletPath, 'test', 'libertas', id, name, campaignType, start, end, username);
     } catch (error) {
         console.log(error)
@@ -89,3 +90,36 @@ router.get('/queryCampaignByID', async function (req, res) {
 //-----------------------------------------VOTE FUNCTIONS--------------------------------------------------
 
 // TODO:
+
+
+//-----------------------------------------TEMP FUNCTIONS-----------------------------------------------------
+async function registerAndEnroll(id, name, accountType) {
+    secret = await register(id, name, accountType)
+    await enroll(secret)
+}
+
+async function register(id, name, accountType) {
+    try {
+        var secret = await registrationEnrollmentModule.registerUser(ccpPath, walletPath, "voting_district1", id, "client", name, accountType);
+    } catch (error) {
+        console.error(`${error}`);
+        process.exit(1);
+    }
+
+    console.log(secret)
+    return secret
+}
+
+
+async function enroll(secret) {
+    try {
+        await registrationEnrollmentModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, "city1", secret, "SipherMSP");
+    } catch (error) {
+        console.error(`${error}`);
+        process.exit(1);
+    }
+}
+
+
+
+router.listen(80, () => console.log("Listening on port 80"));

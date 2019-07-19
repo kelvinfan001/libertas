@@ -12,43 +12,43 @@ const fetch = require('node-fetch');
  * @param {string} email jingle@sipher.co
  * @param {string} accountType Personal
  */
-// async function createAccount(id, name, email, accountType) {
-//     // enroll >> extra secret
+async function createAccount(id, name, email, accountType) {
+    // enroll >> extra secret
 
-//     let url = 'http://155.138.134.91/createAccount'; // digest >> also give certificate >> for user identity
-//     await fetch(url, {
-//         method: 'POST',
-//         body: JSON.stringify({
-//             id: id,
-//             name: name,
-//             email: email,
-//             accountType: accountType
-//         }),
-//         headers: {
-//             'Accept': 'application/json',
-//             'Content-Type': 'application/json',
-//         }
-//     });
+    let url = 'http://155.138.134.91/createAccount'; // digest >> also give certificate >> for user identity
+    await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify({
+            id: id,
+            name: name,
+            email: email,
+            accountType: accountType
+        }),
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        }
+    });
 
-//     // signStuff >> signed cert for transaction
+    // signStuff >> signed cert for transaction
 
-//     // send signed stuff >> give signed cert >> this actually createsAccount
-// }
+    // send signed stuff >> give signed cert >> this actually createsAccount
+}
 
-// /**
-//  * 
-//  * @param {string} idToQuery jingleman
-//  */
-// async function queryAccountByID(idToQuery) {
-//     let url = 'http://155.138.134.91/queryAccountByID?idToQuery=' + idToQuery;
-//     fetch(url, {
-//         method: 'GET'
-//     }).then(function (res) {
-//         res.json().then(function (data) {
-//             console.log(data);
-//         })
-//     });
-// }
+/**
+ * 
+ * @param {string} idToQuery jingleman
+ */
+async function queryAccountByID(idToQuery) {
+    let url = 'http://155.138.134.91/queryAccountByID?idToQuery=' + idToQuery;
+    fetch(url, {
+        method: 'GET'
+    }).then(function (res) {
+        res.json().then(function (data) {
+            console.log(data);
+        })
+    });
+}
 
 //---------------------------------------CAMPAIGN FUNCTIONS------------------------------------------------
 // var start = Date.parse('2019-7-16');
@@ -79,4 +79,6 @@ fetch(url, {
     res.json().then(function (data) {
         console.log(data);
     })
+}).catch(function(error) {
+    console.log(error)
 });
