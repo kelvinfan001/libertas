@@ -8,6 +8,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -65,11 +66,14 @@ func (t *Libertas) CreateVoterGroup(stub shim.ChaincodeStubInterface, args []str
 
 	// Get list of VoterGroups from the ledger
 	voterGroupsListBytes, err := stub.GetState("Voter Groups List")
+	if err != nil {
+		return shim.Error(err.Error())
+	}
 	voterGroupsList := VoterGroupsList{}
 	json.Unmarshal(voterGroupsListBytes, &voterGroupsList)
 
 	// If voter group with id already exists in voterGroupsList, return Error
-	voterGroupExists := queryVoterGroupsByID(id, voterGroupsList.VoterGroups)
+	voterGroupExists := queryVoterGroupsByIDExists(id, voterGroupsList.VoterGroups)
 	if voterGroupExists {
 		return shim.Error("Voter group with this ID already exists.")
 	}
@@ -91,9 +95,47 @@ func (t *Libertas) CreateVoterGroup(stub shim.ChaincodeStubInterface, args []str
 	return shim.Success(nil)
 }
 
-// queryByVoterGroupsID queries the VoterGroups array for id and returns whether it exists.
-func queryVoterGroupsByID(id string, voterGroups []VoterGroup) bool {
+// QueryAccountByID queries existing accounts in the ledger for id and returns whether it exists.
+func (t *Libertas) QueryVoterGroupsByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
+	var id string
+	id = args[0]
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1.")
+	}
+
+	// Get list of VoterGroups from the ledger
+	voterGroupsListBytes, err := stub.GetState("Voter Groups List")
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	voterGroupsList := VoterGroupsList{}
+	json.Unmarshal(voterGroupsListBytes, &voterGroupsList)
+
+	voterGroup, err := queryVoterGroupsByID(id, voterGroupsList.VoterGroups)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	voterGroupBytes, _ := json.Marshal(voterGroup)
+
+	return shim.Success(voterGroupBytes)
+
+}
+
+// queryByVoterGroupsID queries the VoterGroups array for id and returns whether it exists.
+func queryVoterGroupsByID(id string, voterGroups []VoterGroup) (VoterGroup, error) {
+	for _, v := range voterGroups {
+		if v.ID == id {
+			return v, nil
+		}
+	}
+
+	return VoterGroup{}, errors.New("Voter Group with id: " + id + " does not exist.")
+}
+
+func queryVoterGroupsByIDExists(id string, voterGroups []VoterGroup) bool {
 	for _, v := range voterGroups {
 		if v.ID == id {
 			return true
