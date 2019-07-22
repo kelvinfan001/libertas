@@ -35,7 +35,7 @@ router.post('/createAccount', async function (req, res) {
         // TODO: note that chaincodeId and channelId are hardcoded
         const transactionProposal = {
             fcn: 'CreateAccount',
-            args: [id, name, email, accountType],
+            args: [username, name, email, accountType],
             chaincodeId: "libertas", // 
             channelId: "test" //
         }

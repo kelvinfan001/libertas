@@ -160,7 +160,7 @@ async function queryVoterGroupsByID(username, idToQuery) {
 // Here are some sample API calls 
 
 // Account: we create an instituion account 
-// createAccount('ciudad', 'Ciudad', 'ciudad@sipher.co', 'Institution');
+createAccount('ciudad2', 'Ciudad2', 'ciudad2@sipher.co', 'Institution');
 // queryAccountByID('hello', 'hello');
 
 
@@ -175,4 +175,4 @@ var endStr = end.toString();
 
 // Voter Group:
 // createVoterGroup('ciudadVoterGroup', 'ciudad', 'Ciudad Voter Group', 'ciudad')
-queryVoterGroupsByID('ciudad', 'ciudadVoterGroup')
+// queryVoterGroupsByID('ciudad', 'ciudadVoterGroup')
