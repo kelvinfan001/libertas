@@ -8,9 +8,9 @@
 
 'use strict';
 
-module.exports = { submitTransaction};
+module.exports = { submitTransaction };
 
-const signingModule = require('./signing');
+const cryptoSigningModule = require('./cryptoSigning');
 const offlineSigningGatewayModule = require('./offlineSigningGateway');
 
 const fs = require('fs');
@@ -21,7 +21,6 @@ const Client = require('fabric-client');
 
 const PRIVATE_KEY_PATH = path.resolve(__dirname, './wallet/kelvinfan/322b3214bd6e7c7c1b4713ed4374c174fd1cac21166cfef8e4f55f8933baf84e-priv');
 const PRIVATE_KEY = fs.readFileSync(PRIVATE_KEY_PATH, 'utf8');
-const networkDirPath = path.resolve(__dirname, '..', '..', 'libertas-dev-network');
 
 const { FileSystemWallet } = require('fabric-network')
 
@@ -55,19 +54,11 @@ async function submitTransaction(connectionProfilePath, userCertPEM, walletPath,
 
         // Get Channel instance
         const channel = await offlineSigningGatewayModule.getChannel(connectionProfilePath, channelName, adminCertificate, adminKey, mspID);
-        // const discoveryResults = await channel.getDiscoveryResults();
-        // console.log(discoveryResults.endorsement_plans[0].groups.G1);
-        var endorsementPlanPeerNames = await offlineSigningGatewayModule.getEndorsementPlanPeers(channel, contractName);
-        // console.log(endorsementPlanPeerNames);
-        // console.log(channel.getPeers());
 
+        // Get endorsement plan
+        var endorsementPlanPeerNames = await offlineSigningGatewayModule.getEndorsementPlanPeers(channel, contractName);
+        
         // Package the transaction proposal
-        // const transactionProposalReq = {
-        //     fcn: 'CreateAccount',
-        //     args: [id, name, email, accountType],
-        //     chaincodeId: contractName,
-        //     channelId: channelName,
-        // };
         const transactionProposalReq = transactionProposal;
 
         // Generate an unsigned transaction proposal
@@ -75,12 +66,7 @@ async function submitTransaction(connectionProfilePath, userCertPEM, walletPath,
 
         // Sign the transaction proposal
         // TODO: this will be done by app
-        const signedProposal = signingModule.signProposal(proposal.toBuffer(), PRIVATE_KEY);
-
-        // TODO: refactor! too much hardcoding!
-        // const sipherPeer = channel.getPeer('localhost:7051');
-        // const whiteboxPeer = channel.getPeer('localhost:9051');
-        // const targets = [sipherPeer, whiteboxPeer];
+        const signedProposal = cryptoSigningModule.signProposal(proposal.toBuffer(), PRIVATE_KEY);
 
         var targets = [];
         for (var i = 0; i < endorsementPlanPeerNames.length; i++) {
@@ -90,8 +76,6 @@ async function submitTransaction(connectionProfilePath, userCertPEM, walletPath,
         // Send signed proposal
         const sendSignedProposalReq = { signedProposal, targets };
         const proposalResponses = await channel.sendSignedProposal(sendSignedProposalReq);
-
-        console.log(proposalResponses[0]);
 
         /**
          * End endorsement step.
@@ -107,7 +91,7 @@ async function submitTransaction(connectionProfilePath, userCertPEM, walletPath,
 
         // Sign unsigned commit proposal
         // TODO: this will be done by app
-        const signedCommitProposal = signingModule.signProposal(commitProposal.toBuffer(), PRIVATE_KEY);
+        const signedCommitProposal = cryptoSigningModule.signProposal(commitProposal.toBuffer(), PRIVATE_KEY);
 
         // Send signed transaction
         const response = await channel.sendSignedTransaction({
