@@ -66,16 +66,16 @@ async function queryAccountByID(username, idToQuery) {
  * @param {string} end end date fo rthe campaign
  * @param {string} username username for the user calling this function
  */
-async function createCampaign(id, name, campaignType, start, end, username) {
+async function createCampaign(id, name, campaignType, startStr, endStr, username) {
     await fetch('http://155.138.134.91/createCampaign', {
         method: 'POST',
         body: JSON.stringify({
-            id: "city1",
-            name: "City1",
-            campaignType: "Mayoral Election",
+            id: id,
+            name: name,
+            campaignType: campaignType,
             start: startStr,
             end: endStr,
-            username: 'city1'
+            username: username
         }),
         headers: {
             // 'Accept': 'application/json',
@@ -108,14 +108,60 @@ async function queryCampaignByID(username, idToQuery) {
     });
 }
 
+//----------------------------------------------------Voter Group Functions-------------------------------------
+/**
+ * 
+ * @param {*} id 
+ * @param {*} campaignID 
+ * @param {*} name 
+ * @param {*} username 
+ */
+async function createVoterGroup(id, campaignID, name, username) {
+    await fetch('http://155.138.134.91/createVoterGroup', {
+        method: 'POST',
+        body: JSON.stringify({
+            id: id,
+            campaignID: campaignID,
+            name: name,
+            username: username
+        }),
+        headers: {
+            // 'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        }
+    }).then(function (res) {
+        res.text().then(function(text) {
+            console.log(text);
+        });
+    }).catch(function (error) {
+        console.log(error)
+    });
+}
 
+/**
+ * 
+ * @param {string} username username for the user calling this function
+ * @param {string} idToQuery username with respect to the query
+ */
+async function queryVoterGroupByID(username, idToQuery) {
+    let url = 'http://155.138.134.91/queryVoterGroupByID?username=' + username + '&idToQuery=' + idToQuery;
+    await fetch(url, {
+        method: 'GET'
+    }).then(function (res) {
+        res.json().then(function (data) {
+            console.log(data);
+        })
+    }).catch(function (error) {
+        console.log(error)
+    });
+}
 
 //----------------------------------------------------TEST----------------------------------------------------
 // Here are some sample API calls 
 
 // Account: we create an instituion account 
-// createAccount('ciudad9', 'Ciudad', 'ciudad@sipher.co', 'Institution');
-queryAccountByID('hello', 'hello');
+// createAccount('ciudad10', 'Ciudad10', 'ciudad10@sipher.co', 'Institution');
+// queryAccountByID('hello', 'hello');
 
 
 // Campaign: using our institution account, we create a new campaign
@@ -123,5 +169,9 @@ queryAccountByID('hello', 'hello');
 // var end = Date.parse('2019-8-1');
 // var startStr = start.toString();
 // var endStr = end.toString();
-// createCampaign('ciudad9', 'Ciudad9 Election', 'Mayoral Election', startStr, endStr, 'ciudad9');
-// queryCampaignByID('ciudad');
+// createCampaign('ciudad10', 'Ciudad10 Election', 'Mayoral Election', startStr, endStr, 'ciudad10');
+// queryCampaignByID('ciudad10', 'ciudad10');
+
+
+// Voter Group:
+createVoterGroup('ciudad10VoterGroup', 'ciudad10', 'Ciudad10 Voter Grop', 'ciudad10')
