@@ -16,9 +16,6 @@ const offlineSigningGatewayModule = require('./offlineSigningGateway');
 const fs = require('fs');
 const path = require('path');
 
-const FabricCAService = require('fabric-ca-client');
-const Client = require('fabric-client');
-
 const PRIVATE_KEY_PATH = path.resolve(__dirname, './wallet/kelvinfan/322b3214bd6e7c7c1b4713ed4374c174fd1cac21166cfef8e4f55f8933baf84e-priv');
 const PRIVATE_KEY = fs.readFileSync(PRIVATE_KEY_PATH, 'utf8');
 
@@ -86,6 +83,7 @@ async function submitTransaction(connectionProfilePath, userCertPEM, walletPath,
          * End endorsement step.
          * Start commit transaction step.
          */
+        
         const commitReq = {
             proposalResponses,
             proposal,
