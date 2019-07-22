@@ -15,6 +15,8 @@
 //     channelId:   
 // }
 
+module.exports = {submit, evaluate}
+
 async function submit(connectionProfilePath, walletPath, transactionProposal) {
     try {
         // Create a new file system based wallet for managing identities.
