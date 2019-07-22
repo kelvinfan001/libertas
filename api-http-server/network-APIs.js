@@ -14,14 +14,19 @@ const fetch = require('node-fetch');
 async function createAccount(username, name, email, accountType) {
     // enroll >> extra secret
 
-    let url = 'http://155.138.134.91/createAccount'; // digest >> also give certificate >> for user identity
+    // TODO: note that chaincodeId and channelId are hardcoded
+    const transactionProposal = {
+        fcn: 'CreateAccount',
+        args: [username, name, email, accountType],
+        chaincodeId: "libertas", // 
+        channelId: "test" //
+    }
+
+    let url = 'http://155.138.134.91/submit'; // digest >> also give certificate >> for user identity
     await fetch(url, {
         method: 'POST',
         body: JSON.stringify({
-            username: username,
-            name: name,
-            email: email,
-            accountType: accountType
+            transactionProposal: transactionProposal
         }),
         headers: {
             'Accept': 'application/json',
@@ -67,15 +72,17 @@ async function queryAccountByID(username, idToQuery) {
  * @param {string} username username for the user calling this function
  */
 async function createCampaign(id, name, campaignType, startStr, endStr, username) {
-    await fetch('http://155.138.134.91/createCampaign', {
+    const transactionProposal = {
+        fcn: 'CreateCampaign',
+        args: [id, name, campaignType, start, end, username],
+        chaincodeId: "libertas", // 
+        channelId: "test" //
+    }
+    
+    await fetch('http://155.138.134.91/submit', {
         method: 'POST',
         body: JSON.stringify({
-            id: id,
-            name: name,
-            campaignType: campaignType,
-            start: startStr,
-            end: endStr,
-            username: username
+            transactionProposal: transactionProposal
         }),
         headers: {
             // 'Accept': 'application/json',
@@ -117,13 +124,17 @@ async function queryCampaignByID(username, idToQuery) {
  * @param {*} username 
  */
 async function createVoterGroup(id, campaignID, name, username) {
-    await fetch('http://155.138.134.91/createVoterGroup', {
+    const transactionProposal = {
+        fcn: 'CreateVoterGroup',
+        args: [id, campaignID, name, username],
+        chaincodeId: "libertas", // 
+        channelId: "test" //
+    }
+    
+    await fetch('http://155.138.134.91/submit', {
         method: 'POST',
         body: JSON.stringify({
-            id: id,
-            campaignID: campaignID,
-            name: name,
-            username: username
+            transactionProposal: transactionProposal
         }),
         headers: {
             'Accept': 'application/json',

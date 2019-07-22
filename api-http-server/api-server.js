@@ -20,25 +20,15 @@ router.use(express.urlencoded({
     }))
     .use(express.json());
 
-//-----------------------------------------ACCOUNT FUNCTIONS--------------------------------------------------
+//-----------------------------------------SUBMIT FUNCTIONS--------------------------------------------------
 
-router.post('/createAccount', async function (req, res) {
+router.post('/submit', async function (req, res) {
     try {
-        const username = req.body.username;
-        const name = req.body.name;
-        const email = req.body.email;
-        const accountType = req.body.accountType;
+        const transactionProposal = req.body.transactionProposal;
 
         // TODO: remove this once offline private key stuff works 
-        await registerAndEnroll(username, name, accountType);
-
-        // TODO: note that chaincodeId and channelId are hardcoded
-        const transactionProposal = {
-            fcn: 'CreateAccount',
-            args: [username, name, email, accountType],
-            chaincodeId: "libertas", // 
-            channelId: "test" //
-        }
+        // await registerAndEnroll(username, name, accountType);
+        
         await invokeModule.submit(ccpPath, walletPath, transactionProposal);
         res.send('Success');
     } catch (error) {
@@ -46,7 +36,7 @@ router.post('/createAccount', async function (req, res) {
     }
 });
 
-
+//-------------------------------------EVALUATE FUNCTIONS---------------------------------------
 router.get('/queryAccountByID', async function (req, res) {
     try {
         const username = req.query.username;
@@ -61,28 +51,7 @@ router.get('/queryAccountByID', async function (req, res) {
 
 //-----------------------------------------CAMPAIGN FUNCTIONS--------------------------------------------------
 
-router.post('/createCampaign', async function (req, res) {
-    try {
-        const id = req.body.id;
-        const name = req.body.name;
-        const campaignType = req.body.campaignType;
-        const start = req.body.start;
-        const end = req.body.end;
-        const username = req.body.username;
 
-        // await campaignModule.createCampaign(ccpPath, walletPath, 'test', 'libertas', id, name, campaignType, start, end, username);
-        const transactionProposal = {
-            fcn: 'CreateCampaign',
-            args: [id, name, campaignType, start, end, username],
-            chaincodeId: "libertas", // 
-            channelId: "test" //
-        }
-        await invokeModule.submit(ccpPath, walletPath, transactionProposal);
-        res.send('Success');
-    } catch (error) {
-        console.log(error)
-    }
-});
 
 router.get('/queryCampaignByID', async function (req, res) {
     try {
@@ -98,26 +67,6 @@ router.get('/queryCampaignByID', async function (req, res) {
 
 //-----------------------------------------VOTER GROUP FUNCTIONS--------------------------------------------------
 
-router.post('/createVoterGroup', async function (req, res) {
-    try {
-        const id = req.body.id;
-        const campaignID = req.body.campaignID;
-        const name = req.body.name;
-        const username = req.body.username;
-
-        const transactionProposal = {
-            fcn: 'CreateVoterGroup',
-            args: [id, campaignID, name, username],
-            chaincodeId: "libertas", // 
-            channelId: "test" //
-        }
-        await invokeModule.submit(ccpPath, walletPath, transactionProposal);
-        res.send('Success');
-    } catch (error) {
-        console.log(error)
-    }
-});
-
 router.get('/queryVoterGroupsByID', async function (req, res) {
     try {
         const username = req.query.username;
@@ -129,17 +78,6 @@ router.get('/queryVoterGroupsByID', async function (req, res) {
         console.log(error)
     }
 });
-
-
-//-----------------------------------------VOTER FUNCTIONS--------------------------------------------------
-
-// TODO:
-
-
-//-----------------------------------------VOTE FUNCTIONS--------------------------------------------------
-
-// TODO:
-
 
 //-----------------------------------------TEMP FUNCTIONS-----------------------------------------------------
 async function registerAndEnroll(id, name, accountType) {
