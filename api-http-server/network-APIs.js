@@ -175,4 +175,4 @@ var endStr = end.toString();
 
 // Voter Group:
 // createVoterGroup('ciudadVoterGroup', 'ciudad', 'Ciudad Voter Group', 'ciudad')
-queryVoterGroupsByID('ciudad11', 'ciudad11VoterGroup')
+queryVoterGroupsByID('ciudad', 'ciudadVoterGroup')

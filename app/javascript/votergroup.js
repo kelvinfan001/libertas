@@ -8,7 +8,7 @@
 
 'use strict';
 
-module.exports = {createVoterGroup, queryVoterGroupByID}
+module.exports = {createVoterGroup, queryVoterGroupsByID}
 
 const { FileSystemWallet, Gateway } = require('fabric-network');
 
@@ -67,7 +67,7 @@ async function createVoterGroup(connectionProfilePath, walletPath, channelName, 
  * @param {string} contractName 
  * @param {string} idToQuery  ID of campaign to query.
  */
-async function queryVoterGroupByID(connectionProfilePath, walletPath, id, channelName, contractName, idToQuery) {
+async function queryVoterGroupsByID(connectionProfilePath, walletPath, id, channelName, contractName, idToQuery) {
 
     try {
         // Create a new file system based walllet for managing identities.
@@ -91,7 +91,7 @@ async function queryVoterGroupByID(connectionProfilePath, walletPath, id, channe
         const contract = network.getContract(contractName);
 
         // Submit the transaction.
-        const queryResult = await contract.evaluateTransaction('QueryVoterGroupByID', idToQuery);
+        const queryResult = await contract.evaluateTransaction('QueryVoterGroupByID', idToQuery); // add s
         console.log('Query Success.');
 
         // Disconnect from the gateway.
