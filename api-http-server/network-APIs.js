@@ -28,9 +28,9 @@ async function createAccount(username, name, email, accountType) {
             'Content-Type': 'application/json',
         }
     }).then(function (res) {
-        res.stringify().then(function (data) {
-            console.log(data);
-        })
+        res.text().then(function(text) {
+            console.log(text);
+        });
     }).catch(function (error) {
         console.log(error)
     });
@@ -56,7 +56,7 @@ async function queryAccountByID(username, idToQuery) {
     });
 }
 
-//---------------------------------------CAMPAIGN FUNCTIONS------------------------------------------------
+//-----------------------------------------------CAMPAIGN FUNCTIONS------------------------------------------------
 /**
  * 
  * @param {string} id 
@@ -82,9 +82,9 @@ async function createCampaign(id, name, campaignType, start, end, username) {
             'Content-Type': 'application/json',
         }
     }).then(function (res) {
-        res.stringify().then(function (data) {
-            console.log(data);
-        })
+        res.text().then(function(text) {
+            console.log(text);
+        });
     }).catch(function (error) {
         console.log(error)
     });
@@ -114,14 +114,14 @@ async function queryCampaignByID(username, idToQuery) {
 // Here are some sample API calls 
 
 // Account: we create an instituion account 
-createAccount('ciudad8', 'Ciudad', 'ciudad@sipher.co', 'Institution');
-queryAccountByID('ciudad8', 'ciudad8');
+// createAccount('ciudad9', 'Ciudad', 'ciudad@sipher.co', 'Institution');
+queryAccountByID('hello', 'hello');
 
 
 // Campaign: using our institution account, we create a new campaign
-var start = Date.parse('2019-7-16');
-var end = Date.parse('2019-8-1');
-var startStr = start.toString();
-var endStr = end.toString();
-createCampaign('ciudad8', 'Ciudad8 Election', 'Mayoral Election', startStr, endStr, 'ciudad8');
+// var start = Date.parse('2019-7-16');
+// var end = Date.parse('2019-8-1');
+// var startStr = start.toString();
+// var endStr = end.toString();
+// createCampaign('ciudad9', 'Ciudad9 Election', 'Mayoral Election', startStr, endStr, 'ciudad9');
 // queryCampaignByID('ciudad');
