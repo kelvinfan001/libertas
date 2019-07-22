@@ -85,9 +85,10 @@ router.get('/queryCampaignByID', async function (req, res) {
 
 router.post('/createVoterGroup', async function (req, res) {
     try {
-        const id = req.body.id
-        const campaignID = req.body.campaignID
-        const name = req.body.name
+        const id = req.body.id;
+        const campaignID = req.body.campaignID;
+        const name = req.body.name;
+        const username = req.body.username;
 
         await voterGroupModule.createVoterGroup(ccpPath, walletPath, 'test', 'libertas', id, campaignID, name, username);
         res.send('Success');
