@@ -16,6 +16,7 @@
 // }
 
 module.exports = {submit, evaluate}
+const { FileSystemWallet, Gateway } = require('fabric-network');
 
 async function submit(connectionProfilePath, walletPath, transactionProposal) {
     try {

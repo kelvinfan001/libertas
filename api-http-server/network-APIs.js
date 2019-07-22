@@ -160,7 +160,7 @@ async function queryVoterGroupsByID(username, idToQuery) {
 // Here are some sample API calls 
 
 // Account: we create an instituion account 
-createAccount('ciudad3', 'Ciudad3', 'ciudad3@sipher.co', 'Institution');
+createAccount('ciudad4', 'Ciudad4', 'ciudad4@sipher.co', 'Institution');
 // queryAccountByID('hello', 'hello');
 
 
