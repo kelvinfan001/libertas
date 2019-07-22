@@ -174,4 +174,5 @@ async function queryVoterGroupByID(username, idToQuery) {
 
 
 // Voter Group:
-createVoterGroup('ciudad11VoterGroup', 'ciudad11', 'Ciudad11 Voter Group', 'ciudad11')
+// createVoterGroup('ciudad11VoterGroup', 'ciudad11', 'Ciudad11 Voter Group', 'ciudad11')
+queryVoterGroupByID('ciudad11VoterGroup')

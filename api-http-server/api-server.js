@@ -101,7 +101,7 @@ router.get('/queryVoterGroupByID', async function (req, res) {
     try {
         const username = req.query.username;
         const idToQuery = req.query.idToQuery;
-        const result = await voterGroupModule.queryCampaignByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
+        const result = await voterGroupModule.queryVoterGroupByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
         
         res.send(result);
     } catch (error) {
