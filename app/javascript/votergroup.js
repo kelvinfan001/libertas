@@ -8,7 +8,7 @@
 
 'use strict';
 
-module.exports = {createCampaign, queryCampaignByID}
+module.exports = {createVoterGroup, queryVoterGroupByID}
 
 const { FileSystemWallet, Gateway } = require('fabric-network');
 

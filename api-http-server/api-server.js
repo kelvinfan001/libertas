@@ -5,6 +5,7 @@ const router = express();
 // modules
 const accountsModule = require('../app/javascript/accounts')
 const campaignModule = require('../app/javascript/campaign')
+const voterGroupModule = require('../app/javascript/votergroup')
 const registrationEnrollmentModule = require('../app/javascript/registrationEnrollment');
 
 // environment variables
@@ -82,10 +83,31 @@ router.get('/queryCampaignByID', async function (req, res) {
 
 //-----------------------------------------VOTER GROUP FUNCTIONS--------------------------------------------------
 
+router.post('/createVoterGroup', async function (req, res) {
+    try {
+        const ownerID = req.body.ownderID 
+        const id = req.body.id
+        const campaignID = req.body.campaignID
+        const name = req.body.name
 
-// TODO:
+        await voterGroupModule.createVoterGroup(ccpPath, walletPath, 'test', 'libertas', ownerID, id, campaignID, name, username);
+        res.send('Success');
+    } catch (error) {
+        console.log(error)
+    }
+});
 
-
+router.get('/queryVoterGroupByID', async function (req, res) {
+    try {
+        const username = req.query.username;
+        const idToQuery = req.query.idToQuery;
+        const result = await voterGroupModule.queryCampaignByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
+        
+        res.send(result);
+    } catch (error) {
+        console.log(error)
+    }
+});
 
 
 //-----------------------------------------VOTER FUNCTIONS--------------------------------------------------
