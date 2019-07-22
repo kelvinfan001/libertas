@@ -143,8 +143,8 @@ async function createVoterGroup(id, campaignID, name, username) {
  * @param {string} username username for the user calling this function
  * @param {string} idToQuery username with respect to the query
  */
-async function queryVoterGroupByID(username, idToQuery) {
-    let url = 'http://155.138.134.91/queryVoterGroupByID?username=' + username + '&idToQuery=' + idToQuery;
+async function queryVoterGroupsByID(username, idToQuery) {
+    let url = 'http://155.138.134.91/queryVoterGroupsByID?username=' + username + '&idToQuery=' + idToQuery;
     await fetch(url, {
         method: 'GET'
     }).then(function (res) {
@@ -160,19 +160,19 @@ async function queryVoterGroupByID(username, idToQuery) {
 // Here are some sample API calls 
 
 // Account: we create an instituion account 
-// createAccount('ciudad11', 'Ciudad11', 'ciudad11@sipher.co', 'Institution');
+// createAccount('ciudad', 'Ciudad', 'ciudad@sipher.co', 'Institution');
 // queryAccountByID('hello', 'hello');
 
 
 // Campaign: using our institution account, we create a new campaign
-// var start = Date.parse('2019-7-16');
-// var end = Date.parse('2019-8-1');
-// var startStr = start.toString();
-// var endStr = end.toString();
-// createCampaign('ciudad11', 'Ciudad11 Election', 'Mayoral Election', startStr, endStr, 'ciudad11');
+var start = Date.parse('2019-7-16');
+var end = Date.parse('2019-8-1');
+var startStr = start.toString();
+var endStr = end.toString();
+// createCampaign('ciudad', 'Ciudad Election', 'Mayoral Election', startStr, endStr, 'ciudad');
 // queryCampaignByID('ciudad10', 'ciudad10');
 
 
 // Voter Group:
-// createVoterGroup('ciudad11VoterGroup', 'ciudad11', 'Ciudad11 Voter Group', 'ciudad11')
+// createVoterGroup('ciudadVoterGroup', 'ciudad', 'Ciudad Voter Group', 'ciudad')
 queryVoterGroupsByID('ciudad11', 'ciudad11VoterGroup')
