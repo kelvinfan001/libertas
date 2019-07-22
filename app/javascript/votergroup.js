@@ -91,7 +91,7 @@ async function queryVoterGroupsByID(connectionProfilePath, walletPath, id, chann
         const contract = network.getContract(contractName);
 
         // Submit the transaction.
-        const queryResult = await contract.evaluateTransaction('QueryVoterGroupByID', idToQuery); // add s
+        const queryResult = await contract.evaluateTransaction('QueryVoterGroupsByID', idToQuery); // add s
         console.log('Query Success.');
 
         // Disconnect from the gateway.
