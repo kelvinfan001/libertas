@@ -18,8 +18,7 @@ const { FileSystemWallet, Gateway } = require('fabric-network');
  * @param {string} connectionProfilePath 
  * @param {string} walletPath 
  * @param {string} channelName 
- * @param {string} contractName 
- * @param {string} ownerID 
+ * @param {string} contractName
  * @param {string} id
  * @param {string} campaignID
  * @param {string} name
@@ -48,7 +47,7 @@ async function createVoterGroup(connectionProfilePath, walletPath, channelName, 
         const contract = network.getContract(contractName);
 
         // Submit the transaction.
-        await contract.submitTransaction('CreateVoterGroup', ownerID, id, campaignID, name);
+        await contract.submitTransaction('CreateVoterGroup', id, campaignID, name);
         console.log('CreateVoterGroup transaction has been submitted');
 
         // Disconnect from the gateway.
