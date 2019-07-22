@@ -3,30 +3,28 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  * 
- * This module deals with frontend JavaScript calls related to campaigns.
+ * This module deals with frontend JavaScript calls related to voter groups.
  */
 
 'use strict';
 
-module.exports = {createCampaign, queryCampaignByID}
+module.exports = {createVoterGroup, queryVoterGroupsByID}
 
 const { FileSystemWallet, Gateway } = require('fabric-network');
 
-/**
- * Calls chaincode function CreateCampaign.
- * @param {*} connectionProfilePath 
- * @param {*} walletPath 
- * @param {*} channelName 
- * @param {*} contractName 
- * @param {*} id 
- * @param {*} name 
- * @param {*} campaignType 
- * @param {string} start 
- * @param {string} end 
- * @param {*} username ID of user in wallet attemptign to create campaign.
- */
-async function createCampaign(connectionProfilePath, walletPath, channelName, contractName, id, name, campaignType, start, end, username) {
 
+/**
+ * Calls chaincode function CreateVoterGroup.
+ * @param {string} connectionProfilePath 
+ * @param {string} walletPath 
+ * @param {string} channelName 
+ * @param {string} contractName
+ * @param {string} id
+ * @param {string} campaignID
+ * @param {string} name
+ * @param {string} username ID of user in wallet attempting to create campaign.
+ */
+async function createVoterGroup(connectionProfilePath, walletPath, channelName, contractName, id, campaignID, name, username) {
     try {
         // Create a new file system based wallet for managing identities.
         const wallet = new FileSystemWallet(walletPath);
@@ -49,16 +47,13 @@ async function createCampaign(connectionProfilePath, walletPath, channelName, co
         const contract = network.getContract(contractName);
 
         // Submit the transaction.
-        console.log('ABOUT TO DO IT');
-        await contract.submitTransaction('CreateCampaign', id, name, campaignType, start, end);
-        console.log('CreateCampaign transaction has been submitted');
+        await contract.submitTransaction('CreateVoterGroup', id, campaignID, name);
+        console.log('CreateVoterGroup transaction has been submitted');
 
         // Disconnect from the gateway.
-        console.log('NOT YET!')
         await gateway.disconnect();
-        console.log('ALL DONE!')
     } catch (error) {
-        console.error(`Failed to submit CreateCampaign transaction: ${error}`);
+        console.error(`Failed to submit CreateVoterGroup transaction: ${error}`);
         process.exit(1);
     }
 }
@@ -67,12 +62,12 @@ async function createCampaign(connectionProfilePath, walletPath, channelName, co
  * Calls chaincode function QueryCampaignByID.
  * @param {string} connectionProfilePath 
  * @param {string} walletPath 
- * @param {string} id ID of user making call.
+ * @param {string} username ID of user making call.
  * @param {string} channelName 
  * @param {string} contractName 
  * @param {string} idToQuery  ID of campaign to query.
  */
-async function queryCampaignByID(connectionProfilePath, walletPath, id, channelName, contractName, idToQuery) {
+async function queryVoterGroupsByID(connectionProfilePath, walletPath, id, channelName, contractName, idToQuery) {
 
     try {
         // Create a new file system based walllet for managing identities.
@@ -96,7 +91,7 @@ async function queryCampaignByID(connectionProfilePath, walletPath, id, channelN
         const contract = network.getContract(contractName);
 
         // Submit the transaction.
-        const queryResult = await contract.evaluateTransaction('QueryCampaignByID', idToQuery);
+        const queryResult = await contract.evaluateTransaction('QueryVoterGroupsByID', idToQuery); // add s
         console.log('Query Success.');
 
         // Disconnect from the gateway.
@@ -109,3 +104,4 @@ async function queryCampaignByID(connectionProfilePath, walletPath, id, channelN
         process.exit(1);
     }
 }
+

@@ -3,13 +3,16 @@ const express = require('express');
 const router = express();
 
 // modules
-const accountsModule = require('../app/javascript/accounts')
-const campaignModule = require('../app/javascript/campaign')
-
+// const accountsModule = require('../app/javascript/accounts')
+// const campaignModule = require('../app/javascript/campaign')
+// const voterGroupModule = require('../app/javascript/votergroup')
+const invokeModule = require('../app/javascript/invoke');
+const registrationEnrollmentModule = require('../app/javascript/registrationEnrollment');
 
 // environment variables
 const ccpPath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connection-sipher.json');
 const walletPath = path.join(__dirname, '..', 'app', 'javascript', 'test_programs', 'wallet')
+const networkDirPath = path.resolve(__dirname, '..', 'libertas-dev-network')
 
 // JSON parser 
 router.use(express.urlencoded({
@@ -21,43 +24,61 @@ router.use(express.urlencoded({
 
 router.post('/createAccount', async function (req, res) {
     try {
-        let id = req.body.id;
-        let name = req.body.name;
-        let email = req.body.email;
-        let accountType = req.body.accountType;
+        const username = req.body.username;
+        const name = req.body.name;
+        const email = req.body.email;
+        const accountType = req.body.accountType;
 
-        await accountsModule.createAccount(ccpPath, walletPath, "test", "libertas", id, name, email, accountType);
+        // TODO: remove this once offline private key stuff works 
+        await registerAndEnroll(username, name, accountType);
+
+        // TODO: note that chaincodeId and channelId are hardcoded
+        const transactionProposal = {
+            fcn: 'CreateAccount',
+            args: [username, name, email, accountType],
+            chaincodeId: "libertas", // 
+            channelId: "test" //
+        }
+        await invokeModule.submit(ccpPath, walletPath, transactionProposal);
         res.send('Success');
     } catch (error) {
-        console.log(error)
+        console.log(error);
     }
 });
 
 
 router.get('/queryAccountByID', async function (req, res) {
     try {
-        let idToQuery = req.query.idToQuery;
-        let result = await accountsModule.queryAccountByID(ccpPath, walletPath, 'jingleman', 'test', 'libertas', idToQuery);
+        const username = req.query.username;
+        const idToQuery = req.query.idToQuery;
+        const result = await accountsModule.queryAccountByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
+
         res.send(result);
     } catch (error) {
-        console.log(error)
+        console.log(error);
     }
 });
-
-router.listen(80, () => console.log("Listening on port 80"));
 
 //-----------------------------------------CAMPAIGN FUNCTIONS--------------------------------------------------
 
 router.post('/createCampaign', async function (req, res) {
     try {
-        let id = req.body.id;
-        let name = req.body.name;
-        let campaignType = req.body.campaignType;
-        let start = req.body.start;
-        let end = req.body.end;
-        let username = req.body.username;
+        const id = req.body.id;
+        const name = req.body.name;
+        const campaignType = req.body.campaignType;
+        const start = req.body.start;
+        const end = req.body.end;
+        const username = req.body.username;
 
-        await campaignModule.createCampaign(ccpPath, walletPath, 'test', 'libertas', id, name, campaignType, start, end, username);
+        // await campaignModule.createCampaign(ccpPath, walletPath, 'test', 'libertas', id, name, campaignType, start, end, username);
+        const transactionProposal = {
+            fcn: 'CreateCampaign',
+            args: [id, name, campaignType, start, end, username],
+            chaincodeId: "libertas", // 
+            channelId: "test" //
+        }
+        await invokeModule.submit(ccpPath, walletPath, transactionProposal);
+        res.send('Success');
     } catch (error) {
         console.log(error)
     }
@@ -65,8 +86,10 @@ router.post('/createCampaign', async function (req, res) {
 
 router.get('/queryCampaignByID', async function (req, res) {
     try {
-        let idToQuery = req.query.idToQuery;
-        let result = await campaignModule.queryCampaignByID(ccpPath, walletPath, 'jingleman', 'test', 'libertas', idToQuery);
+        const username = req.query.username;
+        const idToQuery = req.query.idToQuery;
+        const result = await campaignModule.queryCampaignByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
+
         res.send(result);
     } catch (error) {
         console.log(error)
@@ -75,10 +98,37 @@ router.get('/queryCampaignByID', async function (req, res) {
 
 //-----------------------------------------VOTER GROUP FUNCTIONS--------------------------------------------------
 
+router.post('/createVoterGroup', async function (req, res) {
+    try {
+        const id = req.body.id;
+        const campaignID = req.body.campaignID;
+        const name = req.body.name;
+        const username = req.body.username;
 
-// TODO:
+        const transactionProposal = {
+            fcn: 'CreateVoterGroup',
+            args: [id, campaignID, name, username],
+            chaincodeId: "libertas", // 
+            channelId: "test" //
+        }
+        await invokeModule.submit(ccpPath, walletPath, transactionProposal);
+        res.send('Success');
+    } catch (error) {
+        console.log(error)
+    }
+});
 
+router.get('/queryVoterGroupsByID', async function (req, res) {
+    try {
+        const username = req.query.username;
+        const idToQuery = req.query.idToQuery;
+        const result = await voterGroupModule.queryVoterGroupsByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
 
+        res.send(result);
+    } catch (error) {
+        console.log(error)
+    }
+});
 
 
 //-----------------------------------------VOTER FUNCTIONS--------------------------------------------------
@@ -89,3 +139,35 @@ router.get('/queryCampaignByID', async function (req, res) {
 //-----------------------------------------VOTE FUNCTIONS--------------------------------------------------
 
 // TODO:
+
+
+//-----------------------------------------TEMP FUNCTIONS-----------------------------------------------------
+async function registerAndEnroll(id, name, accountType) {
+    secret = await register(id, name, accountType)
+    await enroll(id, secret)
+}
+
+async function register(id, name, accountType) {
+    try {
+        var secret = await registrationEnrollmentModule.registerUser(ccpPath, walletPath, "voting_district1", id, "client", name, accountType);
+    } catch (error) {
+        console.error(`${error}`);
+        process.exit(1);
+    }
+
+    console.log(id, secret)
+    return secret
+}
+
+
+async function enroll(id, secret) {
+    try {
+        await registrationEnrollmentModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, id, secret, "SipherMSP");
+    } catch (error) {
+        process.exit(1);
+    }
+}
+
+
+
+router.listen(80, () => console.log("Listening on port 80"));

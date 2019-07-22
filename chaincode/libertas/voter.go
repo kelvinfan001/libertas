@@ -41,7 +41,7 @@ func (t *Libertas) ListVoters(stub shim.ChaincodeStubInterface, args []string) p
 // Create
 func (t *Libertas) CreateVoter(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
-	err := _isArgsValid(stub, args)
+	err := _isVoterArgsValid(stub, args)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -99,7 +99,7 @@ func _getNewVoter(stub shim.ChaincodeStubInterface, args []string) Voter {
 	return newVoter
 }
 
-func _isArgsValid(stub shim.ChaincodeStubInterface, args []string) error {
+func _isVoterArgsValid(stub shim.ChaincodeStubInterface, args []string) error {
 	var err error
 
 	if len(args) != 2 {

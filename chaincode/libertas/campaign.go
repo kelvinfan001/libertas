@@ -28,6 +28,7 @@ type Campaign struct {
 	ID                  string
 	Name                string
 	CampaignType        string
+	CampaignBallot      Ballot
 	Start               time.Time
 	End                 time.Time
 	CreatedAt           time.Time
@@ -88,7 +89,7 @@ func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []strin
 	// Get list of Campaigns from the ledger
 	campaignsListBytes, err := stub.GetState("Campaigns List")
 	if err != nil {
-		shim.Error(err.Error())
+		return shim.Error(err.Error())
 	}
 	campaignsList := CampaignsList{}
 	json.Unmarshal(campaignsListBytes, &campaignsList)
@@ -100,7 +101,9 @@ func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []strin
 	}
 
 	// Else, create Campaign and add it to list
-	newCampaign := Campaign{ownerID, id, name, campaignType, start, end, transactionTime,
+	voteList := make([]Vote, 0)
+	campaignBallot := Ballot{voteList}
+	newCampaign := Campaign{ownerID, id, name, campaignType, campaignBallot, start, end, transactionTime,
 		transactionTime, campaignVoterGroups}
 	campaignsList.Campaigns = append(campaignsList.Campaigns, newCampaign)
 
