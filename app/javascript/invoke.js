@@ -15,8 +15,14 @@
 //     channelId:   
 // }
 
-module.exports = {submit, evaluate}
-const { FileSystemWallet, Gateway } = require('fabric-network');
+module.exports = {
+    submit,
+    evaluate
+}
+const {
+    FileSystemWallet,
+    Gateway
+} = require('fabric-network');
 
 async function submit(connectionProfilePath, walletPath, transactionProposal) {
     try {
@@ -33,7 +39,14 @@ async function submit(connectionProfilePath, walletPath, transactionProposal) {
 
         // Create a new gateway for connecting to peer node.
         const gateway = new Gateway();
-        await gateway.connect(connectionProfilePath, { wallet, identity: username, discovery: { enabled: true, asLocalhost: true } });
+        await gateway.connect(connectionProfilePath, {
+            wallet,
+            identity: username,
+            discovery: {
+                enabled: true,
+                asLocalhost: true
+            }
+        });
 
         // Get the network (channel) that our contract is deployed to.
         const network = await gateway.getNetwork(channelName);
@@ -42,7 +55,9 @@ async function submit(connectionProfilePath, walletPath, transactionProposal) {
         const contract = network.getContract(contractName);
 
         // Submit the transaction.
-        await contract.submitTransaction(transactionProposal.fcn, transactionProposal.args);
+        const args = [transactionProposal.fcn].concat(transactionProposal.args);
+        await contract.submitTransaction.apply(this, args);
+        // await contract.submitTransaction(transactionProposal.fcn, transactionProposal.args);
         console.log('Transaction has been submitted');
 
         // Disconnect from the gateway.
@@ -54,7 +69,7 @@ async function submit(connectionProfilePath, walletPath, transactionProposal) {
 }
 
 function evaluate() {
-    
+
 }
 
 // transactionProposal obj, ccp, wallet >> eventually need cert 
