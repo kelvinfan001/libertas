@@ -10,140 +10,18 @@
 
 module.exports = { createAccount, queryAccountByID, createAccountOffline };
 
+const signingModule = require('./signing');
+const offlineSigningGatewayModule = require('./offlineSigningGateway');
+
 const fs = require('fs');
 const path = require('path');
 
 const FabricCAService = require('fabric-ca-client');
 const Client = require('fabric-client');
-const hash = require('fabric-client/lib/hash');
-
-const jsrsa = require('jsrsasign');
-const { KEYUTIL } = jsrsa;
-const elliptic = require('elliptic');
-const EC = elliptic.ec;
 
 const PRIVATE_KEY_PATH = path.resolve(__dirname, './wallet/kelvinfan/322b3214bd6e7c7c1b4713ed4374c174fd1cac21166cfef8e4f55f8933baf84e-priv');
 const PRIVATE_KEY = fs.readFileSync(PRIVATE_KEY_PATH, 'utf8');
 const networkDirPath = path.resolve(__dirname, '..', '..', 'libertas-dev-network');
-
-// this ordersForCurve comes from CryptoSuite_ECDSA_AES.js and will be part of the
-// stand alone fabric-sig package in future.
-const ordersForCurve = {
-    'secp256r1': {
-        'halfOrder': elliptic.curves.p256.n.shrn(1),
-        'order': elliptic.curves.p256.n
-    },
-    'secp384r1': {
-        'halfOrder': elliptic.curves.p384.n.shrn(1),
-        'order': elliptic.curves.p384.n
-    }
-};
-
-// this function comes from CryptoSuite_ECDSA_AES.js and will be part of the
-// stand alone fabric-sig package in future.
-function _preventMalleability(sig, curveParams) {
-    const halfOrder = ordersForCurve[curveParams.name].halfOrder;
-    if (!halfOrder) {
-        throw new Error('Can not find the half order needed to calculate "s" value for immalleable signatures. Unsupported curve name: ' + curveParams.name);
-    }
-
-    // in order to guarantee 's' falls in the lower range of the order, as explained in the above link,
-    // first see if 's' is larger than half of the order, if so, it needs to be specially treated
-    if (sig.s.cmp(halfOrder) === 1) { // module 'bn.js', file lib/bn.js, method cmp()
-        // convert from BigInteger used by jsrsasign Key objects and bn.js used by elliptic Signature objects
-        const bigNum = ordersForCurve[curveParams.name].order;
-        sig.s = bigNum.sub(sig.s);
-    }
-
-    return sig;
-}
-
-/**
- * this method is used for test at this moment. In future this
- * would be a stand alone package that running at the browser/cellphone/PAD
- *
- * @param {string} privateKey PEM encoded private key
- * @param {Buffer} proposalBytes proposal bytes
- */
-function sign(privateKey, proposalBytes, algorithm, keySize) {
-    const hashAlgorithm = algorithm.toUpperCase();
-    const hashFunction = hash[`${hashAlgorithm}_${keySize}`];
-    const ecdsaCurve = elliptic.curves[`p${keySize}`];
-    const ecdsa = new EC(ecdsaCurve);
-    const key = KEYUTIL.getKey(privateKey);
-
-    const signKey = ecdsa.keyFromPrivate(key.prvKeyHex, 'hex');
-    const digest = hashFunction(proposalBytes);
-
-    let sig = ecdsa.sign(Buffer.from(digest, 'hex'), signKey);
-    sig = _preventMalleability(sig, key.ecparams);
-
-    return Buffer.from(sig.toDER());
-}
-
-function signProposal(proposalBytes, privateKeyPem) {
-    const signature = sign(privateKeyPem, proposalBytes, 'sha2', 256);
-    const signedProposal = { signature, proposal_bytes: proposalBytes };
-    return signedProposal;
-}
-
-/**
- * TODO: Peers hardcoded. Need major refactoring for scalability!
- * @param {*} connectionProfilePath 
- * @param {*} channelName 
- * @param {*} adminCertificate 
- * @param {*} adminKey 
- * @param {*} mspID 
- */
-async function setupChannel(connectionProfilePath, channelName, adminCertificate, adminKey, mspID) {
-    // Get connection profile
-    const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
-    const ccp = JSON.parse(ccpJSON);
-    // Set fabric-client to use discovery
-    // Client.setConfigSetting('initialize-with-discovery', true);
-    const client = await Client.loadFromConfig(connectionProfilePath);
-    client.setAdminSigningIdentity(adminKey, adminCertificate, mspID);
-    client.setTlsClientCertAndKey(adminCertificate, adminKey);
-    const channel = client.getChannel(channelName);
-
-    const sipherPeer0TLSCertPath = path.resolve(networkDirPath, ccp.peers["peer0.libertas.sipher.co"].tlsCACerts.path);
-    const sipherPeer0PEMCert = fs.readFileSync(sipherPeer0TLSCertPath, 'utf8');
-    const sipherPeer0 = client.newPeer(
-        'grpcs://localhost:7051',
-        {
-            pem: sipherPeer0PEMCert,
-            'ssl-target-name-override': 'peer0.libertas.sipher.co',
-        }
-    );
-    const whiteBoxPeer0TLSCertPath = path.resolve(networkDirPath, ccp.peers["peer0.libertas.whiteboxplatform.com"].tlsCACerts.path);
-    const whiteboxPeer0PEMCert = fs.readFileSync(whiteBoxPeer0TLSCertPath, 'utf8');
-    const whiteboxPeer0 = client.newPeer(
-        'grpcs://localhost:9051',
-        {
-            pem: whiteboxPeer0PEMCert,
-            'ssl-target-name-override': 'peer0.libertas.whiteboxplatform.com',
-        }
-    );
-
-    const ordererTLSCertPath = path.resolve(networkDirPath, ccp.orderers["orderer.sipher.co"].tlsCACerts.path);
-    const ordererPEMCert = fs.readFileSync(ordererTLSCertPath, 'utf8');
-
-    const orderer = client.newOrderer(
-        'grpcs://localhost:7050',
-        {
-            pem: ordererPEMCert,
-            'ssl-target-name-override': 'orderer.sipher.co',
-        }
-    );
-
-    channel.addPeer(sipherPeer0);
-    channel.addPeer(whiteboxPeer0);
-    channel.addOrderer(orderer);
-
-    await channel.initialize();
-    
-    return channel;
-}
 
 
 async function createAccountOffline(connectionProfilePath, channelName, contractName, mspID, userCertPEM, adminCertificate, adminKey, id, name, email, accountType) {
@@ -157,7 +35,12 @@ async function createAccountOffline(connectionProfilePath, channelName, contract
          */
 
         // Create Channel instance
-        const channel = await setupChannel(connectionProfilePath, channelName, adminCertificate, adminKey, mspID);
+        const channel = await offlineSigningGateway.getChannel(connectionProfilePath, channelName, adminCertificate, adminKey, mspID);
+        // const discoveryResults = await channel.getDiscoveryResults();
+        // console.log(discoveryResults.endorsement_plans[0].groups.G1);
+        var endorsementPlanPeerNames = await offlineSigningGatewayModule.getEndorementPlanPeers(channel);
+        // console.log(endorsementPlanPeerNames);
+        // console.log(channel.getPeers());
 
         // Package the transaction proposal
         const transactionProposalReq = {
@@ -172,19 +55,23 @@ async function createAccountOffline(connectionProfilePath, channelName, contract
 
         // Sign the transaction proposal
         // TODO: this will be done by app
-        const signedProposal = signProposal(proposal.toBuffer(), PRIVATE_KEY);
+        const signedProposal = signingModule.signProposal(proposal.toBuffer(), PRIVATE_KEY);
 
         // TODO: refactor! too much hardcoding!
-        const sipherPeer = channel.getPeer('localhost:7051');
-        const whiteboxPeer = channel.getPeer('localhost:9051');
-        const targets = [sipherPeer, whiteboxPeer];
+        // const sipherPeer = channel.getPeer('localhost:7051');
+        // const whiteboxPeer = channel.getPeer('localhost:9051');
+        // const targets = [sipherPeer, whiteboxPeer];
+
+        var targets = [];
+        for (var i = 0; i < endorsementPlanPeerNames.length; i++) {
+            targets.push(channel.getPeer(endorsementPlanPeerNames[i]));
+        }
 
         // Send signed proposal
         const sendSignedProposalReq = { signedProposal, targets };
         const proposalResponses = await channel.sendSignedProposal(sendSignedProposalReq);
 
-        console.log(proposalResponses.length);
-        console.log(proposalResponses[0].response);
+        console.log(proposalResponses[0]);
 
         /**
          * End endorsement step.
@@ -200,7 +87,7 @@ async function createAccountOffline(connectionProfilePath, channelName, contract
 
         // Sign unsigned commit proposal
         // TODO: this will be done by app
-        const signedCommitProposal = signProposal(commitProposal.toBuffer(), PRIVATE_KEY);
+        const signedCommitProposal = signingModule.signProposal(commitProposal.toBuffer(), PRIVATE_KEY);
 
         // Send signed transaction
         const response = await channel.sendSignedTransaction({

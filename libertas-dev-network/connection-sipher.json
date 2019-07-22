@@ -11,7 +11,8 @@
                     "endorsingPeer": true,
                     "chaincodeQuery": true,
                     "ledgerQuery": true,
-                    "eventSource": true
+                    "eventSource": true,
+                    "discover": true
                 },
                 "peer1.libertas.sipher.co": {
                     "endorsingPeer": true,
