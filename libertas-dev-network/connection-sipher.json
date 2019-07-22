@@ -74,6 +74,26 @@
             "grpcOptions": {
                 "ssl-target-name-override": "peer1.libertas.sipher.co"
             }
+        },
+        "peer0.libertas.whiteboxplatform.com": {
+            "url": "grpcs://127.0.0.1:9051",
+            "tlsCACerts": {
+                "path": "crypto-config/peerOrganizations/libertas.whiteboxplatform.com/tlsca/tlsca.libertas.whiteboxplatform.com-cert.pem"
+            },
+            "grpcOptions": {
+                "ssl-target-name-override": "peer0.libertas.whiteboxplatform.com"
+            }
+        }
+    },
+    "orderers": {
+        "orderer.sipher.co": {
+            "url": "grpc://localhost:7050",
+            "tlsCACerts": {
+                "path": "crypto-config/ordererOrganizations/sipher.co/tlsca/tlsca.sipher.co-cert.pem"
+            },
+            "grpcOptions": {
+                "ssl-target-name-override": "orderer.sipher.co"
+            }
         }
     },
     "certificateAuthorities": {

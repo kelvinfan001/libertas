@@ -22,8 +22,9 @@ const { KEYUTIL } = jsrsa;
 const elliptic = require('elliptic');
 const EC = elliptic.ec;
 
-const PRIVATE_KEY_PATH = path.resolve(__dirname, './wallet/kelvinfan/933fff033e5b0f4025e254f597dd794a160896f63da1dd478674ff0290d262b4-priv');
+const PRIVATE_KEY_PATH = path.resolve(__dirname, './wallet/kelvinfan/322b3214bd6e7c7c1b4713ed4374c174fd1cac21166cfef8e4f55f8933baf84e-priv');
 const PRIVATE_KEY = fs.readFileSync(PRIVATE_KEY_PATH, 'utf8');
+const networkDirPath = path.resolve(__dirname, '..', '..', 'libertas-dev-network');
 
 // this ordersForCurve comes from CryptoSuite_ECDSA_AES.js and will be part of the
 // stand alone fabric-sig package in future.
@@ -86,15 +87,61 @@ function signProposal(proposalBytes, privateKeyPem) {
     return signedProposal;
 }
 
+/**
+ * TODO: Peers hardcoded. Need major refactoring for scalability!
+ * @param {*} connectionProfilePath 
+ * @param {*} channelName 
+ * @param {*} adminCertificate 
+ * @param {*} adminKey 
+ * @param {*} mspID 
+ */
 async function setupChannel(connectionProfilePath, channelName, adminCertificate, adminKey, mspID) {
+    // Get connection profile
+    const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
+    const ccp = JSON.parse(ccpJSON);
     // Set fabric-client to use discovery
-    Client.setConfigSetting('initialize-with-discovery', true);
+    // Client.setConfigSetting('initialize-with-discovery', true);
     const client = await Client.loadFromConfig(connectionProfilePath);
     client.setAdminSigningIdentity(adminKey, adminCertificate, mspID);
     client.setTlsClientCertAndKey(adminCertificate, adminKey);
     const channel = client.getChannel(channelName);
-    // await channel.initialize({
-    //     discover: true});
+
+    const sipherPeer0TLSCertPath = path.resolve(networkDirPath, ccp.peers["peer0.libertas.sipher.co"].tlsCACerts.path);
+    const sipherPeer0PEMCert = fs.readFileSync(sipherPeer0TLSCertPath, 'utf8');
+    const sipherPeer0 = client.newPeer(
+        'grpcs://localhost:7051',
+        {
+            pem: sipherPeer0PEMCert,
+            'ssl-target-name-override': 'peer0.libertas.sipher.co',
+        }
+    );
+    const whiteBoxPeer0TLSCertPath = path.resolve(networkDirPath, ccp.peers["peer0.libertas.whiteboxplatform.com"].tlsCACerts.path);
+    const whiteboxPeer0PEMCert = fs.readFileSync(whiteBoxPeer0TLSCertPath, 'utf8');
+    const whiteboxPeer0 = client.newPeer(
+        'grpcs://localhost:9051',
+        {
+            pem: whiteboxPeer0PEMCert,
+            'ssl-target-name-override': 'peer0.libertas.whiteboxplatform.com',
+        }
+    );
+
+    const ordererTLSCertPath = path.resolve(networkDirPath, ccp.orderers["orderer.sipher.co"].tlsCACerts.path);
+    const ordererPEMCert = fs.readFileSync(ordererTLSCertPath, 'utf8');
+
+    const orderer = client.newOrderer(
+        'grpcs://localhost:7050',
+        {
+            pem: ordererPEMCert,
+            'ssl-target-name-override': 'orderer.sipher.co',
+        }
+    );
+
+    channel.addPeer(sipherPeer0);
+    channel.addPeer(whiteboxPeer0);
+    channel.addOrderer(orderer);
+
+    await channel.initialize();
+    
     return channel;
 }
 
@@ -121,14 +168,23 @@ async function createAccountOffline(connectionProfilePath, channelName, contract
         };
 
         // Generate an unsigned transaction proposal
-        const { proposal, txId } = channel.generateUnsignedProposal(transactionProposalReq, mspID, userCertPEM);
+        const { proposal, txId } = channel.generateUnsignedProposal(transactionProposalReq, mspID, userCertPEM, false);
 
         // Sign the transaction proposal
         // TODO: this will be done by app
         const signedProposal = signProposal(proposal.toBuffer(), PRIVATE_KEY);
 
+        // TODO: refactor! too much hardcoding!
+        const sipherPeer = channel.getPeer('localhost:7051');
+        const whiteboxPeer = channel.getPeer('localhost:9051');
+        const targets = [sipherPeer, whiteboxPeer];
+
         // Send signed proposal
-        const proposalResponses = await channel.sendSignedProposal(signedProposal);
+        const sendSignedProposalReq = { signedProposal, targets };
+        const proposalResponses = await channel.sendSignedProposal(sendSignedProposalReq);
+
+        console.log(proposalResponses.length);
+        console.log(proposalResponses[0].response);
 
         /**
          * End endorsement step.

@@ -20,7 +20,7 @@ const certPem = fs.readFileSync(certPath, 'utf8');
 const adminCertPath = path.resolve(__dirname, './wallet/admin/adminCertPem.pem');
 const adminCertPem = fs.readFileSync(adminCertPath, 'utf8');
 
-const adminKeyPath = path.resolve(__dirname, './wallet/admin/3fb21beb600f7061ac98e46fb15f1d0f9c33c6cacf4970baf6d3c655b67469ad-priv');
+const adminKeyPath = path.resolve(__dirname, './wallet/admin/c205b559a79f40eafea7767362fb38af79aa26bd28812375213c3d448dc4a02e-priv');
 const adminKeyPem = fs.readFileSync(adminKeyPath, 'utf8');
 
 async function main() {
