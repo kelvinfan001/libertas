@@ -3,9 +3,10 @@ const express = require('express');
 const router = express();
 
 // modules
-const accountsModule = require('../app/javascript/accounts')
-const campaignModule = require('../app/javascript/campaign')
-const voterGroupModule = require('../app/javascript/votergroup')
+// const accountsModule = require('../app/javascript/accounts')
+// const campaignModule = require('../app/javascript/campaign')
+// const voterGroupModule = require('../app/javascript/votergroup')
+const invokeModule = require('../app/javascript/invoke');
 const registrationEnrollmentModule = require('../app/javascript/registrationEnrollment');
 
 // environment variables
@@ -31,10 +32,17 @@ router.post('/createAccount', async function (req, res) {
         // TODO: remove this once offline private key stuff works 
         await registerAndEnroll(username, name, accountType);
 
-        await accountsModule.createAccount(ccpPath, walletPath, "test", "libertas", username, name, email, accountType);
+        // TODO: note that chaincodeId and channelId are hardcoded
+        const transactionProposal = {
+            fcn: 'CreateAccount',
+            args: [id, name, email, accountType],
+            chaincodeId: "libertas", // 
+            channelId: "test" //
+        }
+        await invokeModule.submit(ccpPath, walletPath, transactionProposal);
         res.send('Success');
     } catch (error) {
-        console.log(error)
+        console.log(error);
     }
 });
 
@@ -44,10 +52,10 @@ router.get('/queryAccountByID', async function (req, res) {
         const username = req.query.username;
         const idToQuery = req.query.idToQuery;
         const result = await accountsModule.queryAccountByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
-        
+
         res.send(result);
     } catch (error) {
-        console.log(error)
+        console.log(error);
     }
 });
 
@@ -62,7 +70,14 @@ router.post('/createCampaign', async function (req, res) {
         const end = req.body.end;
         const username = req.body.username;
 
-        await campaignModule.createCampaign(ccpPath, walletPath, 'test', 'libertas', id, name, campaignType, start, end, username);
+        // await campaignModule.createCampaign(ccpPath, walletPath, 'test', 'libertas', id, name, campaignType, start, end, username);
+        const transactionProposal = {
+            fcn: 'CreateCampaign',
+            args: [id, name, campaignType, start, end, username],
+            chaincodeId: "libertas", // 
+            channelId: "test" //
+        }
+        await invokeModule.submit(ccpPath, walletPath, transactionProposal);
         res.send('Success');
     } catch (error) {
         console.log(error)
@@ -74,7 +89,7 @@ router.get('/queryCampaignByID', async function (req, res) {
         const username = req.query.username;
         const idToQuery = req.query.idToQuery;
         const result = await campaignModule.queryCampaignByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
-        
+
         res.send(result);
     } catch (error) {
         console.log(error)
@@ -90,7 +105,13 @@ router.post('/createVoterGroup', async function (req, res) {
         const name = req.body.name;
         const username = req.body.username;
 
-        await voterGroupModule.createVoterGroup(ccpPath, walletPath, 'test', 'libertas', id, campaignID, name, username);
+        const transactionProposal = {
+            fcn: 'CreateVoterGroup',
+            args: [id, campaignID, name, username],
+            chaincodeId: "libertas", // 
+            channelId: "test" //
+        }
+        await invokeModule.submit(ccpPath, walletPath, transactionProposal);
         res.send('Success');
     } catch (error) {
         console.log(error)
@@ -102,7 +123,7 @@ router.get('/queryVoterGroupsByID', async function (req, res) {
         const username = req.query.username;
         const idToQuery = req.query.idToQuery;
         const result = await voterGroupModule.queryVoterGroupsByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
-        
+
         res.send(result);
     } catch (error) {
         console.log(error)
