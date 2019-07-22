@@ -77,6 +77,11 @@ async function submitTransaction(connectionProfilePath, userCertPEM, walletPath,
         const sendSignedProposalReq = { signedProposal, targets };
         const proposalResponses = await channel.sendSignedProposal(sendSignedProposalReq);
 
+        // Check if proposal got valid endorsement
+        if (proposalResponses[0].status != 200) {
+            throw new Error(proposalResponses[0]);
+        }
+
         /**
          * End endorsement step.
          * Start commit transaction step.
