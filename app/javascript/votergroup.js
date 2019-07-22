@@ -25,7 +25,7 @@ const { FileSystemWallet, Gateway } = require('fabric-network');
  * @param {string} name
  * @param {string} username ID of user in wallet attempting to create campaign.
  */
-async function createVoterGroup(connectionProfilePath, walletPath, channelName, contractName, ownerID, id, campaignID, name, username) {
+async function createVoterGroup(connectionProfilePath, walletPath, channelName, contractName, id, campaignID, name, username) {
     try {
         // Create a new file system based wallet for managing identities.
         const wallet = new FileSystemWallet(walletPath);
@@ -105,3 +105,4 @@ async function queryVoterGroupByID(connectionProfilePath, walletPath, id, channe
         process.exit(1);
     }
 }
+

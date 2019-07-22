@@ -126,7 +126,7 @@ async function createVoterGroup(id, campaignID, name, username) {
             username: username
         }),
         headers: {
-            // 'Accept': 'application/json',
+            'Accept': 'application/json',
             'Content-Type': 'application/json',
         }
     }).then(function (res) {
@@ -160,7 +160,7 @@ async function queryVoterGroupByID(username, idToQuery) {
 // Here are some sample API calls 
 
 // Account: we create an instituion account 
-// createAccount('ciudad10', 'Ciudad10', 'ciudad10@sipher.co', 'Institution');
+// createAccount('ciudad11', 'Ciudad11', 'ciudad11@sipher.co', 'Institution');
 // queryAccountByID('hello', 'hello');
 
 
@@ -169,9 +169,9 @@ async function queryVoterGroupByID(username, idToQuery) {
 // var end = Date.parse('2019-8-1');
 // var startStr = start.toString();
 // var endStr = end.toString();
-// createCampaign('ciudad10', 'Ciudad10 Election', 'Mayoral Election', startStr, endStr, 'ciudad10');
+// createCampaign('ciudad11', 'Ciudad11 Election', 'Mayoral Election', startStr, endStr, 'ciudad11');
 // queryCampaignByID('ciudad10', 'ciudad10');
 
 
 // Voter Group:
-createVoterGroup('ciudad10VoterGroup', 'ciudad10', 'Ciudad10 Voter Group', 'ciudad10')
+createVoterGroup('ciudad11VoterGroup', 'ciudad11', 'Ciudad11 Voter Group', 'ciudad11')
