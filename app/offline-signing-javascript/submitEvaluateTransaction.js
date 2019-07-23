@@ -110,7 +110,7 @@ async function submitTransaction(connectionProfilePath, userCertPEM, walletPath,
 }
 
 /**
- * 
+ * Returns a Proposal type unsigned proposal.
  * @param {Channel} channel                     initialized Channel object
  * @param {string} userCertPEM                  certificate of user proposing transaction
  * @param {string} userMSPID                    ID of the MSD that user is registered with
@@ -154,7 +154,12 @@ async function getTransactionProposalDigest(channel, userCertPEM, userMSPID, tra
     }
 }
 
-
+/**
+ * Submits a signed transaction proposal.
+ * @param {Channel} channel 
+ * @param {string} contractName 
+ * @param {Proposal} signedTransactionProposal 
+ */
 async function submitSignedTransactionProposal(channel, contractName, signedTransactionProposal) {
 
     try {
@@ -218,52 +223,6 @@ async function submitSignedCommitProposal(channel, signedCommitProposal, transac
 
     } catch (error) {
         console.error(`Failed to submit signed commit proposal: ${error}`);
-        process.exit(1);
-    }
-}
-    
-
-
-
-
-
-
-        // // Sign the transaction proposal
-        // // TODO: this will be done by app
-
-        // const signedProposal = cryptoSigningModule.signProposal(proposal.toBuffer(), PRIVATE_KEY);
-
-        // var targets = [];
-        // for (var i = 0; i < endorsementPlanPeerNames.length; i++) {
-        //     targets.push(channel.getPeer(endorsementPlanPeerNames[i]));
-        // }
-
-    
-
-        /**
-         * End endorsement step.
-         * Start commit transaction step.
-         */
-
-        const commitReq = {
-            proposalResponses,
-            proposal,
-        };
-
-        // Generate unsigned commit proposal
-        const commitProposal = channel.generateUnsignedTransaction(commitReq);
-
-        // Sign unsigned commit proposal
-        // TODO: this will be done by app
-        const signedCommitProposal = cryptoSigningModule.signProposal(commitProposal.toBuffer(), PRIVATE_KEY);
-
-        // Send signed transaction
-        const response = await channel.sendSignedTransaction({
-            signedProposal: signedCommitProposal,
-            request: commitReq,
-        });
-    } catch (error) {
-        console.error(`Failed to submit transaction: ${error}`);
         process.exit(1);
     }
 }

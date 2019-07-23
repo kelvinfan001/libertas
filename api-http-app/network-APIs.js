@@ -8,6 +8,7 @@
 
 // Import required modules
 const registrationEnrollmentModule = require('../api-http-server/registrationEnrollment');
+const signingModule = require('./cryptoSigning');
 const fetch = require('node-fetch');
 const { FileSystemWallet } = require('fabric-network');
 
@@ -29,7 +30,7 @@ const caDomain = "ca.libertas.sipher.co";
  * @param {string} enrollmentSecret
  * @param {string} mspID // TODO tis tricky. lots of hard coding going on rn   ALWAYS USE 'SipherMSP' for now.
  */
-async function createAccount(id, name, email, accountType, affiliation, enrollmentSecret, mspID) {
+async function createAccount(id, name, email, accountType, enrollmentSecret, mspID) {
     
     // Register user (directly communicating with CA)
     registrationEnrollmentModule.enrollUser(connectionProfilePath, walletPath, caDomain, id, enrollmentSecret, mspID);
@@ -45,12 +46,14 @@ async function createAccount(id, name, email, accountType, affiliation, enrollme
         args: [id, name, email, accountType],
     }
 
-    let url = 'http://155.138.134.91/submit';
+    const transactionProposalDigestBytes;
+    let url = 'http://155.138.134.91/getTransactionProposalDigest';
     await fetch(url, {
         method: 'POST',
         body: JSON.stringify({
             transactionProposal: transactionProposal,
-            userCertificate: userCertificate
+            userCertificate: userCertificate,
+            mspID: mspID
         }),
         headers: {
             'Accept': 'application/json',
@@ -58,11 +61,35 @@ async function createAccount(id, name, email, accountType, affiliation, enrollme
         }
     }).then(function (res) {
         res.text().then(function(text) {
-            console.log(text);
+            transactionProposalDigestBytes = text; //? not sure if res.text() works
+            console.log(transactionProposalDigestBytes)
         });
     }).catch(function (error) {
-        console.log(error)
+        console.log(error);
     });
+
+    // Sign transaction proposal
+    const signedTransactionProposal = signingModule.signProposal(transactionProposalDigestBytes);
+
+    // Submit signed transaction proposal
+    let url = 'http://155.138.134.91/submitSignedGetCommit';
+    await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(
+            signedTransactionProposal
+        ),
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        }
+    }).then(function (res) {
+        res.text().then(function (text) {
+            
+        });
+    }).catch(function (error) {
+        console.log(error);
+    });
+
 
     // signStuff >> signed cert for transaction
 

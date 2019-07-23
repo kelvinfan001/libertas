@@ -9,6 +9,8 @@ const router = express();
 //// const invokeModule = require('../app/javascript/invoke');
 const submitEvaluateModule = require('../app/offline-signing-javascript/submitEvaluateTransaction');
 const registrationEnrollmentModule = require('../app/javascript/registrationEnrollment');
+const offlineSigningGatewayModule = require('../app/offline-signing-javascript/offlineSigningGateway');
+const { FileSystemWallet } = require('fabric-network')
 
 // environment variables
 //// const ccpPath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connection-sipher.json');
@@ -18,6 +20,13 @@ const connectionProfilePath = path.resolve(__dirname, '..', 'libertas-dev-networ
 const walletPath = path.join(__dirname, 'wallet');
 const networkDirPath = path.resolve(__dirname, '..', 'libertas-dev-network');
 
+// Retrieve admin information from wallet
+const wallet = new FileSystemWallet(walletPath);
+const adminIdentity = await wallet.export('admin');
+const adminKey = adminIdentity.privateKey;
+const adminCertificate = adminIdentity.certificate;
+const mspID = adminIdentity.mspId;
+
 // JSON parser 
 router.use(express.urlencoded({
         extended: false
@@ -26,21 +35,42 @@ router.use(express.urlencoded({
 
 //-----------------------------------------SUBMIT FUNCTIONS--------------------------------------------------
 
-router.post('/submit', async function (req, res) {
+router.post('/getTransactionProposalDigest', async function (req, res) {
     try {
         // Retrieve values from POST request
         const transactionProposal = req.body.transactionProposal;
         const userCertificate = req.body.userCertificate;
+        const userMSPID = req.body.mspID;
+        // Fill in and complete TransactionProposal object with chaincode ID and channel ID
         transactionProposal.chaincodeId = chaincodeID;
         transactionProposal.channelId = channelID;
         
-        //// await invokeModule.submit(ccpPath, walletPath, transactionProposal);
+        // Get channel object
+        let channel = offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, mspID);
 
-        await submitEvaluateModule.submitTransaction(connectionProfilePath, userCertificate, walletPath, transactionProposal, res)
-        res.send('Success');
+        // Get transaction proposal digest
+        let transactionProposalDigest = await submitEvaluateModule.getTransactionProposalDigest(channel, userCertificate, userMSPID, transactionProposal);
+        let transactionProposalDigestBytes = transactionProposalDigest.toBuffer();
+
+        res.send(transactionProposalDigestBytes);
+
     } catch (error) {
         console.log(error);
     }
+});
+
+router.post('/submitSignedGetCommit', async function (req, res) {
+    try {
+        // Retrieve values from POST request
+        const gfansactionProposal = req.body;
+
+        // Submit signed transaction proposal
+        let transactionProposalResponses = await submitEvaluateModule.submitSignedTransactionProposal()
+
+    } catch (error) {
+        console.log(error);
+    }
+
 });
 
 //-------------------------------------EVALUATE FUNCTIONS---------------------------------------
