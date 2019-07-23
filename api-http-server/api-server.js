@@ -12,6 +12,8 @@ const registrationEnrollmentModule = require('../app/javascript/registrationEnro
 
 // environment variables
 //// const ccpPath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connection-sipher.json');
+const chaincodeID = 'libertas';
+const channelID = 'test';
 const connectionProfilePath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connection-sipher.json');
 const walletPath = path.join(__dirname, 'wallet');
 const networkDirPath = path.resolve(__dirname, '..', 'libertas-dev-network');
@@ -29,8 +31,8 @@ router.post('/submit', async function (req, res) {
         // Retrieve values from POST request
         const transactionProposal = req.body.transactionProposal;
         const userCertificate = req.body.userCertificate;
-        transactionProposal.chaincodeId = 'libertas';
-        transactionProposal.channelId = 'test';
+        transactionProposal.chaincodeId = chaincodeID;
+        transactionProposal.channelId = channelID;
         
         //// await invokeModule.submit(ccpPath, walletPath, transactionProposal);
 

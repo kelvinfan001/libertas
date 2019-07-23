@@ -111,10 +111,10 @@ async function submitTransaction(connectionProfilePath, userCertPEM, walletPath,
 
 /**
  * 
- * @param {*} connectionProfilePath 
- * @param {*} userCertPEM 
- * @param {*} walletPath 
- * @param {object} transactionProposal
+ * @param {Channel} channel                     initialized Channel object
+ * @param {string} userCertPEM                  certificate of user proposing transaction
+ * @param {string} userMSPID                    ID of the MSD that user is registered with
+ * @param {ProposalRequest} transactionProposal
  */
 async function getTransactionProposalDigest(channel, userCertPEM, userMSPID, transactionProposal) {
     // Get connection profile

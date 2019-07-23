@@ -14,6 +14,8 @@ const { FileSystemWallet } = require('fabric-network');
 // Set environment variables
 const connectionProfilePath = path.resolve(__dirname, 'connection-sipher.json');
 const walletPath = path.join(__dirname, 'wallet'); // TODO: this could be modified.
+const caDomain = "ca.libertas.sipher.co";
+
 
 //---------------------------------------ACCOUNT FUNCTIONS------------------------------------------------
 
@@ -22,14 +24,15 @@ const walletPath = path.join(__dirname, 'wallet'); // TODO: this could be modifi
  * @param {string} id          the id to be registered with the certifate authority (same as enrollmentID)
  * @param {string} name 
  * @param {string} email 
- * @param {string} accountType may be 'Personal' or 'Institution'
+ * @param {string} accountType may be 'Personal' or 'Institution'. This is preset at registration.
  * @param {string} affiliation preset affiliation for new account
+ * @param {string} enrollmentSecret
+ * @param {string} mspID // TODO tis tricky. lots of hard coding going on rn   ALWAYS USE 'SipherMSP' for now.
  */
-async function createAccount(id, name, email, accountType, affiliation) {
+async function createAccount(id, name, email, accountType, affiliation, enrollmentSecret, mspID) {
     
     // Register user (directly communicating with CA)
-    registrationEnrollmentModule.registerUser(connectionProfilePath, walletPath, affiliation,
-        id, 'client', name, accountType);
+    registrationEnrollmentModule.enrollUser(connectionProfilePath, walletPath, caDomain, id, enrollmentSecret, mspID);
     
     // Get wallet instance
     const wallet = new FileSystemWallet(walletPath);

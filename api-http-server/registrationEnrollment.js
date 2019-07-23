@@ -170,12 +170,11 @@ async function registerUser(connectionProfilePath, walletPath, affiliation, enro
  * @param {string} connectionProfilePath Path to connection profile.
  * @param {string} walletPath            Path to wallet.
  * @param {string} caDomain              Domain name of certificate authority.
- * @param {string} networkDirPath        Path to directory containing the "crypto-config" directory.
  * @param {string} enrollmentID 
  * @param {string} enrollmentSecret 
  * @param {string} mspID 
  */
-async function enrollUser(connectionProfilePath, walletPath, caDomain, networkDirPath, enrollmentID,
+async function enrollUser(connectionProfilePath, walletPath, caDomain, enrollmentID,
     enrollmentSecret, mspID) {
 
     const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
@@ -184,7 +183,7 @@ async function enrollUser(connectionProfilePath, walletPath, caDomain, networkDi
     try {
         // Create a new CA client for interacting with the CA.
         const caInfo = ccp.certificateAuthorities[caDomain];
-        const caTLSCACertsPath = path.resolve(networkDirPath, caInfo.tlsCACerts.path);
+        const caTLSCACertsPath = caInfo.tlsCACerts.path;
         const caTLSCACerts = fs.readFileSync(caTLSCACertsPath);
         const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.Name);
 
