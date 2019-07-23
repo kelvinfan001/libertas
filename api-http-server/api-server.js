@@ -6,13 +6,14 @@ const router = express();
 // const accountsModule = require('../app/javascript/accounts')
 // const campaignModule = require('../app/javascript/campaign')
 // const voterGroupModule = require('../app/javascript/votergroup')
-const invokeModule = require('../app/javascript/invoke');
+//// const invokeModule = require('../app/javascript/invoke');
+const submitEvaluateModule = require('../app/offline-signing-javascript/submitEvaluateTransaction');
 const registrationEnrollmentModule = require('../app/javascript/registrationEnrollment');
 
 // environment variables
 const ccpPath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connection-sipher.json');
-const walletPath = path.join(__dirname, '..', 'app', 'javascript', 'test_programs', 'wallet')
-const networkDirPath = path.resolve(__dirname, '..', 'libertas-dev-network')
+const walletPath = path.join(__dirname, 'wallet');
+const networkDirPath = path.resolve(__dirname, '..', 'libertas-dev-network');
 
 // JSON parser 
 router.use(express.urlencoded({
@@ -24,12 +25,13 @@ router.use(express.urlencoded({
 
 router.post('/submit', async function (req, res) {
     try {
-        const transactionProposal = req.body.transactionProposal;
-
-        // TODO: remove this once offline private key stuff works 
-        // await registerAndEnroll(username, name, accountType);
+        const transactionProposal = req.body;
+        transactionProposal.chaincodeId = 'libertas';
+        transactionProposal.channelId = 'test';
         
-        await invokeModule.submit(ccpPath, walletPath, transactionProposal);
+        //// await invokeModule.submit(ccpPath, walletPath, transactionProposal);
+
+        await submitEvaluateModule.submitTransaction(transactionProposal, res)
         res.send('Success');
     } catch (error) {
         console.log(error);

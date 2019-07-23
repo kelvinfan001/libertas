@@ -26,9 +26,10 @@ const { FileSystemWallet } = require('fabric-network')
  * @param {*} connectionProfilePath 
  * @param {*} userCertPEM 
  * @param {*} walletPath 
- * @param {object} transactionProposal 
+ * @param {object} transactionProposal
+ * @param {Response} res Response to send back to frontend caller
  */
-async function submitTransaction(connectionProfilePath, userCertPEM, walletPath, transactionProposal) {
+async function submitTransaction(connectionProfilePath, userCertPEM, walletPath, transactionProposal, res) {
     // Get connection profile
     const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
     const ccp = JSON.parse(ccpJSON);

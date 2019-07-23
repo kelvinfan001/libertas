@@ -1,33 +1,46 @@
-// API for app to interact with the Hyperledger Network
+/*
+ * Copyright 2019 Sipher Inc
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * API for app to interact with the Hyperledger Network.
+ */
 
 const fetch = require('node-fetch');
+
+// Set environment variables
+const connectionProfilePath = path.resolve(__dirname, 'connection-sipher.json');
+const walletPath = path.join(__dirname, 'wallet'); // TODO: this could be modified.
+
+// Import required modules
+const registrationEnrollmentModule = require('../api-http-server/registrationEnrollment');
 
 //---------------------------------------ACCOUNT FUNCTIONS------------------------------------------------
 
 /**
  * 
- * @param {string} username the name to be registered with the certifate authority
+ * @param {string} id          the id to be registered with the certifate authority (same as enrollmentID)
  * @param {string} name 
  * @param {string} email 
  * @param {string} accountType may be 'Personal' or 'Institution'
+ * @param {string} affiliation preset affiliation for new account
  */
-async function createAccount(username, name, email, accountType) {
-    // enroll >> extra secret
+async function createAccount(id, name, email, accountType, affiliation) {
+    
+    // Register user (directly communicating with CA)
+    registrationEnrollmentModule.registerUser(connectionProfilePath, walletPath, affiliation,
+        id, 'client', name, accountType);
 
-    // TODO: note that chaincodeId and channelId are hardcoded
+    // Create account on chaincode
     const transactionProposal = {
         fcn: 'CreateAccount',
-        args: [username, name, email, accountType],
-        chaincodeId: "libertas", // 
-        channelId: "test" //
+        args: [id, name, email, accountType],
     }
 
-    let url = 'http://155.138.134.91/submit'; // digest >> also give certificate >> for user identity
+    let url = 'http://155.138.134.91/submit';
     await fetch(url, {
         method: 'POST',
-        body: JSON.stringify({
-            transactionProposal: transactionProposal
-        }),
+        body: JSON.stringify(transactionProposa),
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',

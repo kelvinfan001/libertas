@@ -1,12 +1,20 @@
 {
-  "name": "api-http-server",
+  "name": "api-http-app",
   "version": "1.0.0",
   "description": "HTTP server handling api requests from the Libertas app",
   "main": "index.js",
   "dependencies": {
-    "express": "^4.17.1"
+    "node-fetch": "^2.6.0",
+    "fabric-network": "~1.4.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint": "^5.9.0",
+    "mocha": "^5.2.0",
+    "nyc": "^14.1.1",
+    "sinon": "^7.1.1",
+    "sinon-chai": "^3.3.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
