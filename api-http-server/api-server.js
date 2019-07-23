@@ -13,7 +13,6 @@ const offlineSigningGatewayModule = require('../app/offline-signing-javascript/o
 const { FileSystemWallet } = require('fabric-network')
 
 // environment variables
-//// const ccpPath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connection-sipher.json');
 const chaincodeID = 'libertas';
 const channelID = 'test';
 const connectionProfilePath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connection-sipher.json');
@@ -142,7 +141,5 @@ async function enroll(id, secret) {
         process.exit(1);
     }
 }
-
-
 
 router.listen(80, () => console.log("Listening on port 80"));
