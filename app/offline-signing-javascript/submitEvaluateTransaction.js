@@ -3,12 +3,12 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  * 
- * This module deals with frontend JavaScript calls related to accounts.
+ * This module provides necessary functions for submitting transactions through offline signing.
  */
 
 'use strict';
 
-module.exports = { submitTransaction };
+module.exports = { submitTransaction, getTransactionProposalDigest, submitSignedTransactionProposal, getCommitProposalDigest, submitSignedCommitProposal };
 
 const cryptoSigningModule = require('./cryptoSigning');
 const offlineSigningGatewayModule = require('./offlineSigningGateway');
@@ -29,7 +29,7 @@ const { FileSystemWallet } = require('fabric-network')
  * @param {object} transactionProposal
  * @param {Response} res Response to send back to frontend caller
  */
-async function submitTransaction(connectionProfilePath, userCertPEM, walletPath, transactionProposal, res) {
+async function submitTransaction(connectionProfilePath, userCertPEM, walletPath, transactionProposal) {
     // Get connection profile
     const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
     const ccp = JSON.parse(ccpJSON);
@@ -64,6 +64,7 @@ async function submitTransaction(connectionProfilePath, userCertPEM, walletPath,
 
         // Sign the transaction proposal
         // TODO: this will be done by app
+
         const signedProposal = cryptoSigningModule.signProposal(proposal.toBuffer(), PRIVATE_KEY);
 
         var targets = [];
@@ -85,6 +86,165 @@ async function submitTransaction(connectionProfilePath, userCertPEM, walletPath,
          * Start commit transaction step.
          */
         
+        const commitReq = {
+            proposalResponses,
+            proposal,
+        };
+
+        // Generate unsigned commit proposal
+        const commitProposal = channel.generateUnsignedTransaction(commitReq);
+
+        // Sign unsigned commit proposal
+        // TODO: this will be done by app
+        const signedCommitProposal = cryptoSigningModule.signProposal(commitProposal.toBuffer(), PRIVATE_KEY);
+
+        // Send signed transaction
+        const response = await channel.sendSignedTransaction({
+            signedProposal: signedCommitProposal,
+            request: commitReq,
+        });
+    } catch (error) {
+        console.error(`Failed to submit transaction: ${error}`);
+        process.exit(1);
+    }
+}
+
+/**
+ * 
+ * @param {*} connectionProfilePath 
+ * @param {*} userCertPEM 
+ * @param {*} walletPath 
+ * @param {object} transactionProposal
+ */
+async function getTransactionProposalDigest(channel, userCertPEM, userMSPID, transactionProposal) {
+    // Get connection profile
+    const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
+    const ccp = JSON.parse(ccpJSON);
+
+    // // Retrieve channel and chaincode information from transaction proposal
+    // const channelName = transactionProposal.channelID;
+    // const contractName = transactionProposal.chaincodeId;
+
+    // Retrieve admin information from wallet
+    // const wallet = new FileSystemWallet(walletPath);
+    // const adminIdentity = await wallet.export('admin');
+    // const adminKey = adminIdentity.privateKey;
+    // const adminCertificate = adminIdentity.certificate;
+    // const mspID = adminIdentity.mspId;
+
+    try {
+        /**
+         * Start endorsement step
+         */
+
+        // // Get Channel instance
+        // const channel = await offlineSigningGatewayModule.getChannel(connectionProfilePath, channelName, adminCertificate, adminKey, mspID);
+
+        // Package the transaction proposal
+        const transactionProposalReq = transactionProposal;
+
+        // Generate an unsigned transaction proposal
+        const { proposal, txId } = channel.generateUnsignedProposal(transactionProposalReq, userMSPID, userCertPEM, false);
+
+        return proposal;
+
+    } catch (error) {
+        console.error(`Failed to generate transaction proposal digest: ${error}`);
+        process.exit(1);
+    }
+}
+
+
+async function submitSignedTransactionProposal(channel, contractName, signedTransactionProposal) {
+
+    try {
+        // Get endorsement plan
+        var endorsementPlanPeerNames = await offlineSigningGatewayModule.getEndorsementPlanPeers(channel, contractName);
+
+        // Connect to peers in the endorsement plan
+        var targets = [];
+        for (var i = 0; i < endorsementPlanPeerNames.length; i++) {
+            targets.push(channel.getPeer(endorsementPlanPeerNames[i]));
+        }
+
+        // Send signed proposal
+        const sendSignedProposalReq = { signedProposal: signedTransactionProposal, targets };
+        const proposalResponses = await channel.sendSignedProposal(sendSignedProposalReq);
+
+        // Check if proposal got valid endorsement
+        if (proposalResponses[0].status != 200) {
+            throw new Error(proposalResponses[0]);
+        }
+
+        return proposalResponses;
+    } catch (error) {
+        console.error(`Failed to submit signed transaction proposal: ${error}`);
+        process.exit(1);
+    }
+}
+
+async function getCommitProposalDigest(channel, transactionProposalDigest, transactionProposalResponses) {
+    
+    try {
+        const commitReq = {
+            transactionProposalResponses,
+            transactionProposalDigest,
+        };
+
+        // Generate unsigned commit proposal
+        const commitProposal = channel.generateUnsignedTransaction(commitReq);
+
+        return commitProposal;
+
+    } catch (error) {
+        console.error(`Failed to generate commit proposal digest: ${error}`);
+        process.exit(1);
+    }
+}
+
+async function submitSignedCommitProposal(channel, signedCommitProposal, transactionProposalResponses, transactionProposalDigest) {
+    
+    try {
+
+        const commitReq = {
+            transactionProposalResponses,
+            transactionProposalDigest
+        }
+
+        const response = await channel.sendSignedTransaction({
+            signedProposal: signedCommitProposal,
+            request: commitReq,
+        });
+
+    } catch (error) {
+        console.error(`Failed to submit signed commit proposal: ${error}`);
+        process.exit(1);
+    }
+}
+    
+
+
+
+
+
+
+        // // Sign the transaction proposal
+        // // TODO: this will be done by app
+
+        // const signedProposal = cryptoSigningModule.signProposal(proposal.toBuffer(), PRIVATE_KEY);
+
+        // var targets = [];
+        // for (var i = 0; i < endorsementPlanPeerNames.length; i++) {
+        //     targets.push(channel.getPeer(endorsementPlanPeerNames[i]));
+        // }
+
+    
+
+        /**
+         * End endorsement step.
+         * Start commit transaction step.
+         */
+
         const commitReq = {
             proposalResponses,
             proposal,

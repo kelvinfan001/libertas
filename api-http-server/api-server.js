@@ -11,7 +11,8 @@ const submitEvaluateModule = require('../app/offline-signing-javascript/submitEv
 const registrationEnrollmentModule = require('../app/javascript/registrationEnrollment');
 
 // environment variables
-const ccpPath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connection-sipher.json');
+//// const ccpPath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connection-sipher.json');
+const connectionProfilePath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connection-sipher.json');
 const walletPath = path.join(__dirname, 'wallet');
 const networkDirPath = path.resolve(__dirname, '..', 'libertas-dev-network');
 
@@ -25,13 +26,15 @@ router.use(express.urlencoded({
 
 router.post('/submit', async function (req, res) {
     try {
-        const transactionProposal = req.body;
+        // Retrieve values from POST request
+        const transactionProposal = req.body.transactionProposal;
+        const userCertificate = req.body.userCertificate;
         transactionProposal.chaincodeId = 'libertas';
         transactionProposal.channelId = 'test';
         
         //// await invokeModule.submit(ccpPath, walletPath, transactionProposal);
 
-        await submitEvaluateModule.submitTransaction(transactionProposal, res)
+        await submitEvaluateModule.submitTransaction(connectionProfilePath, userCertificate, walletPath, transactionProposal, res)
         res.send('Success');
     } catch (error) {
         console.log(error);

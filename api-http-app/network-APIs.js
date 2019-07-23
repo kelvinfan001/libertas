@@ -6,14 +6,14 @@
  * API for app to interact with the Hyperledger Network.
  */
 
+// Import required modules
+const registrationEnrollmentModule = require('../api-http-server/registrationEnrollment');
 const fetch = require('node-fetch');
+const { FileSystemWallet } = require('fabric-network');
 
 // Set environment variables
 const connectionProfilePath = path.resolve(__dirname, 'connection-sipher.json');
 const walletPath = path.join(__dirname, 'wallet'); // TODO: this could be modified.
-
-// Import required modules
-const registrationEnrollmentModule = require('../api-http-server/registrationEnrollment');
 
 //---------------------------------------ACCOUNT FUNCTIONS------------------------------------------------
 
@@ -30,6 +30,11 @@ async function createAccount(id, name, email, accountType, affiliation) {
     // Register user (directly communicating with CA)
     registrationEnrollmentModule.registerUser(connectionProfilePath, walletPath, affiliation,
         id, 'client', name, accountType);
+    
+    // Get wallet instance
+    const wallet = new FileSystemWallet(walletPath);
+    const userIdentity = await wallet.export(id);
+    const userCertificate = userIdentity.certificate;
 
     // Create account on chaincode
     const transactionProposal = {
@@ -40,7 +45,10 @@ async function createAccount(id, name, email, accountType, affiliation) {
     let url = 'http://155.138.134.91/submit';
     await fetch(url, {
         method: 'POST',
-        body: JSON.stringify(transactionProposa),
+        body: JSON.stringify({
+            transactionProposal: transactionProposal,
+            userCertificate: userCertificate
+        }),
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
