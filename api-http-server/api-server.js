@@ -62,7 +62,7 @@ router.post('/getTransactionProposalDigest', async function (req, res) {
 router.post('/submitSignedGetCommit', async function (req, res) {
     try {
         // Retrieve values from POST request
-        const gfansactionProposal = req.body;
+        const signedTransactionProposal = req.body;
 
         // Submit signed transaction proposal
         let transactionProposalResponses = await submitEvaluateModule.submitSignedTransactionProposal()
