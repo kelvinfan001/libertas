@@ -9,7 +9,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 
@@ -78,9 +77,8 @@ type Ballot struct {
 // Create
 func (t *Libertas) CreateVote(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
-	err := _isVoteArgsValid(stub, args)
-	if err != nil {
-		return shim.Error(err.Error())
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2.")
 	}
 
 	newVote := _getNewVote(stub, args)
@@ -130,30 +128,4 @@ func _getNewVote(stub shim.ChaincodeStubInterface, args []string) Vote {
 	newVote := Vote{personalAccountID, campaignID, transactionTime, transactionTime} // second arg????
 
 	return newVote
-}
-
-func _isVoteArgsValid(stub shim.ChaincodeStubInterface, args []string) error {
-	var err error
-
-	if len(args) != 2 {
-		return errors.New("Incorrect number of arguments. Expecting 2.")
-		// return shim.Error("Incorrect number of arguments. Expecting 2.")
-	}
-
-	personalAccountID := args[0]
-	campaignID := args[1]
-
-	// check if arg matches type
-	personalAccountIDOK, err := CheckCertAttribute(stub, "personalAccountID", personalAccountID)
-	if !personalAccountIDOK {
-		// return shim.Error(err.Error())
-		return err
-	}
-	campaignIDOK, err := CheckCertAttribute(stub, "campaign", campaignID)
-	if !campaignIDOK {
-		// return shim.Error(err.Error())
-		return err
-	}
-
-	return nil
 }

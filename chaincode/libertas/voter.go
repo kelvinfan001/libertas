@@ -9,7 +9,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 
@@ -18,6 +17,7 @@ import (
 )
 
 type Voter struct {
+	ID                string
 	PersonalAccountID string
 	VoterGroupID      string
 	CreatedAt         time.Time
@@ -40,23 +40,17 @@ func (t *Libertas) ListVoters(stub shim.ChaincodeStubInterface, args []string) p
 //----------------------------------------------------------------------------------------------------------------
 // Create
 func (t *Libertas) CreateVoter(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-
-	err := _isVoterArgsValid(stub, args)
-	if err != nil {
+	// checks
+	if len(args) != 3 {
+		return shim.Error("Incorrect number of arguments. Expecting 3.")
+	}
+	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution")
+	if !accountTypeOK {
 		return shim.Error(err.Error())
 	}
 
 	newVoter := _getNewVoter(stub, args)
-	// personalAccountID := args[0]
 	voterGroupID := args[1]
-
-	// Get list of accounts from the ledger
-	// may need to error check this
-	// votersList := _getVoterSlice(voterGroupsList, voterGroupID)
-	// check if voter has already been added
-	// if _isVoterExists(personalAccountID, votersList) {
-	// 	return shim.Error("Voter with given ID already exists")
-	// }
 
 	// update ledger
 	err = _updateLedgerVoterList(stub, newVoter, voterGroupID)
@@ -74,65 +68,27 @@ func _updateLedgerVoterList(stub shim.ChaincodeStubInterface, newVoter Voter, vo
 	voterGroupsList := VoterGroupsList{}
 	json.Unmarshal(voterGroupsListBytes, &voterGroupsList)
 
-	for _, voterGroup := range voterGroupsList.VoterGroups {
-		if voterGroup.ID == voterGroupID {
-			// add voter
-			voterGroup.Voters = append(voterGroup.Voters, newVoter)
-			voterGroupsListBytes, _ := json.Marshal(voterGroupsList)
-			err = stub.PutState("Voters Groups List", voterGroupsListBytes)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	return err
-}
-
-func _getNewVoter(stub shim.ChaincodeStubInterface, args []string) Voter {
-	institutionalAccountID := args[0]
-	personalAccountID := args[1]
-	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
-	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
-	newVoter := Voter{personalAccountID, institutionalAccountID, transactionTime, transactionTime} // second arg????
-
-	return newVoter
-}
-
-func _isVoterArgsValid(stub shim.ChaincodeStubInterface, args []string) error {
-	var err error
-
-	if len(args) != 2 {
-		return errors.New("Incorrect number of arguments. Expecting 2.")
-		// return shim.Error("Incorrect number of arguments. Expecting 2.")
-	}
-
-	personalAccountID := args[0]
-	voterGroupID := args[1]
-
-	// check if arg matches type
-	personalAccountIDOK, err := CheckCertAttribute(stub, "personalAccountID", personalAccountID)
-	if !personalAccountIDOK {
-		// return shim.Error(err.Error())
+	voterGroup, err := queryVoterGroupsByID(voterGroupID, voterGroupsList.VoterGroups)
+	if err != nil {
 		return err
 	}
-	voterGroupIDOK, err := CheckCertAttribute(stub, "voterGroupID", voterGroupID)
-	if !voterGroupIDOK {
-		// return shim.Error(err.Error())
-		return err
-	}
+
+	voterGroup.Voters = append(voterGroup.Voters, newVoter)
+	voterGroupsListBytes, _ = json.Marshal(voterGroupsList)
+	err = stub.PutState("Voters Groups List", voterGroupsListBytes)
 
 	return nil
 }
 
-func _isVoterExists(personalAccountID string, votersList []Voter) bool {
-	for _, voter := range votersList {
-		if voter.PersonalAccountID == personalAccountID {
-			return true
-		}
-	}
+func _getNewVoter(stub shim.ChaincodeStubInterface, args []string) Voter {
+	id := args[0]
+	personalAccountID := args[1]
+	voterGroupID := args[2]
+	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
+	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
+	newVoter := Voter{id, personalAccountID, voterGroupID, transactionTime, transactionTime} // second arg????
 
-	return false
+	return newVoter
 }
 
 //----------------------------------------------------------------------------------------------------------------
