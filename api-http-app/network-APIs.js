@@ -62,23 +62,52 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
         }
     }).then(function (res) {
         res.arrayBuffer().then(function (arrayBuffer) {
-            transactionProposalDigestBytes = new Buffer(arrayBuffer); //? not sure if res.text() works
-            console.log(transactionProposalDigestBytes)
+            transactionProposalDigest = arrayBuffer; //? not sure if res.text() works
+            console.log(transactionProposalDigest)
         });
     }).catch(function (error) {
         console.log(error);
     });
 
+    transactionProposalDigestBytes = new Buffer(transactionProposalDigest);
     // Sign transaction proposal
     const signedTransactionProposal = signingModule.signProposal(transactionProposalDigestBytes, userPrivateKey);
 
     // Submit signed transaction proposal
+    const commitProposalDigest;
+    const transactionProposalResponses;
     let url = 'http://155.138.134.91/submitSignedGetCommit';
     await fetch(url, {
         method: 'POST',
         body: JSON.stringify({
-            signedTransactionProposal: signedTransactionProposal,
-            transactionProposalDigestBytes: transactionProposalDigestBytes
+            signedTransactionProposal: signedTransactionProposal, //? idk if any of this is serializable like this
+            transactionProposalDigest: transactionProposalDigest  //? this prob wont work
+        }),
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        }
+    }).then(function (res) {
+        res.json().then(function (response) { //? idk if i can read it like this
+            commitProposalDigest = response.commitProposalDigest;
+            console.log(commitProposalDigest);
+            transactionProposalResponses = response.transactionproposalResponses
+        });
+    }).catch(function (error) {
+        console.log(error);
+    });
+
+    commitProposalDigestBytes = new Buffer(commitProposalDigest);
+    const signedCommitProposal = signingModule.signProposal(commitProposalDigestBytes, userPrivateKey);
+
+    // Get commit proposal digest
+    let url = 'http://155.138.134.91/submitSignedCommitProposal';
+    await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify({
+            signedCommitProposal: signedCommitProposal,
+            transactionProposalResponses: transactionPropsoalResponses,
+            transactionProposalDigest: transactionProposalDigest
         }),
         headers: {
             'Accept': 'application/json',
@@ -86,16 +115,11 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
         }
     }).then(function (res) {
         res.text().then(function (text) {
-            
+            console.log(text);
         });
     }).catch(function (error) {
         console.log(error);
     });
-
-
-    // signStuff >> signed cert for transaction
-
-    // send signed stuff >> give signed cert >> this actually createsAccount
 }
 
 /**

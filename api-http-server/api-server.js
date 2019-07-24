@@ -54,7 +54,7 @@ router.post('/getTransactionProposalDigest', async function (req, res) {
         res.send(transactionProposalDigestBytes);
 
     } catch (error) {
-        console.log(error);
+        console.log('Get transaction proposal digest error: ' + error);
     }
 });
 
@@ -62,7 +62,7 @@ router.post('/submitSignedGetCommit', async function (req, res) {
     try {
         // Retrieve values from POST request
         const signedTransactionProposal = req.body.signedTransactionProposal;
-        const transactionProposalDigestBytes = req.body.transactionProposalDigestBytes;
+        const transactionProposalDigest = req.body.transactionProposalDigest;
 
         // Get channel object
         let channel = offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
@@ -70,12 +70,34 @@ router.post('/submitSignedGetCommit', async function (req, res) {
         // Submit signed transaction proposal
         let transactionProposalResponses = await submitEvaluateModule.submitSignedTransactionProposal(channel, chaincodeID, signedTransactionProposal);
 
-        let commitProposalDigest = await submitEvaluateModule.getCommitProposalDigest(channel, );
+        let commitProposalDigest = await submitEvaluateModule.getCommitProposalDigest(channel, transactionProposalDigest, transactionProposalResponses);
+
+        res.send({
+            commitProposalDigest: commitProposalDigest,
+            transactionProposalResponses: transactionProposalResponses
+        });
 
     } catch (error) {
-        console.log(error);
+        console.log('Submit signed proposal and get commit proposal digest error: ' + error);
     }
 
+});
+
+router.post('/submitSignedCommitProposal', async function (req, res) {
+    try {
+        // Retrieve values from POST request
+        const signedCommitProposal = req.body.signedCommitProposal;
+        const transactionProposalDigest = req.body.transactionProposalDigest;
+        const transactionProposalResponses = req.body.transactionProposalResponses;
+
+        // Get channel object
+        let channel = offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
+
+        // Submit signed commit proposal
+        let commitRepsonses = await submitEvaluateModule.submitSignedCommitProposal(channel, signedCommitProposal, transactionProposalResponses, transactionProposalDigest);
+    } catch (error) {
+        console.log('Submit signed commit proposal error: ' + error);
+    }
 });
 
 //-------------------------------------EVALUATE FUNCTIONS---------------------------------------
