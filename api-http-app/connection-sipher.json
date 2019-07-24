@@ -102,7 +102,7 @@
             "url": "https://127.0.0.1:7054/",
             "caName": "ca-sipher",
             "tlsCACerts": {
-                "path": "crypto-config/peerOrganizations/libertas.sipher.co/tlsca/tlsca.libertas.sipher.co-cert.pem"
+                "path": "../libertas-dev-network/crypto-config/peerOrganizations/libertas.sipher.co/tlsca/tlsca.libertas.sipher.co-cert.pem"
             },
             "httpOptions": {
                 "verify": false

@@ -7,6 +7,7 @@
  */
 
 // Import required modules
+const path = require('path');
 const registrationEnrollmentModule = require('../api-http-server/registrationEnrollment');
 const signingModule = require('./cryptoSigning');
 const fetch = require('node-fetch');
@@ -16,6 +17,9 @@ const { FileSystemWallet } = require('fabric-network');
 const connectionProfilePath = path.resolve(__dirname, 'connection-sipher.json');
 const walletPath = path.join(__dirname, 'wallet'); // TODO: this could be modified.
 const caDomain = "ca.libertas.sipher.co";
+const apiServerURL = '127.0.0.1';
+
+module.exports = {createAccount}
 
 
 //---------------------------------------ACCOUNT FUNCTIONS------------------------------------------------
@@ -32,12 +36,14 @@ const caDomain = "ca.libertas.sipher.co";
  */
 async function createAccount(id, name, email, accountType, enrollmentSecret, mspID) {
     
-    // Register user (directly communicating with CA)
-    registrationEnrollmentModule.enrollUser(connectionProfilePath, walletPath, caDomain, id, enrollmentSecret, mspID);
+    // // Register user (directly communicating with CA)
+    // registrationEnrollmentModule.enrollUser(connectionProfilePath, walletPath, caDomain, id, enrollmentSecret, mspID);
+
+    // console.log('Enrollment step complete.')
     
     // Get wallet instance and retrieve user cert and key
     const wallet = new FileSystemWallet(walletPath);
-    const userIdentity = await wallet.export(id);
+    const userIdentity = wallet.export(id);
     const userCertificate = userIdentity.certificate;
     const userPrivateKey = userIdentity.privateKey;
 
@@ -47,8 +53,7 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
         args: [id, name, email, accountType],
     }
 
-    const transactionProposalDigestBytes;
-    let url = 'http://155.138.134.91/getTransactionProposalDigest';
+    let url = 'http://' + apiServerURL + '/getTransactionProposalDigest';
     await fetch(url, {
         method: 'POST',
         body: JSON.stringify({
@@ -62,21 +67,19 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
         }
     }).then(function (res) {
         res.arrayBuffer().then(function (arrayBuffer) {
-            transactionProposalDigest = arrayBuffer; //? not sure if res.text() works
+            const transactionProposalDigest = arrayBuffer; //? not sure if res.text() works
             console.log(transactionProposalDigest)
         });
     }).catch(function (error) {
         console.log(error);
     });
 
-    transactionProposalDigestBytes = new Buffer(transactionProposalDigest);
+    const transactionProposalDigestBytes = new Buffer(transactionProposalDigest);
     // Sign transaction proposal
     const signedTransactionProposal = signingModule.signProposal(transactionProposalDigestBytes, userPrivateKey);
 
     // Submit signed transaction proposal
-    const commitProposalDigest;
-    const transactionProposalResponses;
-    let url = 'http://155.138.134.91/submitSignedGetCommit';
+    url = 'http://' + apiServerURL + '/submitSignedGetCommit';
     await fetch(url, {
         method: 'POST',
         body: JSON.stringify({
@@ -89,9 +92,10 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
         }
     }).then(function (res) {
         res.json().then(function (response) { //? idk if i can read it like this
-            commitProposalDigest = response.commitProposalDigest;
+            const commitProposalDigest = response.commitProposalDigest;
             console.log(commitProposalDigest);
-            transactionProposalResponses = response.transactionproposalResponses
+            const transactionProposalResponses = response.transactionproposalResponses
+            console.log(transactionProposalResponses);
         });
     }).catch(function (error) {
         console.log(error);
@@ -101,12 +105,12 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
     const signedCommitProposal = signingModule.signProposal(commitProposalDigestBytes, userPrivateKey);
 
     // Get commit proposal digest
-    let url = 'http://155.138.134.91/submitSignedCommitProposal';
+    url = 'http://' + apiServerURL + '/submitSignedCommitProposal';
     await fetch(url, {
         method: 'POST',
         body: JSON.stringify({
             signedCommitProposal: signedCommitProposal,
-            transactionProposalResponses: transactionPropsoalResponses,
+            transactionProposalResponses: transactionProposalResponses,
             transactionProposalDigest: transactionProposalDigest
         }),
         headers: {
@@ -248,7 +252,7 @@ async function queryVoterGroupsByID(username, idToQuery) {
 // Here are some sample API calls 
 
 // Account: we create an instituion account 
-createAccount('ciudad5', 'Ciudad5', 'ciudad5@sipher.co', 'Institution');
+// createAccount('ciudad5', 'Ciudad5', 'ciudad5@sipher.co', 'Institution');
 // queryAccountByID('hello', 'hello');
 
 

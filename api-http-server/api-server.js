@@ -16,12 +16,12 @@ const { FileSystemWallet } = require('fabric-network')
 const chaincodeID = 'libertas';
 const channelID = 'test';
 const connectionProfilePath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connection-sipher.json');
-const walletPath = path.join(__dirname, 'wallet');
+const walletPath = path.join(__dirname, '..', 'app', 'offline-signing-javascript', 'wallet');
 const networkDirPath = path.resolve(__dirname, '..', 'libertas-dev-network');
 
 // Retrieve admin information from wallet
 const wallet = new FileSystemWallet(walletPath);
-const adminIdentity = await wallet.export('admin');
+const adminIdentity = wallet.export('admin');
 const adminKey = adminIdentity.privateKey;
 const adminCertificate = adminIdentity.certificate;
 const adminMSPID = adminIdentity.mspId;
@@ -36,6 +36,7 @@ router.use(express.urlencoded({
 
 router.post('/getTransactionProposalDigest', async function (req, res) {
     try {
+
         // Retrieve values from POST request
         const transactionProposal = req.body.transactionProposal;
         const userCertificate = req.body.userCertificate;
@@ -100,74 +101,74 @@ router.post('/submitSignedCommitProposal', async function (req, res) {
     }
 });
 
-//-------------------------------------EVALUATE FUNCTIONS---------------------------------------
-router.get('/queryAccountByID', async function (req, res) {
-    try {
-        const username = req.query.username;
-        const idToQuery = req.query.idToQuery;
-        const result = await accountsModule.queryAccountByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
+// //-------------------------------------EVALUATE FUNCTIONS---------------------------------------
+// router.get('/queryAccountByID', async function (req, res) {
+//     try {
+//         const username = req.query.username;
+//         const idToQuery = req.query.idToQuery;
+//         const result = await accountsModule.queryAccountByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
 
-        res.send(result);
-    } catch (error) {
-        console.log(error);
-    }
-});
+//         res.send(result);
+//     } catch (error) {
+//         console.log(error);
+//     }
+// });
 
-//-----------------------------------------CAMPAIGN FUNCTIONS--------------------------------------------------
-
-
-
-router.get('/queryCampaignByID', async function (req, res) {
-    try {
-        const username = req.query.username;
-        const idToQuery = req.query.idToQuery;
-        const result = await campaignModule.queryCampaignByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
-
-        res.send(result);
-    } catch (error) {
-        console.log(error)
-    }
-});
-
-//-----------------------------------------VOTER GROUP FUNCTIONS--------------------------------------------------
-
-router.get('/queryVoterGroupsByID', async function (req, res) {
-    try {
-        const username = req.query.username;
-        const idToQuery = req.query.idToQuery;
-        const result = await voterGroupModule.queryVoterGroupsByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
-
-        res.send(result);
-    } catch (error) {
-        console.log(error)
-    }
-});
-
-//-----------------------------------------TEMP FUNCTIONS-----------------------------------------------------
-async function registerAndEnroll(id, name, accountType) {
-    secret = await register(id, name, accountType)
-    await enroll(id, secret)
-}
-
-async function register(id, name, accountType) {
-    try {
-        var secret = await registrationEnrollmentModule.registerUser(ccpPath, walletPath, "voting_district1", id, "client", name, accountType);
-    } catch (error) {
-        console.error(`${error}`);
-        process.exit(1);
-    }
-
-    console.log(id, secret)
-    return secret
-}
+// //-----------------------------------------CAMPAIGN FUNCTIONS--------------------------------------------------
 
 
-async function enroll(id, secret) {
-    try {
-        await registrationEnrollmentModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, id, secret, "SipherMSP");
-    } catch (error) {
-        process.exit(1);
-    }
-}
+
+// router.get('/queryCampaignByID', async function (req, res) {
+//     try {
+//         const username = req.query.username;
+//         const idToQuery = req.query.idToQuery;
+//         const result = await campaignModule.queryCampaignByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
+
+//         res.send(result);
+//     } catch (error) {
+//         console.log(error)
+//     }
+// });
+
+// //-----------------------------------------VOTER GROUP FUNCTIONS--------------------------------------------------
+
+// router.get('/queryVoterGroupsByID', async function (req, res) {
+//     try {
+//         const username = req.query.username;
+//         const idToQuery = req.query.idToQuery;
+//         const result = await voterGroupModule.queryVoterGroupsByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
+
+//         res.send(result);
+//     } catch (error) {
+//         console.log(error)
+//     }
+// });
+
+// //-----------------------------------------TEMP FUNCTIONS-----------------------------------------------------
+// async function registerAndEnroll(id, name, accountType) {
+//     secret = await register(id, name, accountType)
+//     await enroll(id, secret)
+// }
+
+// async function register(id, name, accountType) {
+//     try {
+//         var secret = await registrationEnrollmentModule.registerUser(ccpPath, walletPath, "voting_district1", id, "client", name, accountType);
+//     } catch (error) {
+//         console.error(`${error}`);
+//         process.exit(1);
+//     }
+
+//     console.log(id, secret)
+//     return secret
+// }
+
+
+// async function enroll(id, secret) {
+//     try {
+//         await registrationEnrollmentModule.enrollUser(ccpPath, walletPath, "ca.libertas.sipher.co", networkDirPath, id, secret, "SipherMSP");
+//     } catch (error) {
+//         process.exit(1);
+//     }
+// }
 
 router.listen(80, () => console.log("Listening on port 80"));
