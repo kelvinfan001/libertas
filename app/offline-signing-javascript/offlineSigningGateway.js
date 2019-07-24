@@ -35,7 +35,7 @@ async function getEndorsementPlanPeers(channel, contractName) {
 
     return peerNames
 }
- 
+
 /**
  * Returns an instance of Channel based on connection profile specified by connectionProfilePath.
  * @param {*} connectionProfilePath 

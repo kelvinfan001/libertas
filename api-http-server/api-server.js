@@ -24,7 +24,7 @@ const wallet = new FileSystemWallet(walletPath);
 const adminIdentity = await wallet.export('admin');
 const adminKey = adminIdentity.privateKey;
 const adminCertificate = adminIdentity.certificate;
-const mspID = adminIdentity.mspId;
+const adminMSPID = adminIdentity.mspId;
 
 // JSON parser 
 router.use(express.urlencoded({
@@ -45,7 +45,7 @@ router.post('/getTransactionProposalDigest', async function (req, res) {
         transactionProposal.channelId = channelID;
         
         // Get channel object
-        let channel = offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, mspID);
+        let channel = offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
 
         // Get transaction proposal digest
         let transactionProposalDigest = await submitEvaluateModule.getTransactionProposalDigest(channel, userCertificate, userMSPID, transactionProposal);
@@ -61,10 +61,16 @@ router.post('/getTransactionProposalDigest', async function (req, res) {
 router.post('/submitSignedGetCommit', async function (req, res) {
     try {
         // Retrieve values from POST request
-        const signedTransactionProposal = req.body;
+        const signedTransactionProposal = req.body.signedTransactionProposal;
+        const transactionProposalDigestBytes = req.body.transactionProposalDigestBytes;
+
+        // Get channel object
+        let channel = offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
 
         // Submit signed transaction proposal
-        let transactionProposalResponses = await submitEvaluateModule.submitSignedTransactionProposal()
+        let transactionProposalResponses = await submitEvaluateModule.submitSignedTransactionProposal(channel, chaincodeID, signedTransactionProposal);
+
+        let commitProposalDigest = await submitEvaluateModule.getCommitProposalDigest(channel, );
 
     } catch (error) {
         console.log(error);

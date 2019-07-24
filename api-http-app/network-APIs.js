@@ -60,8 +60,8 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
             'Content-Type': 'application/json',
         }
     }).then(function (res) {
-        res.text().then(function(text) {
-            transactionProposalDigestBytes = text; //? not sure if res.text() works
+        res.arrayBuffer().then(function (arrayBuffer) {
+            transactionProposalDigestBytes = new Buffer(arrayBuffer); //? not sure if res.text() works
             console.log(transactionProposalDigestBytes)
         });
     }).catch(function (error) {
@@ -75,9 +75,10 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
     let url = 'http://155.138.134.91/submitSignedGetCommit';
     await fetch(url, {
         method: 'POST',
-        body: JSON.stringify(
-            signedTransactionProposal
-        ),
+        body: JSON.stringify({
+            signedTransactionProposal: signedTransactionProposal,
+            transactionProposalDigestBytes: transactionProposalDigestBytes
+        }),
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
