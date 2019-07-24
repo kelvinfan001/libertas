@@ -19,87 +19,96 @@ const connectionProfilePath = path.resolve(__dirname, '..', 'libertas-dev-networ
 const walletPath = path.join(__dirname, '..', 'app', 'offline-signing-javascript', 'wallet');
 const networkDirPath = path.resolve(__dirname, '..', 'libertas-dev-network');
 
-// Retrieve admin information from wallet
-const wallet = new FileSystemWallet(walletPath);
-const adminIdentity = wallet.export('admin');
-const adminKey = adminIdentity.privateKey;
-const adminCertificate = adminIdentity.certificate;
-const adminMSPID = adminIdentity.mspId;
-
 // JSON parser 
 router.use(express.urlencoded({
-        extended: false
-    }))
+    extended: false
+}))
     .use(express.json());
 
-//-----------------------------------------SUBMIT FUNCTIONS--------------------------------------------------
+async function main() {
+    // Retrieve admin information from wallet
+    const wallet = new FileSystemWallet(walletPath);
 
-router.post('/getTransactionProposalDigest', async function (req, res) {
-    try {
+    let adminIdentity = await wallet.export('admin');
+    const adminKey = adminIdentity.privateKey;
+    const adminCertificate = adminIdentity.certificate;
+    const adminMSPID = adminIdentity.mspId;
 
-        // Retrieve values from POST request
-        const transactionProposal = req.body.transactionProposal;
-        const userCertificate = req.body.userCertificate;
-        const userMSPID = req.body.mspID;
-        // Fill in and complete TransactionProposal object with chaincode ID and channel ID
-        transactionProposal.chaincodeId = chaincodeID;
-        transactionProposal.channelId = channelID;
-        
-        // Get channel object
-        let channel = offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
+    router.listen(80, () => console.log("Listening on port 80"));
 
-        // Get transaction proposal digest
-        let transactionProposalDigest = await submitEvaluateModule.getTransactionProposalDigest(channel, userCertificate, userMSPID, transactionProposal);
-        let transactionProposalDigestBytes = transactionProposalDigest.toBuffer();
+    //-----------------------------------------SUBMIT FUNCTIONS--------------------------------------------------
 
-        res.send(transactionProposalDigestBytes);
+    router.post('/getTransactionProposalDigest', async function (req, res) {
+        try {
 
-    } catch (error) {
-        console.log('Get transaction proposal digest error: ' + error);
-    }
-});
+            // Retrieve values from POST request
+            const transactionProposal = req.body.transactionProposal;
+            const userCertificate = req.body.userCertificate;
+            const userMSPID = req.body.mspID;
+            // Fill in and complete TransactionProposal object with chaincode ID and channel ID
+            transactionProposal.chaincodeId = chaincodeID;
+            transactionProposal.channelId = channelID;
+            
+            // Get channel object
+            let channel = await offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
 
-router.post('/submitSignedGetCommit', async function (req, res) {
-    try {
-        // Retrieve values from POST request
-        const signedTransactionProposal = req.body.signedTransactionProposal;
-        const transactionProposalDigest = req.body.transactionProposalDigest;
+            // Get transaction proposal digest
+            let transactionProposalDigest = await submitEvaluateModule.getTransactionProposalDigest(channel, userCertificate, userMSPID, transactionProposal);
+            let transactionProposalDigestBytes = transactionProposalDigest.toBuffer();
 
-        // Get channel object
-        let channel = offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
+            console.log(transactionProposalDigest)
 
-        // Submit signed transaction proposal
-        let transactionProposalResponses = await submitEvaluateModule.submitSignedTransactionProposal(channel, chaincodeID, signedTransactionProposal);
+            res.send(transactionProposalDigestBytes);
 
-        let commitProposalDigest = await submitEvaluateModule.getCommitProposalDigest(channel, transactionProposalDigest, transactionProposalResponses);
+        } catch (error) {
+            console.log('Get transaction proposal digest error: ' + error);
+        }
+    });
 
-        res.send({
-            commitProposalDigest: commitProposalDigest,
-            transactionProposalResponses: transactionProposalResponses
-        });
+    router.post('/submitSignedGetCommit', async function (req, res) {
+        try {
+            // Retrieve values from POST request
+            const signedTransactionProposal = req.body.signedTransactionProposal;
+            const transactionProposalDigest = req.body.transactionProposalDigest;
 
-    } catch (error) {
-        console.log('Submit signed proposal and get commit proposal digest error: ' + error);
-    }
+            // Get channel object
+            let channel = offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
 
-});
+            // Submit signed transaction proposal
+            let transactionProposalResponses = await submitEvaluateModule.submitSignedTransactionProposal(channel, chaincodeID, signedTransactionProposal);
 
-router.post('/submitSignedCommitProposal', async function (req, res) {
-    try {
-        // Retrieve values from POST request
-        const signedCommitProposal = req.body.signedCommitProposal;
-        const transactionProposalDigest = req.body.transactionProposalDigest;
-        const transactionProposalResponses = req.body.transactionProposalResponses;
+            let commitProposalDigest = await submitEvaluateModule.getCommitProposalDigest(channel, transactionProposalDigest, transactionProposalResponses);
 
-        // Get channel object
-        let channel = offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
+            res.send({
+                commitProposalDigest: commitProposalDigest,
+                transactionProposalResponses: transactionProposalResponses
+            });
 
-        // Submit signed commit proposal
-        let commitRepsonses = await submitEvaluateModule.submitSignedCommitProposal(channel, signedCommitProposal, transactionProposalResponses, transactionProposalDigest);
-    } catch (error) {
-        console.log('Submit signed commit proposal error: ' + error);
-    }
-});
+        } catch (error) {
+            console.log('Submit signed proposal and get commit proposal digest error: ' + error);
+        }
+
+    });
+
+    router.post('/submitSignedCommitProposal', async function (req, res) {
+        try {
+            // Retrieve values from POST request
+            const signedCommitProposal = req.body.signedCommitProposal;
+            const transactionProposalDigest = req.body.transactionProposalDigest;
+            const transactionProposalResponses = req.body.transactionProposalResponses;
+
+            // Get channel object
+            let channel = offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
+
+            // Submit signed commit proposal
+            let commitRepsonses = await submitEvaluateModule.submitSignedCommitProposal(channel, signedCommitProposal, transactionProposalResponses, transactionProposalDigest);
+        } catch (error) {
+            console.log('Submit signed commit proposal error: ' + error);
+        }
+    });
+}
+
+main();
 
 // //-------------------------------------EVALUATE FUNCTIONS---------------------------------------
 // router.get('/queryAccountByID', async function (req, res) {
@@ -170,5 +179,3 @@ router.post('/submitSignedCommitProposal', async function (req, res) {
 //         process.exit(1);
 //     }
 // }
-
-router.listen(80, () => console.log("Listening on port 80"));

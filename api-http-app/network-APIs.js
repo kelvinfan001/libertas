@@ -43,7 +43,7 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
     
     // Get wallet instance and retrieve user cert and key
     const wallet = new FileSystemWallet(walletPath);
-    const userIdentity = wallet.export(id);
+    const userIdentity = await wallet.export(id);
     const userCertificate = userIdentity.certificate;
     const userPrivateKey = userIdentity.privateKey;
 

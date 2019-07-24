@@ -53,6 +53,7 @@ async function getChannel(connectionProfilePath, channelName, adminCertificate, 
     const client = await Client.loadFromConfig(connectionProfilePath);
     client.setAdminSigningIdentity(adminKey, adminCertificate, mspID);
     client.setTlsClientCertAndKey(adminCertificate, adminKey);
+
     const channel = client.getChannel(channelName);
 
     // Initialize channel with discovery enabled

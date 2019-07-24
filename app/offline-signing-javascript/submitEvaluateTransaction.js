@@ -119,9 +119,9 @@ const path = require('path');
  * @param {ProposalRequest} transactionProposal
  */
 async function getTransactionProposalDigest(channel, userCertPEM, userMSPID, transactionProposal) {
-    // Get connection profile
-    const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
-    const ccp = JSON.parse(ccpJSON);
+    // // Get connection profile
+    // const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
+    // const ccp = JSON.parse(ccpJSON);
 
     // // Retrieve channel and chaincode information from transaction proposal
     // const channelName = transactionProposal.channelID;
