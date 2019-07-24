@@ -35,10 +35,11 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
     // Register user (directly communicating with CA)
     registrationEnrollmentModule.enrollUser(connectionProfilePath, walletPath, caDomain, id, enrollmentSecret, mspID);
     
-    // Get wallet instance
+    // Get wallet instance and retrieve user cert and key
     const wallet = new FileSystemWallet(walletPath);
     const userIdentity = await wallet.export(id);
     const userCertificate = userIdentity.certificate;
+    const userPrivateKey = userIdentity.privateKey;
 
     // Create account on chaincode
     const transactionProposal = {
@@ -69,7 +70,7 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
     });
 
     // Sign transaction proposal
-    const signedTransactionProposal = signingModule.signProposal(transactionProposalDigestBytes);
+    const signedTransactionProposal = signingModule.signProposal(transactionProposalDigestBytes, userPrivateKey);
 
     // Submit signed transaction proposal
     let url = 'http://155.138.134.91/submitSignedGetCommit';

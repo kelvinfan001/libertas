@@ -62,6 +62,8 @@ async function submitTransaction(connectionProfilePath, userCertPEM, walletPath,
         // Generate an unsigned transaction proposal
         const { proposal, txId } = channel.generateUnsignedProposal(transactionProposalReq, mspID, userCertPEM, false);
 
+        console.log(proposal.toBuffer());
+
         // Sign the transaction proposal
         // TODO: this will be done by app
 
