@@ -8,6 +8,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 	"time"
 
@@ -79,13 +80,14 @@ func TestLibertas_Campaign(t *testing.T) {
 	stub.PutState("Accounts List", accountsListBytes)
 
 	// Create a campaign
-	campaignsList := CampaignsList{}
-	newCampaign := Campaign{"cityoftoronto", "torontomayoralelection", "Toronto Mayoral Election", "Mayoral Election", time.Now(), time.Now(), time.Now(), time.Now(), make([]VoterGroup, 0)}
-	campaignsList.Campaigns = append(campaignsList.Campaigns, newCampaign)
-	campaignsListBytes, _ := json.Marshal(campaignsList)
-	// Put on state
-	stub.PutState("Campaigns List", campaignsListBytes)
+	// campaignsList := CampaignsList{}
+	// newCampaign := Campaign{"cityoftoronto", "torontomayoralelection", "Toronto Mayoral Election", "Mayoral Election", Ballot{}, time.Now(), time.Now(), time.Now(), time.Now(), make([]VoterGroup, 0)}
+	// campaignsList.Campaigns = append(campaignsList.Campaigns, newCampaign)
+	// campaignsListBytes, _ := json.Marshal(campaignsList)
+	// // Put on state
+	// stub.PutState("Campaigns List", campaignsListBytes)
 
+	checkInvoke(t, stub, [][]byte{[]byte("CreateCampaign"), []byte("torontomayoralelection"), []byte("Toronto Mayoral Election"), []byte("Mayoral Election"), []byte("0"), []byte("1000")})
 	// checkInvoke(t, stub, [][]byte{[]byte("CreateCampaign"), []byte("torontomayoralelection"), []byte("Toronto Mayoral Election"), []byte("Mayoral Election"), []byte("0"), []byte("1000")})
 
 	// checkInvoke(t, stub, [][]byte{[]byte("CreateCampaign"), []byte("torontomayoralelection"), []byte("Toronto Mayoral Election"), []byte("Mayoral Election"), []byte("0"), []byte("1000")})
@@ -99,6 +101,81 @@ func TestLibertas_Campaign(t *testing.T) {
 		// t.Errorf("The queried campaign should have id 'torontomayoralelection'")
 		t.Errorf(string(payload))
 	}
+	fmt.Println(campaign)
 }
 
-// Cannot test create campaign due to lack of support for mock certificates.
+// Test Voters
+func TestLibertas_Voter(t *testing.T) {
+	scc := new(Libertas)
+	stub := shim.NewMockStub("libertas", scc)
+
+	// Init "Project ID"="123", "Project Name"="Derp Project"
+	checkInit(t, stub, [][]byte{[]byte("init"), []byte("123"), []byte("Derp Project")})
+	stub.MockTransactionStart("derp")
+
+	// checkInvoke(t, stub, [][]byte{[]byte("CreateCampaign"), []byte("torontomayoralelection"), []byte("Toronto Mayoral Election"), []byte("Mayoral Election"), []byte("0"), []byte("1000")})
+
+	// checkInvoke(t, stub, [][]byte{[]byte("CreateCampaign"), []byte("torontomayoralelection"), []byte("Toronto Mayoral Election"), []byte("Mayoral Election"), []byte("0"), []byte("1000")})
+
+	// Query for campaign with id "torontomayoralelection"
+	// got := returnInvoke(t, stub, [][]byte{[]byte("QueryCampaignByID"), []byte("torontomayoralelection")})
+	// payload := got.GetPayload()
+	// campaign := Campaign{}
+	// json.Unmarshal(payload, &campaign)
+	// if campaign.ID != "torontomayoralelection" {
+	// 	// t.Errorf("The queried campaign should have id 'torontomayoralelection'")
+	// 	t.Errorf(string(payload))
+	// }
+
+	// create voter group
+	// vgList := VoterGroupsList{}
+	// vg := VoterGroup{"stuff", "voterGroupID", "campaignID", "name", time.Now(), time.Now(), make([]Voter, 0)}
+	// vgList.VoterGroups = append(vgList.VoterGroups, vg)
+	// vgListBytes, _ := json.Marshal(vgList)
+	// Put on state
+	// stub.PutState("Voter Groups List", vgListBytes)
+
+	// call create voter
+	// args := []string{"voterID", "personalAccountID", "voterGroupID"}
+	// result := scc.CreateVoter(stub, args)
+
+	// fmt.Println(result)
+
+	checkInvoke(t, stub, [][]byte{[]byte("CreateVoter"), []byte("voterID"), []byte("personalAccountID"), []byte("voterGroupID")})
+	// checkInvoke(t, stub, [][]byte{[]byte("CreateVoter"), []byte("voterID"), []byte("personalAccountID"), []byte("voterGroupID")})
+
+	got := returnInvoke(t, stub, [][]byte{[]byte("ListVotersByVoterGroupID"), []byte("voterGroupID")})
+	payload := got.GetPayload()
+	voters := VotersList{}
+	json.Unmarshal(payload, &voters)
+	fmt.Println(voters)
+}
+
+// Test Vote
+func TestLibertas_Vote(t *testing.T) {
+	scc := new(Libertas)
+	stub := shim.NewMockStub("libertas", scc)
+
+	// Init "Project ID"="123", "Project Name"="Derp Project"
+	checkInit(t, stub, [][]byte{[]byte("init"), []byte("123"), []byte("Derp Project")})
+	stub.MockTransactionStart("derp")
+
+	// Create some accounts
+	accountsList := AccountsList{}
+	newAccount1 := Account{"kelvinfan", "Kelvin Fan", "kelvin@sipher.co", "Personal", time.Now(), time.Now()}
+	newAccount2 := Account{"cityoftoronto", "City of Toronto", "city@toronto.ca", "Institution", time.Now(), time.Now()}
+	accountsList.Accounts = append(accountsList.Accounts, newAccount1)
+	accountsList.Accounts = append(accountsList.Accounts, newAccount2)
+	accountsListBytes, _ := json.Marshal(accountsList)
+	// Put on state
+	stub.PutState("Accounts List", accountsListBytes)
+
+	// create campaign
+	checkInvoke(t, stub, [][]byte{[]byte("CreateCampaign"), []byte("torontomayoralelection"), []byte("Toronto Mayoral Election"), []byte("Mayoral Election"), []byte("0"), []byte("1000")})
+
+	// create vote
+	checkInvoke(t, stub, [][]byte{[]byte("CreateVote"), []byte("voteID"), []byte("torontomayoralelection")})
+
+	// check query vote works
+	returnInvoke(t, stub, [][]byte{[]byte("ListBallotByCampaignID"), []byte("torontomayoralelection")})
+}

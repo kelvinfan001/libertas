@@ -14,26 +14,16 @@ const fetch = require('node-fetch');
 async function createAccount(username, name, email, accountType) {
     // enroll >> extra secret
 
-    let url = 'http://155.138.134.91/createAccount'; // digest >> also give certificate >> for user identity
-    await fetch(url, {
-        method: 'POST',
-        body: JSON.stringify({
-            username: username,
-            name: name,
-            email: email,
-            accountType: accountType
-        }),
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        }
-    }).then(function (res) {
-        res.text().then(function(text) {
-            console.log(text);
-        });
-    }).catch(function (error) {
-        console.log(error)
-    });
+    // TODO: note that chaincodeId and channelId are hardcoded
+    const transactionProposal = {
+        fcn: 'CreateAccount',
+        args: [username, name, email, accountType],
+        chaincodeId: "libertas", // 
+        channelId: "test", //
+        username: username
+    }
+
+    await submitHTTPReq(transactionProposal);
 
     // signStuff >> signed cert for transaction
 
@@ -46,14 +36,15 @@ async function createAccount(username, name, email, accountType) {
  * @param {string} idToQuery username with respect to the query
  */
 async function queryAccountByID(username, idToQuery) {
-    let url = 'http://155.138.134.91/queryAccountByID?username=' + username + '&idToQuery=' + idToQuery;
-    await fetch(url, {
-        method: 'GET'
-    }).then(function (res) {
-        res.json().then(function (data) {
-            console.log(data);
-        })
-    });
+    const transactionProposal = {
+        fcn: 'QueryAccountByID',
+        args: [idToQuery],
+        chaincodeId: "libertas", // 
+        channelId: "test", //
+        username: username
+    }
+
+    await evaluateHTTPReq(transactionProposal);
 }
 
 //-----------------------------------------------CAMPAIGN FUNCTIONS------------------------------------------------
@@ -67,27 +58,15 @@ async function queryAccountByID(username, idToQuery) {
  * @param {string} username username for the user calling this function
  */
 async function createCampaign(id, name, campaignType, startStr, endStr, username) {
-    await fetch('http://155.138.134.91/createCampaign', {
-        method: 'POST',
-        body: JSON.stringify({
-            id: id,
-            name: name,
-            campaignType: campaignType,
-            start: startStr,
-            end: endStr,
-            username: username
-        }),
-        headers: {
-            // 'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        }
-    }).then(function (res) {
-        res.text().then(function(text) {
-            console.log(text);
-        });
-    }).catch(function (error) {
-        console.log(error)
-    });
+    const transactionProposal = {
+        fcn: 'CreateCampaign',
+        args: [id, name, campaignType, startStr, endStr],
+        chaincodeId: "libertas", // 
+        channelId: "test", //
+        username: username
+    }
+
+    await submitHTTPReq(transactionProposal);
 }
 
 /**
@@ -96,16 +75,15 @@ async function createCampaign(id, name, campaignType, startStr, endStr, username
  * @param {string} idToQuery username with respect to the query
  */
 async function queryCampaignByID(username, idToQuery) {
-    let url = 'http://155.138.134.91/queryCampaignByID?username=' + username + '&idToQuery=' + idToQuery;
-    await fetch(url, {
-        method: 'GET'
-    }).then(function (res) {
-        res.json().then(function (data) {
-            console.log(data);
-        })
-    }).catch(function (error) {
-        console.log(error)
-    });
+    const transactionProposal = {
+        fcn: 'QueryCampaignByID',
+        args: [idToQuery],
+        chaincodeId: "libertas", // 
+        channelId: "test", //
+        username: username
+    }
+
+    await evaluateHTTPReq(transactionProposal);
 }
 
 //----------------------------------------------------Voter Group Functions-------------------------------------
@@ -117,25 +95,15 @@ async function queryCampaignByID(username, idToQuery) {
  * @param {*} username 
  */
 async function createVoterGroup(id, campaignID, name, username) {
-    await fetch('http://155.138.134.91/createVoterGroup', {
-        method: 'POST',
-        body: JSON.stringify({
-            id: id,
-            campaignID: campaignID,
-            name: name,
-            username: username
-        }),
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        }
-    }).then(function (res) {
-        res.text().then(function(text) {
-            console.log(text);
-        });
-    }).catch(function (error) {
-        console.log(error)
-    });
+    const transactionProposal = {
+        fcn: 'CreateVoterGroup',
+        args: [id, campaignID, name],
+        chaincodeId: "libertas", // 
+        channelId: "test", //
+        username: username
+    }
+
+    await submitHTTPReq(transactionProposal)
 }
 
 /**
@@ -143,36 +111,145 @@ async function createVoterGroup(id, campaignID, name, username) {
  * @param {string} username username for the user calling this function
  * @param {string} idToQuery username with respect to the query
  */
-async function queryVoterGroupsByID(username, idToQuery) {
-    let url = 'http://155.138.134.91/queryVoterGroupsByID?username=' + username + '&idToQuery=' + idToQuery;
+async function queryVoterGroupsByID(username, voterGroupID, campaignID) {
+    const transactionProposal = {
+        fcn: 'QueryVoterGroupsByID',
+        args: [voterGroupID, campaignID],
+        chaincodeId: "libertas", // 
+        channelId: "test", //
+        username: username
+    }
+
+    await evaluateHTTPReq(transactionProposal);
+}
+
+//------------------------------------------------VOTER FUNCTIONS-----------------------------------------------
+
+async function createVoter(id, personalAccountID, voterGroupID, campaignID, username) {
+    const transactionProposal = {
+        fcn: 'CreateVoter',
+        args: [id, personalAccountID, voterGroupID, campaignID],
+        chaincodeId: "libertas", // 
+        channelId: "test", //
+        username: username
+    }
+
+    await submitHTTPReq(transactionProposal)
+}
+
+async function listVotersByVoterGroupID(username, voterGroupID, campaignID) {
+    const transactionProposal = {
+        fcn: 'ListVotersByVoterGroupID',
+        args: [voterGroupID, campaignID],
+        chaincodeId: "libertas", // 
+        channelId: "test", //
+        username: username
+    }
+
+    await evaluateHTTPReq(transactionProposal);
+}
+
+//-------------------------------------------------VOTE FUNCTIONS-----------------------------------------------
+
+async function createVote(personalAccountID, campaignID, username) {
+    const transactionProposal = {
+        fcn: 'CreateVote',
+        args: [personalAccountID, campaignID],
+        chaincodeId: "libertas", // 
+        channelId: "test", //
+        username: username
+    }
+
+    await submitHTTPReq(transactionProposal)
+}
+
+async function listBallotByCampaignID(username, campaignID) {
+    const transactionProposal = {
+        fcn: 'ListBallotByCampaignID',
+        args: [campaignID],
+        chaincodeId: "libertas", // 
+        channelId: "test", //
+        username: username
+    }
+
+    await evaluateHTTPReq(transactionProposal);
+}
+
+//----------------------------------------------------HELPERS---------------------------------------------------
+
+async function submitHTTPReq(transactionProposal) {
+    // const ip = '0.0.0.0:3000';
+    const ip = '155.138.134.91';
+    let url = 'http://' + ip + '/submit';
     await fetch(url, {
-        method: 'GET'
+        method: 'POST',
+        body: JSON.stringify(transactionProposal),
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        }
     }).then(function (res) {
-        res.json().then(function (data) {
-            console.log(data);
-        })
+        res.text().then(function (text) {
+            console.log(text);
+        });
     }).catch(function (error) {
         console.log(error)
     });
 }
 
+async function evaluateHTTPReq(transactionProposal) {
+    // const ip = '0.0.0.0:3000';
+    const ip = '155.138.134.91';
+    let url = 'http://' + ip + '/evaluate';
+    await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(transactionProposal),
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        }
+    }).then(function (res) {
+        res.json().then(function (data) {
+            console.log(data);
+        });
+    }).catch(function (error) {
+        console.log(error)
+    });
+}
+
+
 //----------------------------------------------------TEST----------------------------------------------------
 // Here are some sample API calls 
 
-// Account: we create an instituion account 
-createAccount('ciudad5', 'Ciudad5', 'ciudad5@sipher.co', 'Institution');
-// queryAccountByID('hello', 'hello');
+async function execute_example() {
+    // Account: we create an instituion account 
+    // await createAccount('username', 'name', 'email', 'Institution');
+    // await createAccount('usernameP', 'name', 'email', 'Personal');
+    // queryAccountByID('username', 'username');
 
 
-// Campaign: using our institution account, we create a new campaign
-var start = Date.parse('2019-7-16');
-var end = Date.parse('2019-8-1');
-var startStr = start.toString();
-var endStr = end.toString();
-// createCampaign('ciudad', 'Ciudad Election', 'Mayoral Election', startStr, endStr, 'ciudad');
-// queryCampaignByID('ciudad10', 'ciudad10');
+    // Campaign: using our institution account, we create a new campaign
+    var start = Date.parse('01 Jan 1970');
+    var end = Date.parse('04 Dec 1995');
+    var startStr = start.toString();
+    var endStr = end.toString();
+    // await createCampaign('campaignID', 'name', 'Mayoral Election', startStr, endStr, 'username');
+    // queryCampaignByID('username', 'campaignID');
 
 
-// Voter Group:
-// createVoterGroup('ciudadVoterGroup', 'ciudad', 'Ciudad Voter Group', 'ciudad')
-// queryVoterGroupsByID('ciudad', 'ciudadVoterGroup')
+    // Voter Group:
+    // await createVoterGroup('voterGroupID', 'campaignID', 'name', 'username');
+    // queryVoterGroupsByID('username', 'voterGroupID', 'campaignID')
+
+    // Voter: 
+    await createVoter('voterID', 'personalAccountID', 'voterGroupID', 'campaignID1', 'username');
+    // listVotersByVoterGroupID('username', 'voterGroupID', 'campaignID')
+
+    // Vote:
+    await createVote('personalAccountID', 'campaignID1', 'usernameP');
+    // listBallotByCampaignID('username', 'campaignID');
+}
+
+// execute_example();
+// queryCampaignByID('username', 'campaignID1');
+listVotersByVoterGroupID('username', 'voterGroupID', 'campaignID1')

@@ -65,12 +65,12 @@ func (t *Libertas) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	}
 
 	// Initialize voter groups list
-	voterGroupsList := VoterGroupsList{}
-	voterGroupsListBytes, _ := json.Marshal(voterGroupsList)
-	err = stub.PutState("Voter Groups List", voterGroupsListBytes)
-	if err != nil {
-		return shim.Error(err.Error())
-	}
+	// voterGroupsList := VoterGroupsList{}
+	// voterGroupsListBytes, _ := json.Marshal(voterGroupsList)
+	// err = stub.PutState("Voter Groups List", voterGroupsListBytes)
+	// if err != nil {
+	// 	return shim.Error(err.Error())
+	// }
 
 	// Initialize campaign list
 	campaignList := CampaignsList{}
@@ -96,8 +96,8 @@ func (t *Libertas) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.CreateVoterGroup(stub, args)
 	} else if function == "QueryVoterGroupsByID" {
 		return t.QueryVoterGroupsByID(stub, args)
-	} else if function == "ListVoters" { // Voter-related functions
-		return t.ListVoters(stub, args)
+	} else if function == "ListVotersByVoterGroupID" { // Voter-related functions
+		return t.ListVotersByVoterGroupID(stub, args)
 	} else if function == "CreateVoter" {
 		return t.CreateVoter(stub, args)
 	} else if function == "EditVoter" {
@@ -106,6 +106,10 @@ func (t *Libertas) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.CreateCampaign(stub, args)
 	} else if function == "QueryCampaignByID" {
 		return t.QueryCampaignByID(stub, args)
+	} else if function == "CreateVote" { // Vote-related functions
+		return t.CreateVote(stub, args)
+	} else if function == "ListBallotByCampaignID" {
+		return t.ListBallotByCampaignID(stub, args)
 	}
 
 	return shim.Error("Invalid invoke function name.")

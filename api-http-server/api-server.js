@@ -11,8 +11,8 @@ const registrationEnrollmentModule = require('../app/javascript/registrationEnro
 
 // environment variables
 const ccpPath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connection-sipher.json');
-const walletPath = path.join(__dirname, '..', 'app', 'javascript', 'test_programs', 'wallet')
-const networkDirPath = path.resolve(__dirname, '..', 'libertas-dev-network')
+const walletPath = path.join(__dirname, '..', 'app', 'javascript', 'test_programs', 'wallet');
+const networkDirPath = path.resolve(__dirname, '..', 'libertas-dev-network');
 
 // JSON parser 
 router.use(express.urlencoded({
@@ -20,126 +20,42 @@ router.use(express.urlencoded({
     }))
     .use(express.json());
 
-//-----------------------------------------ACCOUNT FUNCTIONS--------------------------------------------------
+//-----------------------------------------SUBMIT FUNCTIONS--------------------------------------------------
 
-router.post('/createAccount', async function (req, res) {
+router.post('/submit', async function (req, res) {
     try {
-        const username = req.body.username;
-        const name = req.body.name;
-        const email = req.body.email;
-        const accountType = req.body.accountType;
+        const transactionProposal = req.body;
 
         // TODO: remove this once offline private key stuff works 
-        await registerAndEnroll(username, name, accountType);
-
-        // TODO: note that chaincodeId and channelId are hardcoded
-        const transactionProposal = {
-            fcn: 'CreateAccount',
-            args: [username, name, email, accountType],
-            chaincodeId: "libertas", // 
-            channelId: "test" //
+        if (transactionProposal.fcn == 'CreateAccount') {
+            const username = transactionProposal.username;
+            const name = transactionProposal.args[1];
+            const accountType = transactionProposal.args[3]
+            await registerAndEnroll(username, name, accountType);
         }
-        await invokeModule.submit(ccpPath, walletPath, transactionProposal);
-        res.send('Success');
+        
+        const result = await invokeModule.submit(ccpPath, walletPath, transactionProposal);
+        res.send(result);
+
     } catch (error) {
         console.log(error);
     }
 });
 
-
-router.get('/queryAccountByID', async function (req, res) {
+//-------------------------------------EVALUATE FUNCTIONS---------------------------------------
+router.post('/evaluate', async function (req, res) {  // hmm, get in theory makes more sense, but post is more practical
     try {
-        const username = req.query.username;
-        const idToQuery = req.query.idToQuery;
-        const result = await accountsModule.queryAccountByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
+        // const username = req.query.username;
+        // const idToQuery = req.query.idToQuery;
+        // const result = await accountsModule.queryAccountByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
+        const transactionProposal = req.body;
 
+        const result = await invokeModule.evaluate(ccpPath, walletPath, transactionProposal);        
         res.send(result);
     } catch (error) {
         console.log(error);
     }
 });
-
-//-----------------------------------------CAMPAIGN FUNCTIONS--------------------------------------------------
-
-router.post('/createCampaign', async function (req, res) {
-    try {
-        const id = req.body.id;
-        const name = req.body.name;
-        const campaignType = req.body.campaignType;
-        const start = req.body.start;
-        const end = req.body.end;
-        const username = req.body.username;
-
-        // await campaignModule.createCampaign(ccpPath, walletPath, 'test', 'libertas', id, name, campaignType, start, end, username);
-        const transactionProposal = {
-            fcn: 'CreateCampaign',
-            args: [id, name, campaignType, start, end, username],
-            chaincodeId: "libertas", // 
-            channelId: "test" //
-        }
-        await invokeModule.submit(ccpPath, walletPath, transactionProposal);
-        res.send('Success');
-    } catch (error) {
-        console.log(error)
-    }
-});
-
-router.get('/queryCampaignByID', async function (req, res) {
-    try {
-        const username = req.query.username;
-        const idToQuery = req.query.idToQuery;
-        const result = await campaignModule.queryCampaignByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
-
-        res.send(result);
-    } catch (error) {
-        console.log(error)
-    }
-});
-
-//-----------------------------------------VOTER GROUP FUNCTIONS--------------------------------------------------
-
-router.post('/createVoterGroup', async function (req, res) {
-    try {
-        const id = req.body.id;
-        const campaignID = req.body.campaignID;
-        const name = req.body.name;
-        const username = req.body.username;
-
-        const transactionProposal = {
-            fcn: 'CreateVoterGroup',
-            args: [id, campaignID, name, username],
-            chaincodeId: "libertas", // 
-            channelId: "test" //
-        }
-        await invokeModule.submit(ccpPath, walletPath, transactionProposal);
-        res.send('Success');
-    } catch (error) {
-        console.log(error)
-    }
-});
-
-router.get('/queryVoterGroupsByID', async function (req, res) {
-    try {
-        const username = req.query.username;
-        const idToQuery = req.query.idToQuery;
-        const result = await voterGroupModule.queryVoterGroupsByID(ccpPath, walletPath, username, 'test', 'libertas', idToQuery);
-
-        res.send(result);
-    } catch (error) {
-        console.log(error)
-    }
-});
-
-
-//-----------------------------------------VOTER FUNCTIONS--------------------------------------------------
-
-// TODO:
-
-
-//-----------------------------------------VOTE FUNCTIONS--------------------------------------------------
-
-// TODO:
-
 
 //-----------------------------------------TEMP FUNCTIONS-----------------------------------------------------
 async function registerAndEnroll(id, name, accountType) {
@@ -170,4 +86,5 @@ async function enroll(id, secret) {
 
 
 
-router.listen(80, () => console.log("Listening on port 80"));
+router.listen(3000, () => console.log("Listening on port 3000"));
+

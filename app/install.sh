@@ -27,7 +27,7 @@ export CHANNEL_NAME=test
 # set contract (chaincode) name
 CONTRACT_NAME=libertas
 # set chaincode version
-CHAINCODE_VERSION=1.8.0
+CHAINCODE_VERSION=2.1.7
 
 # clean the keystore
 rm -rf ./hfc-key-store
