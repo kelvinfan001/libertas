@@ -96,8 +96,8 @@ func (t *Libertas) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.CreateVoterGroup(stub, args)
 	} else if function == "QueryVoterGroupsByID" {
 		return t.QueryVoterGroupsByID(stub, args)
-	} else if function == "ListVoters" { // Voter-related functions
-		return t.ListVoters(stub, args)
+	} else if function == "ListVotersByVoterGroupID" { // Voter-related functions
+		return t.ListVotersByVoterGroupID(stub, args)
 	} else if function == "CreateVoter" {
 		return t.CreateVoter(stub, args)
 	} else if function == "EditVoter" {

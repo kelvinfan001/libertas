@@ -49,10 +49,10 @@ func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []strin
 	}
 
 	// Get owner's ID
-	ownerID, err := GetCertAttribute(stub, "id")
-	if err != nil {
-		return shim.Error(err.Error())
-	}
+	// ownerID, err := GetCertAttribute(stub, "id") TODO:
+	// if err != nil {
+	// 	return shim.Error(err.Error())
+	// }
 
 	startStr := args[3]
 	endStr := args[4]
@@ -81,10 +81,10 @@ func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []strin
 	campaignVoterGroups = make([]VoterGroup, 0)
 
 	// Require that the account calling this function is an Institution Account.
-	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution")
-	if !accountTypeOK {
-		return shim.Error(err.Error())
-	}
+	// accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution") TODO:
+	// if !accountTypeOK {
+	// 	return shim.Error(err.Error())
+	// }
 
 	// Get list of Campaigns from the ledger
 	campaignsListBytes, err := stub.GetState("Campaigns List")
@@ -114,6 +114,8 @@ func (t *Libertas) CreateCampaign(stub shim.ChaincodeStubInterface, args []strin
 	if err != nil {
 		return shim.Error(err.Error())
 	}
+
+	fmt.Println(campaignsList.Campaigns) // TODO:
 
 	fmt.Println("New Campaign Added")
 
