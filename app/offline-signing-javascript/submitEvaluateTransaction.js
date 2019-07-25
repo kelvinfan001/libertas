@@ -178,6 +178,9 @@ async function submitSignedTransactionProposal(channel, contractName, signedTran
         const sendSignedProposalReq = { signedProposal: signedTransactionProposal, targets };
         const proposalResponses = await channel.sendSignedProposal(sendSignedProposalReq);
 
+        console.log('right before logging proposal responses') // todo remove
+        console.log(proposalResponses) // todo remove
+
         // Check if proposal got valid endorsement
         if (proposalResponses[0].status != 200) {
             throw new Error(proposalResponses[0]);
@@ -186,7 +189,7 @@ async function submitSignedTransactionProposal(channel, contractName, signedTran
         return proposalResponses;
     } catch (error) {
         console.error(`Failed to submit signed transaction proposal: ${error}`);
-        process.exit(1);
+        process.exit(1); // TODO: maybe dont exit
     }
 }
 

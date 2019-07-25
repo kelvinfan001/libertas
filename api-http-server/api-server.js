@@ -11,6 +11,10 @@ const submitEvaluateModule = require('../app/offline-signing-javascript/submitEv
 const registrationEnrollmentModule = require('../app/javascript/registrationEnrollment');
 const offlineSigningGatewayModule = require('../app/offline-signing-javascript/offlineSigningGateway');
 const { FileSystemWallet } = require('fabric-network')
+var serialize = require('serialize-javascript');
+function deserialize(serializedJavascript) {
+    return eval('(' + serializedJavascript + ')');
+}
 
 // environment variables
 const chaincodeID = 'libertas';
@@ -54,11 +58,12 @@ async function main() {
 
             // Get transaction proposal digest
             let transactionProposalDigest = await submitEvaluateModule.getTransactionProposalDigest(channel, userCertificate, userMSPID, transactionProposal);
-            let transactionProposalDigestBytes = transactionProposalDigest.toBuffer();
+            let transactionProposalDigestBuffer = transactionProposalDigest.toBuffer();
 
-            console.log(transactionProposalDigest)
 
-            res.send(transactionProposalDigestBytes);
+            console.log('this is what transaction proposal bytes should be: ' + transactionProposalDigestBuffer); //todo remove
+
+            res.send(transactionProposalDigestBuffer);
 
         } catch (error) {
             console.log('Get transaction proposal digest error: ' + error);
@@ -71,8 +76,11 @@ async function main() {
             const signedTransactionProposal = req.body.signedTransactionProposal;
             const transactionProposalDigest = req.body.transactionProposalDigest;
 
+            console.log("received signed transaction proposal: " + signedTransactionProposal); // todo remove 
+            console.log("received transaction proposal digest: " + transactionProposalDigest); // todo remove
+
             // Get channel object
-            let channel = offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
+            let channel = await offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
 
             // Submit signed transaction proposal
             let transactionProposalResponses = await submitEvaluateModule.submitSignedTransactionProposal(channel, chaincodeID, signedTransactionProposal);

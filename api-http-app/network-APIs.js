@@ -54,7 +54,27 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
     }
 
     let url = 'http://' + apiServerURL + '/getTransactionProposalDigest';
-    await fetch(url, {
+    // await fetch(url, {
+    //     method: 'POST',
+    //     body: JSON.stringify({
+    //         transactionProposal: transactionProposal,
+    //         userCertificate: userCertificate,
+    //         mspID: mspID
+    //     }),
+    //     headers: {
+    //         'Accept': 'application/json',
+    //         'Content-Type': 'application/json',
+    //     }
+    // }).then(function (res) {
+    //     res.arrayBuffer().then(function (arrayBuffer) {
+    //         const transactionProposalDigest = arrayBuffer; //? not sure if res.text() works
+    //         console.log(transactionProposalDigest); // TODO: remember to remove this
+    //     });
+    // }).catch(function (error) {
+    //     console.log(error);
+    // });
+
+    let res = await fetch(url, {
         method: 'POST',
         body: JSON.stringify({
             transactionProposal: transactionProposal,
@@ -65,18 +85,16 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
             'Accept': 'application/json',
             'Content-Type': 'application/json',
         }
-    }).then(function (res) {
-        res.arrayBuffer().then(function (arrayBuffer) {
-            const transactionProposalDigest = arrayBuffer; //? not sure if res.text() works
-            console.log(transactionProposalDigest)
-        });
-    }).catch(function (error) {
-        console.log(error);
     });
-
-    const transactionProposalDigestBytes = new Buffer(transactionProposalDigest);
+    let transactionProposalDigestBytes = await res.arrayBuffer();
+    const transactionProposalDigestBuffer = Buffer.from(transactionProposalDigestBytes);
+    console.log('this is what transaction proposal buffer looks like ' + transactionProposalDigestBuffer); // TODO: remove this line
+    
     // Sign transaction proposal
-    const signedTransactionProposal = signingModule.signProposal(transactionProposalDigestBytes, userPrivateKey);
+    const signedTransactionProposal = signingModule.signProposal(transactionProposalDigestBuffer, userPrivateKey);
+    //! signedTransactionProposal is a json containing transactionProposalDigestBuffer and signature
+
+    console.log('Signed Transaction Proposal: ' + signedTransactionProposal.signature); // todo remove this line
 
     // Submit signed transaction proposal
     url = 'http://' + apiServerURL + '/submitSignedGetCommit';
@@ -84,7 +102,7 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
         method: 'POST',
         body: JSON.stringify({
             signedTransactionProposal: signedTransactionProposal, //? idk if any of this is serializable like this
-            transactionProposalDigest: transactionProposalDigest  //? this prob wont work
+            transactionProposalDigest: transactionProposalDigestBytes  //? this prob wont work
         }),
         headers: {
             'Accept': 'application/json',
@@ -111,7 +129,7 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
         body: JSON.stringify({
             signedCommitProposal: signedCommitProposal,
             transactionProposalResponses: transactionProposalResponses,
-            transactionProposalDigest: transactionProposalDigest
+            transactionProposalDigest: transactionProposalDigestBytes
         }),
         headers: {
             'Accept': 'application/json',
