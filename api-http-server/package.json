@@ -6,7 +6,8 @@
   "dependencies": {
     "express": "^4.17.1",
     "fabric-network": "~1.4.0",
-    "serialize-javascript": "^1.7.0"
+    "serialize-javascript": "^1.7.0",
+    "socket.io": "^2.2.0"
   },
   "devDependencies": {},
   "scripts": {

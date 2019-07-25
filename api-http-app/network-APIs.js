@@ -12,6 +12,7 @@ const registrationEnrollmentModule = require('../api-http-server/registrationEnr
 const signingModule = require('./cryptoSigning');
 const fetch = require('node-fetch');
 const { FileSystemWallet } = require('fabric-network');
+const io = require('socket.io-client');
 
 // Set environment variables
 const connectionProfilePath = path.resolve(__dirname, 'connection-sipher.json');
@@ -19,7 +20,20 @@ const walletPath = path.join(__dirname, 'wallet'); // TODO: this could be modifi
 const caDomain = "ca.libertas.sipher.co";
 const apiServerURL = '127.0.0.1';
 
-module.exports = {createAccount}
+module.exports = { createAccount, testSocketIO }
+
+//---------------------------------------TEST SOCKET.IO------------------------------------------------
+
+async function testSocketIO() {
+    var test = io.connect('http://localhost/test');
+    test.on('news', function (data) {
+        console.log(data);
+        test.emit('my other event', { my: 'data' });
+        test.disconnect();
+    });
+}
+
+
 
 
 //---------------------------------------ACCOUNT FUNCTIONS------------------------------------------------

@@ -1,6 +1,8 @@
 const path = require('path');
 const express = require('express');
 const router = express();
+var server = require('http').Server(router);
+var io = require('socket.io')(server);
 
 // modules
 // const accountsModule = require('../app/javascript/accounts')
@@ -11,10 +13,6 @@ const submitEvaluateModule = require('../app/offline-signing-javascript/submitEv
 const registrationEnrollmentModule = require('../app/javascript/registrationEnrollment');
 const offlineSigningGatewayModule = require('../app/offline-signing-javascript/offlineSigningGateway');
 const { FileSystemWallet } = require('fabric-network')
-var serialize = require('serialize-javascript');
-function deserialize(serializedJavascript) {
-    return eval('(' + serializedJavascript + ')');
-}
 
 // environment variables
 const chaincodeID = 'libertas';
@@ -38,7 +36,17 @@ async function main() {
     const adminCertificate = adminIdentity.certificate;
     const adminMSPID = adminIdentity.mspId;
 
-    router.listen(80, () => console.log("Listening on port 80"));
+    server.listen(80, () => console.log("Listening on port 80"));
+
+    //-----------------------------------------TEST SOCKET.IO--------------------------------------------------
+
+    var test = io.of('/test').on('connection', function (socket) {
+        socket.emit('news', { hello: 'world' });
+        socket.on('my other event', function (data) {
+            console.log(data);
+        });
+    });
+        
 
     //-----------------------------------------SUBMIT FUNCTIONS--------------------------------------------------
 
