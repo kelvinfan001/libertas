@@ -57,7 +57,6 @@ async function submit(connectionProfilePath, walletPath, transactionProposal) {
 
         // Submit the transaction.
         const args = [transactionProposal.fcn].concat(transactionProposal.args);
-        console.log(args)
         const result = await contract.submitTransaction.apply(contract, args);
         // await contract.submitTransaction(transactionProposal.fcn, transactionProposal.args);
         console.log('Transaction has been submitted');
@@ -105,6 +104,8 @@ async function evaluate(connectionProfilePath, walletPath, transactionProposal) 
 
         // Submit the transaction.
         const args = [transactionProposal.fcn].concat(transactionProposal.args);
+
+        console.log(args)
         const queryResult = await contract.evaluateTransaction.apply(contract, args);
         console.log('Query Success.');
 

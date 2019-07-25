@@ -111,7 +111,7 @@ async function createVoterGroup(id, campaignID, name, username) {
  * @param {string} username username for the user calling this function
  * @param {string} idToQuery username with respect to the query
  */
-async function queryVoterGroupsByID(username, idToQuery) {
+async function queryVoterGroupsByID(username, voterGroupID, campaignID) {
     const transactionProposal = {
         fcn: 'QueryVoterGroupsByID',
         args: [idToQuery],
@@ -125,7 +125,7 @@ async function queryVoterGroupsByID(username, idToQuery) {
 
 //------------------------------------------------VOTER FUNCTIONS-----------------------------------------------
 
-async function createVoter(id, personalAccountID, voterGroupID, username) {
+async function createVoter(id, personalAccountID, voterGroupID, campaignID, username) {
     const transactionProposal = {
         fcn: 'CreateVoter',
         args: [id, personalAccountID, voterGroupID],
@@ -137,10 +137,36 @@ async function createVoter(id, personalAccountID, voterGroupID, username) {
     await submitHTTPReq(transactionProposal)
 }
 
-async function queryVoterByID(username, idToQuery) {
+async function listVotersByVoterGroupID(username, voterGroupID, campaignID) {
     const transactionProposal = {
-        fcn: 'QueryVoterByID', // TODO: change this
-        args: [idToQuery],
+        fcn: 'ListVotersByVoterGroupID',
+        args: [voterGroupID],
+        chaincodeId: "libertas", // 
+        channelId: "test", //
+        username: username
+    }
+
+    await evaluateHTTPReq(transactionProposal);
+}
+
+//-------------------------------------------------VOTE FUNCTIONS-----------------------------------------------
+
+async function createVote(personalAccountID, campaignID, username) {
+    const transactionProposal = {
+        fcn: 'CreateVote',
+        args: [personalAccountID, campaignID],
+        chaincodeId: "libertas", // 
+        channelId: "test", //
+        username: username
+    }
+
+    await submitHTTPReq(transactionProposal)
+}
+
+async function listBallotByCampaignID(username, campaignID) {
+    const transactionProposal = {
+        fcn: 'ListBallotByCampaignID',
+        args: [campaignID],
         chaincodeId: "libertas", // 
         channelId: "test", //
         username: username
@@ -193,26 +219,35 @@ async function evaluateHTTPReq(transactionProposal) {
 //----------------------------------------------------TEST----------------------------------------------------
 // Here are some sample API calls 
 
-// Account: we create an instituion account 
-// createAccount('username', 'name', 'email', 'Institution');
-// queryAccountByID('ciudad4', 'ciudad4');
+async function execute_example() {
+    // Account: we create an instituion account 
+    // await createAccount('username', 'name', 'email', 'Institution');
+    // await createAccount('usernameP', 'name', 'email', 'Personal');
+    // queryAccountByID('username', 'username');
 
 
-// Campaign: using our institution account, we create a new campaign
-var start = Date.parse('2019-7-16');
-var end = Date.parse('2019-8-1');
-var startStr = start.toString();
-var endStr = end.toString();
-// createCampaign('campaignID', 'name', 'Mayoral Election', startStr, endStr, 'username');
-// queryCampaignByID('ciudad10', 'ciudad10');
+    // Campaign: using our institution account, we create a new campaign
+    var start = Date.parse('01 Jan 1970');
+    var end = Date.parse('04 Dec 1995');
+    var startStr = start.toString();
+    var endStr = end.toString();
+    await createCampaign('campaignID1', 'name', 'Mayoral Election', startStr, endStr, 'username');
+    // queryCampaignByID('username', 'campaignID');
 
 
-// Voter Group:
-// createVoterGroup('voterGroupID', 'campaignID', 'name', 'username');
-// queryVoterGroupsByID('username', 'voterGroupID')
+    // Voter Group:
+    await createVoterGroup('voterGroupID', 'campaignID1', 'name', 'username');
+    // queryVoterGroupsByID('username', 'voterGroupID', 'campaignID')
 
-// Voter: 
-createVoter('voterID', 'personalAccountID', 'voterGroupID', 'username');
+    // Voter: 
+    await createVoter('voterID', 'personalAccountID', 'voterGroupID', 'campaignID', 'username');
+    // listVotersByVoterGroupID('username', 'voterGroupID', 'campaignID')
 
+    // Vote:
+    await createVote('personalAccountID', 'campaignID1', 'usernameP');
+    // listBallotByCampaignID('username', 'campaignID');
+}
 
-// fix success returned even when weird stuff happens
+execute_example();
+// createVote('personalAccountID', 'campaignID', 'usernameP');
+// listBallotByCampaignID('username', 'campaignID');

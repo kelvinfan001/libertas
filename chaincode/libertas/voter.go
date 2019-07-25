@@ -21,6 +21,7 @@ type Voter struct {
 	ID                string
 	PersonalAccountID string
 	VoterGroupID      string
+	CampaignID        string
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
 }
@@ -33,34 +34,30 @@ type VotersList struct {
 // List lists all the voters that belong to voterGroupID on currentPage
 func (t *Libertas) ListVotersByVoterGroupID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	// check args
-	if len(args) != 1 {
-		return shim.Error("Incorrect number of arguments. Expecting 1.")
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2.")
 	}
 	voterGroupID := args[0]
+	campaignID := args[1]
 
-	// get the voter group
-	voterGroupsListBytes, err := stub.GetState("Voter Groups List")
-	voterGroupsList := VoterGroupsList{}
-	json.Unmarshal(voterGroupsListBytes, &voterGroupsList)
-
-	// fmt.Println(voterGroupsList)
-
-	voterGroup, err := queryVoterGroupsByID(voterGroupID, voterGroupsList.VoterGroups)
+	// get campaign list, then campaign, then voter group, then voter list
+	campaignsList, err := _getCampaignsList(stub)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
+	campaign, err := queryCampaignByID(campaignID, campaignsList.Campaigns)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	voterGroup, err := queryVoterGroupsByID(voterGroupID, campaign.CampaignVoterGroups)
+	if err != nil {
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+	}
+	votersBytes, _ := json.Marshal(voterGroup.Voters)
 
-	// fmt.Println(voterGroup.Voters)
-	votersList := VotersList{voterGroup.Voters}
-	// fmt.Println(votersList.voters)
-	votersListBytes, _ := json.Marshal(votersList)
-
-	voters := VotersList{}
-	json.Unmarshal(votersListBytes, &voters)
-
-	// fmt.Println(voters)
-
-	return shim.Success(votersListBytes)
+	return shim.Success(votersBytes)
 }
 
 //----------------------------------------------------------------------------------------------------------------
@@ -72,11 +69,9 @@ func (t *Libertas) CreateVoter(stub shim.ChaincodeStubInterface, args []string) 
 		return shim.Error(err.Error())
 	}
 
-	newVoter := _getNewVoter(stub, args)
-	voterGroupID := args[2]
-
 	// update ledger
-	err = _updateLedgerVoterList(stub, newVoter, voterGroupID)
+	newVoter := _getNewVoter(stub, args)
+	err = _updateLedgerVoterList(stub, newVoter, args)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -88,23 +83,29 @@ func (t *Libertas) CreateVoter(stub shim.ChaincodeStubInterface, args []string) 
 
 func _createVoterChecks(stub shim.ChaincodeStubInterface, args []string) error {
 	// check num args
-	if len(args) != 3 {
-		return errors.New("Incorrect number of arguments. Expecting 3.")
+	if len(args) != 4 {
+		return errors.New("Incorrect number of arguments. Expecting 4.")
 	}
 
 	// check for correct account type TODO:
-	// accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution")
-	// if !accountTypeOK {
-	// 	return errors.New(err.Error())
-	// }
-	// check if voterGroupID already exists
-	voterGroupsListBytes, err := stub.GetState("Voter Groups List")
-	voterGroupsList := VoterGroupsList{}
-	json.Unmarshal(voterGroupsListBytes, &voterGroupsList)
-	voterGroupID := args[2]
-	voterGroup, err := queryVoterGroupsByID(voterGroupID, voterGroupsList.VoterGroups)
-	if err != nil {
+	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution")
+	if !accountTypeOK {
 		return errors.New(err.Error())
+	}
+	// check if voter already exists in voter group
+	voterGroupID := args[2]
+	campaignID := args[3]
+	campaignsList, err := _getCampaignsList(stub)
+	if err != nil {
+		return err
+	}
+	campaign, err := queryCampaignByID(campaignID, campaignsList.Campaigns)
+	if err != nil {
+		return err
+	}
+	voterGroup, err := queryVoterGroupsByID(voterGroupID, campaign.CampaignVoterGroups)
+	if err != nil {
+		return err
 	}
 
 	voterID := args[0]
@@ -117,16 +118,19 @@ func _createVoterChecks(stub shim.ChaincodeStubInterface, args []string) error {
 	return nil
 }
 
-func _updateLedgerVoterList(stub shim.ChaincodeStubInterface, newVoter Voter, voterGroupID string) error {
+func _updateLedgerVoterList(stub shim.ChaincodeStubInterface, newVoter Voter, args []string) error {
 	// get the voter group
-	voterGroupsListBytes, err := stub.GetState("Voter Groups List")
+	voterGroupID := args[2]
+	campaignID := args[3]
+	campaignsList, err := _getCampaignsList(stub)
 	if err != nil {
 		return err
 	}
-	voterGroupsList := VoterGroupsList{}
-	json.Unmarshal(voterGroupsListBytes, &voterGroupsList)
-
-	voterGroupPtr, err := _getVoterGroupsPointerByID(voterGroupID, &voterGroupsList)
+	campaign, err := _queryCampaignPtrByID(campaignID, &campaignsList)
+	if err != nil {
+		return err
+	}
+	voterGroupPtr, err := _getVoterGroupsPointerByID(voterGroupID, campaign.CampaignVoterGroups)
 	if err != nil {
 		return err
 	}
@@ -137,22 +141,18 @@ func _updateLedgerVoterList(stub shim.ChaincodeStubInterface, newVoter Voter, vo
 	// Convert protobuf timestamp to Time data structure
 	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
 	voterGroupPtr.UpdatedAt = transactionTime
-	voterGroupsListBytes, _ = json.Marshal(voterGroupsList)
-	err = stub.PutState("Voter Groups List", voterGroupsListBytes)
-
-	// fmt.Println(voterGroupsList)
-	// fmt.Println(voterGroupsList.VoterGroups[0].Voters)
-	// fmt.Println(voterGroupPtr.Voters)
-	voterGroupsList = VoterGroupsList{}
-	json.Unmarshal(voterGroupsListBytes, &voterGroupsList)
-	// fmt.Println(voterGroupsList)
+	campaignsListBytes, _ := json.Marshal(campaignsList)
+	err = stub.PutState("Campaigns List", campaignsListBytes)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func _getVoterGroupsPointerByID(id string, voterGroupsList *VoterGroupsList) (*VoterGroup, error) {
-	for k := range voterGroupsList.VoterGroups {
-		voterGroupPtr := &voterGroupsList.VoterGroups[k]
+func _getVoterGroupsPointerByID(id string, voterGroups []VoterGroup) (*VoterGroup, error) {
+	for k := range voterGroups {
+		voterGroupPtr := &voterGroups[k]
 		if voterGroupPtr.ID == id {
 			return voterGroupPtr, nil
 		}
@@ -165,9 +165,10 @@ func _getNewVoter(stub shim.ChaincodeStubInterface, args []string) Voter {
 	id := args[0]
 	personalAccountID := args[1]
 	voterGroupID := args[2]
+	campaignID := args[3]
 	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
 	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
-	newVoter := Voter{id, personalAccountID, voterGroupID, transactionTime, transactionTime}
+	newVoter := Voter{id, personalAccountID, voterGroupID, campaignID, transactionTime, transactionTime}
 
 	return newVoter
 }
