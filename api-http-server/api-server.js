@@ -5,7 +5,6 @@ const router = express();
 var server = require('http').Server(router);
 var io = require('socket.io')(server);
 const submitEvaluateModule = require('../app/offline-signing-javascript/submitEvaluateTransaction');
-const registrationEnrollmentModule = require('../app/javascript/registrationEnrollment');
 const offlineSigningGatewayModule = require('../app/offline-signing-javascript/offlineSigningGateway');
 const { FileSystemWallet } = require('fabric-network')
 

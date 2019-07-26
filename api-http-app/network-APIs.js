@@ -41,7 +41,6 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
     } catch (error) {
         console.error(error);
     }
-    
 }
 
 //---------------------------------------SUBMIT TRANSACTION FUNCTIONS------------------------------------------------
@@ -131,10 +130,10 @@ async function submitTransaction(transactionProposal, id, mspID) {
  */
 async function createAccounteDeprecated(id, name, email, accountType, enrollmentSecret, mspID) {
     
-    // // Register user (directly communicating with CA)
-    // registrationEnrollmentModule.enrollUser(connectionProfilePath, walletPath, caDomain, id, enrollmentSecret, mspID);
+    // Register user (directly communicating with CA)
+    registrationEnrollmentModule.enrollUser(connectionProfilePath, walletPath, caDomain, id, enrollmentSecret, mspID);
 
-    // console.log('Enrollment step complete.')
+    console.log('Enrollment step complete.')
     
     // Get wallet instance and retrieve user cert and key
     const wallet = new FileSystemWallet(walletPath);

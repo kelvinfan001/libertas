@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  * This module provides tools for establishing a secure gateway for signing transactions offline.
- * 
  */
 
 module.exports = { getEndorsementPlanPeers, getChannel };
