@@ -20,19 +20,67 @@ const walletPath = path.join(__dirname, 'wallet'); // TODO: this could be modifi
 const caDomain = "ca.libertas.sipher.co";
 const apiServerURL = '127.0.0.1';
 
-module.exports = { createAccount, testSocketIO }
+module.exports = { createAccount, testSocketIO, createAccountSocket }
 
 //---------------------------------------TEST SOCKET.IO------------------------------------------------
 
 async function testSocketIO() {
     var test = io.connect('http://localhost/test');
-    test.on('news', function (data) {
+    test.on('connectionEstablished', function (data) {
         console.log(data);
-        test.emit('my other event', { my: 'data' });
-        test.disconnect();
+        test.emit('foo', 'I am sent from the other socket connection');
+        // test.disconnect();
     });
 }
 
+async function createAccountSocket(id, name, email, accountType, enrollmentSecret, mspID) {
+    // Get wallet instance and retrieve user cert and key
+    const wallet = new FileSystemWallet(walletPath);
+    const userIdentity = await wallet.export(id);
+    const userCertificate = userIdentity.certificate;
+    const userPrivateKey = userIdentity.privateKey;
+
+    console.log(userPrivateKey); // todo remove
+
+    // Create account on chaincode
+    const transactionProposal = {
+        fcn: 'CreateAccount',
+        args: [id, name, email, accountType],
+    }
+
+    // Connect to server socket
+    var createAccountSocket = io.connect('http://' + apiServerURL + '/createAccount');
+    createAccountSocket.on('connectionEstablished', function (data) {
+        console.log(data);
+        // Send transaction proposal data
+        createAccountSocket.emit('sendTransactionProposal', {
+            transactionProposal: transactionProposal,
+            userCertificate: userCertificate,
+            mspID: mspID
+        });
+        // Receive unsigned transaction proposal digest, sign, send signed transaction proposal digest
+        createAccountSocket.on('sendTransactionProposalDigest', function (data) {
+            const transactionProposalDigestBuffer = Buffer.from(data); //? seems like it works. might have issue
+
+            // Sign transaction proposal
+            const signedTransactionProposal = signingModule.signProposal(transactionProposalDigestBuffer, userPrivateKey);
+            // Get signature
+            const signature = signedTransactionProposal.signature;
+
+            // Send the signature back
+            createAccountSocket.emit('sendTransactionProposalSignature', signature);
+            createAccountSocket.on('error', function (error) {
+                console.log(error);
+            })
+
+            // console.log(signedTransactionProposal.signature) // TODO remove this
+
+        });
+
+
+        // createAccountSocket.disconnect();
+    })
+}
 
 
 

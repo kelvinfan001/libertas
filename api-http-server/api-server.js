@@ -40,11 +40,49 @@ async function main() {
 
     //-----------------------------------------TEST SOCKET.IO--------------------------------------------------
 
-    var test = io.of('/test').on('connection', function (socket) {
-        socket.emit('news', { hello: 'world' });
-        socket.on('my other event', function (data) {
-            console.log(data);
+    var createAccountSocket = io.of('/createAccount').on('connection', function (socket) {
+        socket.emit('connectionEstablished', 'Connection established');
+        socket.on('sendTransactionProposal', async function (data) {
+            // console.log(data); // TODO: remove this line
+            // Retrieve values from transaction request and fill in TransactionProposal object
+            const transactionProposal = data.transactionProposal;
+            const userCertificate = data.userCertificate;
+            const userMSPID = data.mspID;
+            transactionProposal.chaincodeId = chaincodeID;
+            transactionProposal.channelId = channelID;
+
+            // Get channel object
+            let channel = await offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
+
+            // Get unsigned transaction proposal digest
+            let transactionProposalDigest = await submitEvaluateModule.getTransactionProposalDigest(channel, userCertificate, userMSPID, transactionProposal);
+            let transactionProposalDigestBuffer = transactionProposalDigest.toBuffer();
+            // console.log('this is a string version of tpd: ' + transactionProposalDigestBuffer); // todo: remove this
+
+            // Send unsigned transaction proposal digest back to client as Buffer
+            socket.emit('sendTransactionProposalDigest', transactionProposalDigestBuffer);
+            // console.log('this is what transactionProposalDigestBuffer should look like: ' + transactionProposalDigestBuffer); //todo remove this
+
+            socket.on('sendTransactionProposalSignature', async function (data) {
+                // Retrieve the signature for transaction proposal
+                const signature = data;
+                // Package signed transaction proposal
+                const signedTransactionProposal = {
+                    signature: signature,
+                    proposal_bytes: transactionProposalDigestBuffer
+                }
+
+                // Submit signed transaction proposal
+                try {
+                    let transactionProposalResponses = await submitEvaluateModule.submitSignedTransactionProposal(channel, chaincodeID, signedTransactionProposal);
+                } catch (error) {
+                    socket.emit('error', error);
+                }
+
+                // console.log(transactionProposalResponses)
+            })
         });
+        
     });
         
 
@@ -69,7 +107,7 @@ async function main() {
             let transactionProposalDigestBuffer = transactionProposalDigest.toBuffer();
 
 
-            console.log('this is what transaction proposal bytes should be: ' + transactionProposalDigestBuffer); //todo remove
+            console.log('this is what transactionProposalDigestBuffer looks like: ' + transactionProposalDigestBuffer); //todo remove
 
             res.send(transactionProposalDigestBuffer);
 
