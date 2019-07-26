@@ -65,9 +65,8 @@ async function submitSignedTransactionProposal(channel, contractName, signedTran
         // Check if proposal got valid endorsement
         if (proposalResponses[0].response) {
             if (proposalResponses[0].response.status != 200) {
-                throw new Error("Proposal response status is not 200!");
+                throw new Error("Proposal response status not 200!");
             }
-            console.log('Proposal response status OK.')
         } else {
             // Only reached if no response at all
             throw new Error(proposalResponses[0]);

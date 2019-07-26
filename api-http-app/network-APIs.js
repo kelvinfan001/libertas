@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Sipher Inc
+ * Copyright 2019 Sipher Inc.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -8,7 +8,7 @@
 
 // Import required modules
 const path = require('path');
-const registrationEnrollmentModule = require('../api-http-server/registrationEnrollment');
+const registrationEnrollmentModule = require('./registrationEnrollment');
 const signingModule = require('./cryptoSigning');
 const fetch = require('node-fetch');
 const { FileSystemWallet } = require('fabric-network');
@@ -22,13 +22,19 @@ const apiServerURL = '127.0.0.1';
 
 module.exports = { createAccount, createAccounteDeprecated }
 
-//---------------------------------------CREATE ACCOUNT Functions------------------------------------------------
+//---------------------------------------CREATE ACCOUNT FUNCTION-----------------------------------------------
 
 async function createAccount(id, name, email, accountType, enrollmentSecret, mspID) {
 
     try {
-        // Register user (directly communicating with CA)
-        await registrationEnrollmentModule.enrollUser(connectionProfilePath, walletPath, caDomain, id, enrollmentSecret, mspID);
+        const wallet = new FileSystemWallet(walletPath);
+        let userExists = await wallet.exists(id);
+        if (!userExists) {
+            // Enroll user (directly communicating with CA)
+            await registrationEnrollmentModule.enrollUser(connectionProfilePath, walletPath, caDomain, id, enrollmentSecret, mspID);
+        } else {
+            console.log('Warning: User with id ' + id + ' already exists in wallet and enrolled with CA.');
+        }
 
         // Prepare transaction proposal for creating account on chaincode
         const transactionProposal = {
@@ -39,11 +45,11 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
         await submitTransaction(transactionProposal, id, mspID);
 
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }
 
-//---------------------------------------SUBMIT TRANSACTION FUNCTIONS------------------------------------------------
+//------------------------------------SUBMIT TRANSACTION FUNCTIONS---------------------------------------------
 
 /**
  * 
@@ -59,8 +65,8 @@ async function submitTransaction(transactionProposal, id, mspID) {
     const userPrivateKey = userIdentity.privateKey;
 
     // Connect to server socket
-    var submitTransactionSocket = io.connect('http://' + apiServerURL + '/submitTransaction');
-    submitTransactionSocket.on('connectionEstablished', function () {
+    var submitTransactionSocket = await io.connect('http://' + apiServerURL + '/submitTransaction');
+    submitTransactionSocket.on('connectionEstablished', async function () {
         // Send transaction proposal data
         submitTransactionSocket.emit('sendTransactionProposal', {
             transactionProposal: transactionProposal,
@@ -73,7 +79,7 @@ async function submitTransaction(transactionProposal, id, mspID) {
             submitTransactionSocket.disconnect();
         })
         // Receive unsigned transaction proposal digest, sign, send signed transaction proposal digest
-        submitTransactionSocket.on('sendTransactionProposalDigest', function (data) {
+        submitTransactionSocket.on('sendTransactionProposalDigest', async function (data) {
             const transactionProposalDigestBuffer = Buffer.from(data);
 
             // Sign transaction proposal
@@ -95,7 +101,7 @@ async function submitTransaction(transactionProposal, id, mspID) {
             })
 
             // Receive unsigned commit proposal digest, sign, send signed commit proposal digest
-            submitTransactionSocket.on('sendCommitProposalDigest', function (data) {
+            submitTransactionSocket.on('sendCommitProposalDigest', async function (data) {
                 const commitProposalDigestBuffer = Buffer.from(data);
 
                 // Sign commit proposal
@@ -111,9 +117,10 @@ async function submitTransaction(transactionProposal, id, mspID) {
                     submitTransactionSocket.disconnect();
                 })
                 submitTransactionSocket.disconnect();
+                console.log('Transaction successfully submitted and completed.')
             })
         });
-    })
+    });
 }
 
 //---------------------------------------ACCOUNT FUNCTIONS------------------------------------------------
@@ -254,7 +261,7 @@ async function queryAccountByID(username, idToQuery) {
     });
 }
 
-//-----------------------------------------------CAMPAIGN FUNCTIONS------------------------------------------------
+//-------------------------------------------CAMPAIGN FUNCTIONS--------------------------------------------
 /**
  * 
  * @param {string} id 

@@ -108,6 +108,7 @@ async function main() {
                         socket.disconnect();
                         return;
                     }
+                    console.log('Transaction successfully submitted and committed.');
                 })
             })
         });
