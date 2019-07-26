@@ -216,7 +216,7 @@ async function getCommitProposalDigest(channel, transactionProposalDigest, trans
 
     } catch (error) {
         console.error(`Failed to generate commit proposal digest: ${error}`);
-        process.exit(1);
+        return `Failed to generate commit proposal digest: ${error}`;
     }
 }
 
@@ -240,6 +240,6 @@ async function submitSignedCommitProposal(channel, signedCommitProposal, transac
 
     } catch (error) {
         console.error(`Failed to submit signed commit proposal: ${error}`);
-        process.exit(1);
+        return `Failed to submit signed commit proposal: ${error}`;
     }
 }

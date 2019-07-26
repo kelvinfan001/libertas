@@ -73,11 +73,19 @@ async function main() {
                 let transactionProposalResponses = await submitEvaluateModule.submitSignedTransactionProposal(channel, chaincodeID, signedTransactionProposal);
             
                 // Check if transaction propsal response is error
-                if (typeof transactionProposalResponses === "string") {
+                if (typeof transactionProposalResponses == "string") {
                     socket.emit('submitTransactionError', transactionProposalResponses);
+                    socket.disconnect();
+                    return;
                 }
-                
+
                 let commitProposalDigest = await submitEvaluateModule.getCommitProposalDigest(channel, transactionProposalDigest, transactionProposalResponses);
+                // Check if failed to get commit proposal
+                if (typeof commitProposalDigest == "string") {
+                    socket.emit('getCommitProposalError', commitProposalDigest);
+                    socket.disconnect();
+                    return;
+                }
                 let commitProposalDigestBuffer = commitProposalDigest.toBuffer();
 
                 // Send unsigned commit proposal digest to client as Buffer
@@ -94,12 +102,17 @@ async function main() {
 
                     // Submit signed commit proposal
                     let commitProposalResponses = await submitEvaluateModule.submitSignedCommitProposal(channel, signedCommitProposal, transactionProposalResponses, transactionProposalDigest);
+
+                    // Check if commit propsal response is error
+                    if (typeof commitProposalResponses == "string") {
+                        socket.emit('commitTransactionError', commitProposalResponses);
+                        socket.disconnect();
+                        return;
+                    }
                 })
             })
         });
-        
     });
-        
 
     //-----------------------------------------SUBMIT FUNCTIONS--------------------------------------------------
 

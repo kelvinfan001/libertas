@@ -22,16 +22,7 @@ const apiServerURL = '127.0.0.1';
 
 module.exports = { createAccount, testSocketIO, createAccountSocket }
 
-//---------------------------------------TEST SOCKET.IO------------------------------------------------
-
-async function testSocketIO() {
-    var test = io.connect('http://localhost/test');
-    test.on('connectionEstablished', function (data) {
-        console.log(data);
-        test.emit('foo', 'I am sent from the other socket connection');
-        // test.disconnect();
-    });
-}
+//---------------------------------------Create Account Functions------------------------------------------------
 
 async function createAccountSocket(id, name, email, accountType, enrollmentSecret, mspID) {
     // Get wallet instance and retrieve user cert and key
@@ -39,6 +30,9 @@ async function createAccountSocket(id, name, email, accountType, enrollmentSecre
     const userIdentity = await wallet.export(id);
     const userCertificate = userIdentity.certificate;
     const userPrivateKey = userIdentity.privateKey;
+
+    // // Register user (directly communicating with CA)
+    // registrationEnrollmentModule.enrollUser(connectionProfilePath, walletPath, caDomain, id, enrollmentSecret, mspID);
 
     // Create account on chaincode
     const transactionProposal = {
@@ -49,7 +43,6 @@ async function createAccountSocket(id, name, email, accountType, enrollmentSecre
     // Connect to server socket
     var createAccountSocket = io.connect('http://' + apiServerURL + '/createAccount');
     createAccountSocket.on('connectionEstablished', function (data) {
-        console.log(data);
         // Send transaction proposal data
         createAccountSocket.emit('sendTransactionProposal', {
             transactionProposal: transactionProposal,
@@ -67,9 +60,15 @@ async function createAccountSocket(id, name, email, accountType, enrollmentSecre
 
             // Send the signature back
             createAccountSocket.emit('sendTransactionProposalSignature', transactionProposalSignature);
-            // Handle if error
+            // Handle if submit transaction error
             createAccountSocket.on('submitTransactionError', function (error) {
                 console.log(error);
+                createAccountSocket.disconnect();
+            })
+            // Handle if get commit proposal error
+            createAccountSocket.on('getCommitProposalError', function (error) {
+                console.log(error);
+                createAccountSocket.disconnect();
             })
 
             // Receive unsigned commit proposal digest, sign, send signed commit proposal digest
@@ -83,14 +82,14 @@ async function createAccountSocket(id, name, email, accountType, enrollmentSecre
 
                 // Send the signature back
                 createAccountSocket.emit('sendCommitProposalSignature', commitProposalSignature);
-
-
+                // Handle if commit transaction error
+                createAccountSocket.on('commitTransactionError', function (error) {
+                    console.log(error);
+                    createAccountSocket.disconnect();
+                })
+                createAccountSocket.disconnect();
             })
-
         });
-
-
-        // createAccountSocket.disconnect();
     })
 }
 
