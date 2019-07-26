@@ -53,8 +53,8 @@ async function queryAccountByID(username, idToQuery) {
  * @param {string} id 
  * @param {string} name name of the campaign
  * @param {string} campaignType 
- * @param {string} start state date for campaign in stringified number of seconds after epoch start
- * @param {string} end end date for campaign in stringified number of seconds after epoch start
+ * @param {string} start state timestamp for campaign 
+ * @param {string} end end timestamp for campaign
  * @param {string} username username for the user calling this function
  */
 async function createCampaign(id, name, campaignType, startStr, endStr, username) {
