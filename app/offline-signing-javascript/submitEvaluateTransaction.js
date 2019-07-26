@@ -119,29 +119,8 @@ const path = require('path');
  * @param {ProposalRequest} transactionProposal
  */
 async function getTransactionProposalDigest(channel, userCertPEM, userMSPID, transactionProposal) {
-    // // Get connection profile
-    // const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
-    // const ccp = JSON.parse(ccpJSON);
-
-    // // Retrieve channel and chaincode information from transaction proposal
-    // const channelName = transactionProposal.channelID;
-    // const contractName = transactionProposal.chaincodeId;
-
-    // Retrieve admin information from wallet
-    // const wallet = new FileSystemWallet(walletPath);
-    // const adminIdentity = await wallet.export('admin');
-    // const adminKey = adminIdentity.privateKey;
-    // const adminCertificate = adminIdentity.certificate;
-    // const mspID = adminIdentity.mspId;
 
     try {
-        /**
-         * Start endorsement step
-         */
-
-        // // Get Channel instance
-        // const channel = await offlineSigningGatewayModule.getChannel(connectionProfilePath, channelName, adminCertificate, adminKey, mspID);
-
         // Package the transaction proposal
         const transactionProposalReq = transactionProposal;
 
@@ -152,7 +131,7 @@ async function getTransactionProposalDigest(channel, userCertPEM, userMSPID, tra
 
     } catch (error) {
         console.error(`Failed to generate transaction proposal digest: ${error}`);
-        process.exit(1);
+        return `Failed to generate transaction proposal digest: ${error}`;
     }
 }
 
@@ -178,9 +157,6 @@ async function submitSignedTransactionProposal(channel, contractName, signedTran
         const sendSignedProposalReq = { signedProposal: signedTransactionProposal, targets };
         const proposalResponses = await channel.sendSignedProposal(sendSignedProposalReq);
 
-        // console.log('right before logging proposal responses') // todo remove
-        // console.log(proposalResponses) // todo remove
-
         // Check if proposal got valid endorsement
         if (proposalResponses[0].response) {
             if (proposalResponses[0].response.status != 200) {
@@ -196,7 +172,6 @@ async function submitSignedTransactionProposal(channel, contractName, signedTran
 
     } catch (error) {
         console.error(`Failed to submit signed transaction proposal: ${error}`);
-        // process.exit(1); // TODO: maybe dont exit
         return `Failed to submit signed transaction proposal: ${error}`
     }
 }
@@ -233,8 +208,6 @@ async function submitSignedCommitProposal(channel, signedCommitProposal, transac
             signedProposal: signedCommitProposal,
             request: commitReq,
         });
-
-        console.log(response);
 
         return response;
 

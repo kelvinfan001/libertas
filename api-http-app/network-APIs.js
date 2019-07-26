@@ -20,7 +20,7 @@ const walletPath = path.join(__dirname, 'wallet'); // TODO: this could be modifi
 const caDomain = "ca.libertas.sipher.co";
 const apiServerURL = '127.0.0.1';
 
-module.exports = { createAccount, testSocketIO, createAccountSocket }
+module.exports = { createAccount, createAccountSocket }
 
 //---------------------------------------Create Account Functions------------------------------------------------
 
@@ -49,6 +49,11 @@ async function createAccountSocket(id, name, email, accountType, enrollmentSecre
             userCertificate: userCertificate,
             mspID: mspID
         });
+        // Handle if get transaction proposal digest error
+        createAccountSocket.on('getTransactionProposalError', function (error) {
+            console.log(error);
+            createAccountSocket.disconnect();
+        })
         // Receive unsigned transaction proposal digest, sign, send signed transaction proposal digest
         createAccountSocket.on('sendTransactionProposalDigest', function (data) {
             const transactionProposalDigestBuffer = Buffer.from(data);

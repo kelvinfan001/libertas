@@ -55,6 +55,12 @@ async function main() {
 
             // Get unsigned transaction proposal digest
             let transactionProposalDigest = await submitEvaluateModule.getTransactionProposalDigest(channel, userCertificate, userMSPID, transactionProposal);
+            // Check if get transaction propsal is error
+            if (typeof transactionProposalDigest == "string") {
+                socket.emit('getTransactionProposalError', transactionProposalDigest);
+                socket.disconnect();
+                return;
+            }
             let transactionProposalDigestBuffer = transactionProposalDigest.toBuffer();
 
             // Send unsigned transaction proposal digest back to client as Buffer
