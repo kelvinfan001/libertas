@@ -40,8 +40,6 @@ async function createAccountSocket(id, name, email, accountType, enrollmentSecre
     const userCertificate = userIdentity.certificate;
     const userPrivateKey = userIdentity.privateKey;
 
-    console.log(userPrivateKey); // todo remove
-
     // Create account on chaincode
     const transactionProposal = {
         fcn: 'CreateAccount',
@@ -60,20 +58,34 @@ async function createAccountSocket(id, name, email, accountType, enrollmentSecre
         });
         // Receive unsigned transaction proposal digest, sign, send signed transaction proposal digest
         createAccountSocket.on('sendTransactionProposalDigest', function (data) {
-            const transactionProposalDigestBuffer = Buffer.from(data); //? seems like it works. might have issue
+            const transactionProposalDigestBuffer = Buffer.from(data);
 
             // Sign transaction proposal
             const signedTransactionProposal = signingModule.signProposal(transactionProposalDigestBuffer, userPrivateKey);
             // Get signature
-            const signature = signedTransactionProposal.signature;
+            const transactionProposalSignature = signedTransactionProposal.signature;
 
             // Send the signature back
-            createAccountSocket.emit('sendTransactionProposalSignature', signature);
+            createAccountSocket.emit('sendTransactionProposalSignature', transactionProposalSignature);
+            // Handle if error
             createAccountSocket.on('submitTransactionError', function (error) {
                 console.log(error);
             })
 
-            // console.log(signedTransactionProposal.signature) // TODO remove this
+            // Receive unsigned commit proposal digest, sign, send signed commit proposal digest
+            createAccountSocket.on('sendCommitProposalDigest', function (data) {
+                const commitProposalDigestBuffer = Buffer.from(data);
+
+                // Sign commit proposal
+                const signedCommitProposal = signingModule.signProposal(commitProposalDigestBuffer, userPrivateKey);
+                // Get signature
+                const commitProposalSignature = signedCommitProposal.signature;
+
+                // Send the signature back
+                createAccountSocket.emit('sendCommitProposalSignature', commitProposalSignature);
+
+
+            })
 
         });
 

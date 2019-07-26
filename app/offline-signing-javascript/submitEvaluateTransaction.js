@@ -234,6 +234,8 @@ async function submitSignedCommitProposal(channel, signedCommitProposal, transac
             request: commitReq,
         });
 
+        return response;
+
     } catch (error) {
         console.error(`Failed to submit signed commit proposal: ${error}`);
         process.exit(1);
