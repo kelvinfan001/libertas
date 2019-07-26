@@ -188,7 +188,3 @@ func queryVoterGroupsByIDExists(id string, voterGroups []VoterGroup) bool {
 
 	return false
 }
-
-// TODO:
-// make getlist helps for all models
-// fix struct list issue

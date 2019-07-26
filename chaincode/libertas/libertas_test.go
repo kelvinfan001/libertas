@@ -87,21 +87,26 @@ func TestLibertas_Campaign(t *testing.T) {
 	// // Put on state
 	// stub.PutState("Campaigns List", campaignsListBytes)
 
-	checkInvoke(t, stub, [][]byte{[]byte("CreateCampaign"), []byte("torontomayoralelection"), []byte("Toronto Mayoral Election"), []byte("Mayoral Election"), []byte("0"), []byte("1000")})
-	// checkInvoke(t, stub, [][]byte{[]byte("CreateCampaign"), []byte("torontomayoralelection"), []byte("Toronto Mayoral Election"), []byte("Mayoral Election"), []byte("0"), []byte("1000")})
-
-	// checkInvoke(t, stub, [][]byte{[]byte("CreateCampaign"), []byte("torontomayoralelection"), []byte("Toronto Mayoral Election"), []byte("Mayoral Election"), []byte("0"), []byte("1000")})
+	checkInvoke(t, stub, [][]byte{[]byte("CreateCampaign"), []byte("torontomayoralelection"), []byte("Toronto Mayoral Election"), []byte("Mayoral Election"), []byte("0"), []byte("788918400000")})
+	checkInvoke(t, stub, [][]byte{[]byte("CreateCampaign"), []byte("torontomayoralelection"), []byte("Toronto Mayoral Election"), []byte("Mayoral Election"), []byte("0"), []byte("4294967296")})
 
 	// Query for campaign with id "torontomayoralelection"
-	got := returnInvoke(t, stub, [][]byte{[]byte("QueryCampaignByID"), []byte("torontomayoralelection")})
-	payload := got.GetPayload()
-	campaign := Campaign{}
-	json.Unmarshal(payload, &campaign)
-	if campaign.ID != "torontomayoralelection" {
-		// t.Errorf("The queried campaign should have id 'torontomayoralelection'")
-		t.Errorf(string(payload))
-	}
-	fmt.Println(campaign)
+	// got := returnInvoke(t, stub, [][]byte{[]byte("QueryCampaignByID"), []byte("torontomayoralelection")})
+	// payload := got.GetPayload()
+	// campaign := Campaign{}
+	// json.Unmarshal(payload, &campaign)
+	// if campaign.ID != "torontomayoralelection" {
+	// 	// t.Errorf("The queried campaign should have id 'torontomayoralelection'")
+	// 	t.Errorf(string(payload))
+	// }
+	// fmt.Println(campaign)
+
+	// endStr := "918400000000000000"
+	// endInt, err := strconv.ParseInt(endStr, 10, 64)
+	// if err != nil {
+	// 	fmt.Println(err.Error())
+	// }
+	// fmt.Println(endInt)
 }
 
 // Test Voters

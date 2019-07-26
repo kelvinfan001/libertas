@@ -87,7 +87,7 @@ func _createVoterChecks(stub shim.ChaincodeStubInterface, args []string) error {
 		return errors.New("Incorrect number of arguments. Expecting 4.")
 	}
 
-	// check for correct account type TODO:
+	// check for correct account type
 	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution")
 	if !accountTypeOK {
 		return errors.New(err.Error())

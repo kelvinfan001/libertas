@@ -178,8 +178,8 @@ async function listBallotByCampaignID(username, campaignID) {
 //----------------------------------------------------HELPERS---------------------------------------------------
 
 async function submitHTTPReq(transactionProposal) {
-    // const ip = '0.0.0.0:3000';
-    const ip = '155.138.134.91';
+    const ip = '0.0.0.0:3000';
+    // const ip = '155.138.134.91';
     let url = 'http://' + ip + '/submit';
     await fetch(url, {
         method: 'POST',
@@ -229,11 +229,11 @@ async function execute_example() {
 
 
     // Campaign: using our institution account, we create a new campaign
-    var start = Date.parse('01 Jan 1970');
-    var end = Date.parse('04 Dec 1995');
+    var start = Date.parse('1970-01-01') / 1000;
+    var end = Date.parse('1995-01-01') / 1000;
     var startStr = start.toString();
     var endStr = end.toString();
-    // await createCampaign('campaignID', 'name', 'Mayoral Election', startStr, endStr, 'username');
+    await createCampaign('campaignID', 'name', 'Mayoral Election', startStr, endStr, 'username');
     // queryCampaignByID('username', 'campaignID');
 
 
@@ -242,14 +242,12 @@ async function execute_example() {
     // queryVoterGroupsByID('username', 'voterGroupID', 'campaignID')
 
     // Voter: 
-    await createVoter('voterID', 'personalAccountID', 'voterGroupID', 'campaignID1', 'username');
+    // await createVoter('voterID', 'personalAccountID', 'voterGroupID', 'campaignID', 'username');
     // listVotersByVoterGroupID('username', 'voterGroupID', 'campaignID')
 
     // Vote:
-    await createVote('personalAccountID', 'campaignID1', 'usernameP');
+    // await createVote('personalAccountID', 'campaignID', 'usernameP');
     // listBallotByCampaignID('username', 'campaignID');
 }
 
-// execute_example();
-// queryCampaignByID('username', 'campaignID1');
-listVotersByVoterGroupID('username', 'voterGroupID', 'campaignID1')
+execute_example();
