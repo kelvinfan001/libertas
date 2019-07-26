@@ -34,8 +34,9 @@ async function submit(connectionProfilePath, walletPath, transactionProposal) {
         const username = transactionProposal.username
         const userExists = await wallet.exists(username);
         if (!userExists) {
-            console.log('User credentials with id: ' + username + ' do not exist in the wallet');
-            return;
+            const message = 'User credentials with id: ' + username + ' do not exist in the wallet'
+            console.log(message);
+            return message;
         }
 
         // Create a new gateway for connecting to peer node.
@@ -66,8 +67,10 @@ async function submit(connectionProfilePath, walletPath, transactionProposal) {
 
         return 'Success';
     } catch (error) {
-        console.error(`Failed to submit transaction: ${error}`);
-        process.exit(1);
+        const message = `Failed to submit transaction: ${error}` 
+        console.error(message);
+        // process.exit(1);
+        return message
     }
 }
 
@@ -81,8 +84,9 @@ async function evaluate(connectionProfilePath, walletPath, transactionProposal) 
         const username = transactionProposal.username
         const userExists = await wallet.exists(username);
         if (!userExists) {
-            console.log('User credentials with id: ' + username + ' do not exist in the wallet');
-            return;
+            const message = 'User credentials with id: ' + username + ' do not exist in the wallet'
+            console.log(message);
+            return message;
         }
 
         // Create a new gateway for connecting to peer node.
@@ -115,8 +119,10 @@ async function evaluate(connectionProfilePath, walletPath, transactionProposal) 
         return queryResult.toString();
 
     } catch (error) {
-        console.error(`Failed to submit transaction: ${error}`);
-        process.exit(1);
+        const message = `Failed to evaluate transaction: ${error}` 
+        console.error(message);
+        // process.exit(1);
+        return message
     }
 }
 
