@@ -86,6 +86,18 @@ async function queryCampaignByID(username, idToQuery) {
     await evaluateHTTPReq(transactionProposal);
 }
 
+async function queryCampaignByInstitutionUsername(username, instituionUsername) {
+    const transactionProposal = {
+        fcn: 'QueryCampaignByInstitutionUsername',
+        args: [instituionUsername],
+        chaincodeId: "libertas", // 
+        channelId: "test", //
+        username: username
+    }
+
+    await evaluateHTTPReq(transactionProposal);
+}
+
 //----------------------------------------------------Voter Group Functions-------------------------------------
 /**
  * 
@@ -111,10 +123,10 @@ async function createVoterGroup(id, campaignID, name, username) {
  * @param {string} username username for the user calling this function
  * @param {string} idToQuery username with respect to the query
  */
-async function queryVoterGroupsByID(username, voterGroupID, campaignID) {
+async function queryVoterGroupsByID(username, voterGroupID) {
     const transactionProposal = {
         fcn: 'QueryVoterGroupsByID',
-        args: [voterGroupID, campaignID],
+        args: [voterGroupID],
         chaincodeId: "libertas", // 
         channelId: "test", //
         username: username
@@ -125,10 +137,10 @@ async function queryVoterGroupsByID(username, voterGroupID, campaignID) {
 
 //------------------------------------------------VOTER FUNCTIONS-----------------------------------------------
 
-async function createVoter(id, personalAccountID, voterGroupID, campaignID, username) {
+async function createVoter(id, personalAccountID, voterGroupID, username) {
     const transactionProposal = {
         fcn: 'CreateVoter',
-        args: [id, personalAccountID, voterGroupID, campaignID],
+        args: [id, personalAccountID, voterGroupID],
         chaincodeId: "libertas", // 
         channelId: "test", //
         username: username
@@ -137,10 +149,10 @@ async function createVoter(id, personalAccountID, voterGroupID, campaignID, user
     await submitHTTPReq(transactionProposal)
 }
 
-async function listVotersByVoterGroupID(username, voterGroupID, campaignID) {
+async function listVotersByVoterGroupID(username, voterGroupID) {
     const transactionProposal = {
         fcn: 'ListVotersByVoterGroupID',
-        args: [voterGroupID, campaignID],
+        args: [voterGroupID],
         chaincodeId: "libertas", // 
         channelId: "test", //
         username: username
@@ -198,8 +210,8 @@ async function submitHTTPReq(transactionProposal) {
 }
 
 async function evaluateHTTPReq(transactionProposal) {
-    // const ip = '0.0.0.0:3000';
-    const ip = '155.138.134.91';
+    const ip = '0.0.0.0:3000';
+    // const ip = '155.138.134.91';
     let url = 'http://' + ip + '/evaluate';
     await fetch(url, {
         method: 'POST',
@@ -233,7 +245,7 @@ async function execute_example() {
     var end = Date.parse('1995-01-01') / 1000;
     var startStr = start.toString();
     var endStr = end.toString();
-    await createCampaign('campaignID', 'name', 'Mayoral Election', startStr, endStr, 'username');
+    // await createCampaign('campaignID', 'name', 'Mayoral Election', startStr, endStr, 'username');
     // queryCampaignByID('username', 'campaignID');
 
 
@@ -242,7 +254,7 @@ async function execute_example() {
     // queryVoterGroupsByID('username', 'voterGroupID', 'campaignID')
 
     // Voter: 
-    // await createVoter('voterID', 'personalAccountID', 'voterGroupID', 'campaignID', 'username');
+    await createVoter('voterID', 'personalAccountID', 'voterGroupID', 'username');
     // listVotersByVoterGroupID('username', 'voterGroupID', 'campaignID')
 
     // Vote:
@@ -250,4 +262,4 @@ async function execute_example() {
     // listBallotByCampaignID('username', 'campaignID');
 }
 
-execute_example();
+// execute_example();

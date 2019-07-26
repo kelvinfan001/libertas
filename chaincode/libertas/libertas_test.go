@@ -87,8 +87,8 @@ func TestLibertas_Campaign(t *testing.T) {
 	// // Put on state
 	// stub.PutState("Campaigns List", campaignsListBytes)
 
-	checkInvoke(t, stub, [][]byte{[]byte("CreateCampaign"), []byte("torontomayoralelection"), []byte("Toronto Mayoral Election"), []byte("Mayoral Election"), []byte("0"), []byte("788918400000")})
-	checkInvoke(t, stub, [][]byte{[]byte("CreateCampaign"), []byte("torontomayoralelection"), []byte("Toronto Mayoral Election"), []byte("Mayoral Election"), []byte("0"), []byte("4294967296")})
+	checkInvoke(t, stub, [][]byte{[]byte("CreateCampaign"), []byte("torontomayoralelection"), []byte("Toronto Mayoral Election"), []byte("Mayoral Election"), []byte("0"), []byte("788918")})
+	// checkInvoke(t, stub, [][]byte{[]byte("CreateCampaign"), []byte("torontomayoralelection"), []byte("Toronto Mayoral Election"), []byte("Mayoral Election"), []byte("0"), []byte("4294967296")})
 
 	// Query for campaign with id "torontomayoralelection"
 	// got := returnInvoke(t, stub, [][]byte{[]byte("QueryCampaignByID"), []byte("torontomayoralelection")})
@@ -107,6 +107,7 @@ func TestLibertas_Campaign(t *testing.T) {
 	// 	fmt.Println(err.Error())
 	// }
 	// fmt.Println(endInt)
+
 }
 
 // Test Voters

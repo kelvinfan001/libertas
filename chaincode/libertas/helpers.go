@@ -25,6 +25,17 @@ func _getCampaignsList(stub shim.ChaincodeStubInterface) (CampaignsList, error) 
 	return campaignsList, nil
 }
 
+func _getVoterGroupsList(stub shim.ChaincodeStubInterface) (VoterGroupsList, error) {
+	voterGroupsListBytes, err := stub.GetState("Voter Groups List")
+	if err != nil {
+		return VoterGroupsList{}, err
+	}
+	voterGroupsList := VoterGroupsList{}
+	json.Unmarshal(voterGroupsListBytes, &voterGroupsList)
+
+	return voterGroupsList, nil
+}
+
 //----------------------------------------------Identity---------------------------------------------------
 // CheckCertAttribute checks whether parameter matches with the caller's certificates attributes.
 // Returns true if attribute matches.

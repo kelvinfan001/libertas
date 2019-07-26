@@ -36,17 +36,7 @@ type Campaign struct {
 	CampaignVoterGroups []VoterGroup
 }
 
-// type Campaign struct {
-// 	OwnerID             string
-// 	ID                  string
-// 	Name                string
-// 	CampaignType        string
-// 	CampaignBallot      []Vote
-// 	CreatedAt           time.Time
-// 	UpdatedAt           time.Time
-// 	CampaignVoterGroups []VoterGroup
-// }
-
+//----------------------------------------------Create--------------------------------------------------
 // CreateCampaign creates a new campaign.
 // Takes in parameters id, name, campaignType, start, and end.
 // start and end are number of seconds after Unix epoch.
@@ -101,7 +91,7 @@ func _getNewCampaign(stub shim.ChaincodeStubInterface, args []string) (Campaign,
 	var campaignVoterGroups []VoterGroup
 
 	// Get owner's ID
-	ownerID, err := GetCertAttribute(stub, "id")
+	ownerID, err := GetCertAttribute(stub, "id") // TODO:
 	if err != nil {
 		return Campaign{}, err
 	}
@@ -149,7 +139,7 @@ func _createCampaignChecks(stub shim.ChaincodeStubInterface, args []string) erro
 	}
 
 	// check for correct account type
-	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution")
+	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution") // TODO:
 	if !accountTypeOK {
 		return err
 	}
@@ -180,7 +170,7 @@ func _getCampaignExists(id string, campaigns []Campaign) bool {
 	return false
 }
 
-//-----------------------------------Query Functions----------------------------------------------
+//------------------------------------------Query----------------------------------------------
 func (t *Libertas) QueryCampaignByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	var id string
 	id = args[0]
@@ -189,7 +179,7 @@ func (t *Libertas) QueryCampaignByID(stub shim.ChaincodeStubInterface, args []st
 		return shim.Error("Incorrect number of arguments. Expecting 1.")
 	}
 
-	// Get list of accounts from the world state.
+	// Get list of campaigns from the world state.
 	campaignsListBytes, err := stub.GetState("Campaigns List")
 	if err != nil {
 		return shim.Error(err.Error())
@@ -204,8 +194,8 @@ func (t *Libertas) QueryCampaignByID(stub shim.ChaincodeStubInterface, args []st
 
 	// fmt.Println(campaign)
 
-	accountBytes, _ := json.Marshal(campaign)
-	return shim.Success(accountBytes)
+	campaignBytes, _ := json.Marshal(campaign)
+	return shim.Success(campaignBytes)
 }
 
 func queryCampaignByID(campaignID string, campaigns []Campaign) (Campaign, error) {
@@ -216,4 +206,33 @@ func queryCampaignByID(campaignID string, campaigns []Campaign) (Campaign, error
 	}
 
 	return Campaign{}, errors.New("The campaign with ID: " + campaignID + " does not exist")
+}
+
+func (t *Libertas) QueryCampaignByInstitutionUsername(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1.")
+	}
+
+	// Get list of campaigns from the world state.
+	campaignsList, err := _getCampaignsList(stub)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	username := args[0]
+	result := make([]Campaign, 0)
+	for _, campaign := range campaignsList.Campaigns {
+		if campaign.OwnerID == username {
+			result = append(result, campaign)
+		}
+	}
+
+	campaignsBytes, _ := json.Marshal(result)
+	return shim.Success(campaignsBytes)
+}
+
+//----------------------------------------------Edit--------------------------------------------------
+
+func (t *Libertas) EditCampaign(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	return shim.Success(nil)
 }
