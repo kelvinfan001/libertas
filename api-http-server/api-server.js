@@ -40,7 +40,7 @@ async function main() {
 
     //-----------------------------------------TEST SOCKET.IO--------------------------------------------------
 
-    var createAccountSocket = io.of('/createAccount').on('connection', function (socket) {
+    var createAccountSocket = io.of('/submitTransaction').on('connection', function (socket) {
         socket.emit('connectionEstablished', 'Connection established');
         socket.on('sendTransactionProposal', async function (data) {
             // Retrieve values from transaction request and fill in TransactionProposal object
