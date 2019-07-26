@@ -202,11 +202,11 @@ async function submitSignedTransactionProposal(channel, contractName, signedTran
 }
 
 async function getCommitProposalDigest(channel, transactionProposalDigest, transactionProposalResponses) {
-    
+
     try {
         const commitReq = {
-            transactionProposalResponses,
-            transactionProposalDigest,
+            proposalResponses: transactionProposalResponses,
+            proposal: transactionProposalDigest,
         };
 
         // Generate unsigned commit proposal
@@ -233,6 +233,8 @@ async function submitSignedCommitProposal(channel, signedCommitProposal, transac
             signedProposal: signedCommitProposal,
             request: commitReq,
         });
+
+        console.log(response);
 
         return response;
 

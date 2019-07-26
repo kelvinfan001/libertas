@@ -76,7 +76,7 @@ async function main() {
                 if (typeof transactionProposalResponses === "string") {
                     socket.emit('submitTransactionError', transactionProposalResponses);
                 }
-
+                
                 let commitProposalDigest = await submitEvaluateModule.getCommitProposalDigest(channel, transactionProposalDigest, transactionProposalResponses);
                 let commitProposalDigestBuffer = commitProposalDigest.toBuffer();
 
@@ -95,8 +95,6 @@ async function main() {
                     // Submit signed commit proposal
                     let commitProposalResponses = await submitEvaluateModule.submitSignedCommitProposal(channel, signedCommitProposal, transactionProposalResponses, transactionProposalDigest);
                 })
-
-                // console.log(transactionProposalResponses)
             })
         });
         
