@@ -1,3 +1,11 @@
+/*
+ * Copyright 2019 Sipher Inc.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * API server for making calls to chaincode on behalf of client app.
+ */
+
 // Import required modules
 const path = require('path');
 const express = require('express');
