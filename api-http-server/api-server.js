@@ -1,14 +1,9 @@
+// Import required modules
 const path = require('path');
 const express = require('express');
 const router = express();
 var server = require('http').Server(router);
 var io = require('socket.io')(server);
-
-// modules
-// const accountsModule = require('../app/javascript/accounts')
-// const campaignModule = require('../app/javascript/campaign')
-// const voterGroupModule = require('../app/javascript/votergroup')
-//// const invokeModule = require('../app/javascript/invoke');
 const submitEvaluateModule = require('../app/offline-signing-javascript/submitEvaluateTransaction');
 const registrationEnrollmentModule = require('../app/javascript/registrationEnrollment');
 const offlineSigningGatewayModule = require('../app/offline-signing-javascript/offlineSigningGateway');
@@ -24,8 +19,7 @@ const networkDirPath = path.resolve(__dirname, '..', 'libertas-dev-network');
 // JSON parser 
 router.use(express.urlencoded({
     extended: false
-}))
-    .use(express.json());
+})).use(express.json());
 
 async function main() {
     // Retrieve admin information from wallet
@@ -38,9 +32,9 @@ async function main() {
 
     server.listen(80, () => console.log("Listening on port 80"));
 
-    //-----------------------------------------TEST SOCKET.IO--------------------------------------------------
+    //---------------------------------------SUBMIT TRANSACTION SOCKET-----------------------------------------------
 
-    var createAccountSocket = io.of('/submitTransaction').on('connection', function (socket) {
+    var submitTransactionSocket = io.of('/submitTransaction').on('connection', function (socket) {
         socket.emit('connectionEstablished', 'Connection established');
         socket.on('sendTransactionProposal', async function (data) {
             // Retrieve values from transaction request and fill in TransactionProposal object
