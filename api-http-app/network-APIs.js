@@ -69,7 +69,7 @@ async function createAccountSocket(id, name, email, accountType, enrollmentSecre
 
             // Send the signature back
             createAccountSocket.emit('sendTransactionProposalSignature', signature);
-            createAccountSocket.on('error', function (error) {
+            createAccountSocket.on('submitTransactionError', function (error) {
                 console.log(error);
             })
 

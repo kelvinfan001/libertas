@@ -197,7 +197,7 @@ async function submitSignedTransactionProposal(channel, contractName, signedTran
     } catch (error) {
         console.error(`Failed to submit signed transaction proposal: ${error}`);
         // process.exit(1); // TODO: maybe dont exit
-        throw error;
+        return `Failed to submit signed transaction proposal: ${error}`
     }
 }
 

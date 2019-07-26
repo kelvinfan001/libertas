@@ -73,11 +73,14 @@ async function main() {
                 }
 
                 // Submit signed transaction proposal
-                try {
-                    let transactionProposalResponses = await submitEvaluateModule.submitSignedTransactionProposal(channel, chaincodeID, signedTransactionProposal);
-                } catch (error) {
-                    socket.emit('error', error);
+                
+                let transactionProposalResponses = await submitEvaluateModule.submitSignedTransactionProposal(channel, chaincodeID, signedTransactionProposal);
+            
+                // Check if transaction propsal response is error
+                if (typeof transactionProposalResponses === "string") {
+                    socket.emit('submitTransactionError', transactionProposalResponses);
                 }
+                
 
                 // console.log(transactionProposalResponses)
             })
