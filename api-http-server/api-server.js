@@ -22,9 +22,9 @@ router.use(express.urlencoded({
 })).use(express.json());
 
 async function main() {
-    // Retrieve admin information from wallet
+    // Retrieve admin information from wallet. user identity is required for connecting to channel.
+    // This should not be required since we are doing offline signing; this is a design issue by fabric node SDK.
     const wallet = new FileSystemWallet(walletPath);
-
     let adminIdentity = await wallet.export('admin');
     const adminKey = adminIdentity.privateKey;
     const adminCertificate = adminIdentity.certificate;

@@ -113,9 +113,9 @@ const path = require('path');
 
 /**
  * Returns a Proposal type unsigned proposal.
- * @param {Channel} channel                     initialized Channel object
- * @param {string} userCertPEM                  certificate of user proposing transaction
- * @param {string} userMSPID                    ID of the MSD that user is registered with
+ * @param {Channel}         channel              initialized Channel object
+ * @param {string}          userCertPEM          certificate of user proposing transaction
+ * @param {string}          userMSPID            ID of the MSD that user is registered with
  * @param {ProposalRequest} transactionProposal
  */
 async function getTransactionProposalDigest(channel, userCertPEM, userMSPID, transactionProposal) {

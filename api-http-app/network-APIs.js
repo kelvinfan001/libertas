@@ -14,35 +14,43 @@ const fetch = require('node-fetch');
 const { FileSystemWallet } = require('fabric-network');
 const io = require('socket.io-client');
 
-// Set environment variables
+// Set environment variables, all following variables modifiable
 const connectionProfilePath = path.resolve(__dirname, 'connection-sipher.json');
-const walletPath = path.join(__dirname, 'wallet'); // TODO: this could be modified.
+const walletPath = path.join(__dirname, 'wallet');
 const caDomain = "ca.libertas.sipher.co";
 const apiServerURL = '127.0.0.1';
 
-module.exports = { createAccount, createAccountSocket }
+module.exports = { createAccount, createAccounteDeprecated }
 
 //---------------------------------------CREATE ACCOUNT Functions------------------------------------------------
 
-async function createAccountSocket(id, name, email, accountType, enrollmentSecret, mspID) {
-    // // Register user (directly communicating with CA)
-    // registrationEnrollmentModule.enrollUser(connectionProfilePath, walletPath, caDomain, id, enrollmentSecret, mspID);
+async function createAccount(id, name, email, accountType, enrollmentSecret, mspID) {
 
-    // Create account on chaincode
-    const transactionProposal = {
-        fcn: 'CreateAccount',
-        args: [id, name, email, accountType],
+    try {
+        // Register user (directly communicating with CA)
+        await registrationEnrollmentModule.enrollUser(connectionProfilePath, walletPath, caDomain, id, enrollmentSecret, mspID);
+
+        // Prepare transaction proposal for creating account on chaincode
+        const transactionProposal = {
+            fcn: 'CreateAccount',
+            args: [id, name, email, accountType],
+        }
+        // Submit transaction
+        await submitTransaction(transactionProposal, id, mspID);
+
+    } catch (error) {
+        console.error(error);
     }
-    await submitTransaction(transactionProposal, id, mspID);
+    
 }
 
 //---------------------------------------SUBMIT TRANSACTION FUNCTIONS------------------------------------------------
 
 /**
  * 
- * @param {Proposal} transactionProposal JSON object in Proposal format containing transaction details
- * @param {string}   id                  ID of user making transaction
- * @param {string}   mspID               MSP ID of user making transaction
+ * @param {Proposal Request} transactionProposal JSON object in Proposal format containing transaction details
+ * @param {string}           id                  ID of user making transaction
+ * @param {string}           mspID               MSP ID of user making transaction
  */
 async function submitTransaction(transactionProposal, id, mspID) {
     // Get wallet instance and retrieve user cert and key
@@ -121,7 +129,7 @@ async function submitTransaction(transactionProposal, id, mspID) {
  * @param {string} enrollmentSecret
  * @param {string} mspID // TODO tis tricky. lots of hard coding going on rn   ALWAYS USE 'SipherMSP' for now.
  */
-async function createAccount(id, name, email, accountType, enrollmentSecret, mspID) {
+async function createAccounteDeprecated(id, name, email, accountType, enrollmentSecret, mspID) {
     
     // // Register user (directly communicating with CA)
     // registrationEnrollmentModule.enrollUser(connectionProfilePath, walletPath, caDomain, id, enrollmentSecret, mspID);
