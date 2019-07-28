@@ -7,12 +7,25 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 
 	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
+func _getCampaignsList(stub shim.ChaincodeStubInterface) (CampaignsList, error) {
+	campaignsListBytes, err := stub.GetState("Campaigns List")
+	if err != nil {
+		return CampaignsList{}, err
+	}
+	campaignsList := CampaignsList{}
+	json.Unmarshal(campaignsListBytes, &campaignsList)
+
+	return campaignsList, nil
+}
+
+//----------------------------------------------Identity---------------------------------------------------
 // CheckCertAttribute checks whether parameter matches with the caller's certificates attributes.
 // Returns true if attribute matches.
 func CheckCertAttribute(stub shim.ChaincodeStubInterface, attribute string, parameter string) (bool, error) {

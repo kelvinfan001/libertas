@@ -18,121 +18,159 @@ import (
 )
 
 type Voter struct {
+	ID                string
 	PersonalAccountID string
 	VoterGroupID      string
+	CampaignID        string
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
 }
 
+type VotersList struct {
+	Voters []Voter
+}
+
 //----------------------------------------------------------------------------------------------------------------
 // List lists all the voters that belong to voterGroupID on currentPage
-func (t *Libertas) ListVoters(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	// voterGroupID := args[0]
-	// currentPage := args[1]
-
+func (t *Libertas) ListVotersByVoterGroupID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	// check args
 	if len(args) != 2 {
 		return shim.Error("Incorrect number of arguments. Expecting 2.")
 	}
+	voterGroupID := args[0]
+	campaignID := args[1]
 
-	return shim.Success(nil)
+	// get campaign list, then campaign, then voter group, then voter list
+	campaignsList, err := _getCampaignsList(stub)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	campaign, err := queryCampaignByID(campaignID, campaignsList.Campaigns)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	voterGroup, err := queryVoterGroupsByID(voterGroupID, campaign.CampaignVoterGroups)
+	if err != nil {
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+	}
+	votersBytes, _ := json.Marshal(voterGroup.Voters)
+
+	return shim.Success(votersBytes)
 }
 
 //----------------------------------------------------------------------------------------------------------------
 // Create
 func (t *Libertas) CreateVoter(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-
-	err := _isVoterArgsValid(stub, args)
+	// checks
+	err := _createVoterChecks(stub, args)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
-	newVoter := _getNewVoter(stub, args)
-	// personalAccountID := args[0]
-	voterGroupID := args[1]
-
-	// Get list of accounts from the ledger
-	// may need to error check this
-	// votersList := _getVoterSlice(voterGroupsList, voterGroupID)
-	// check if voter has already been added
-	// if _isVoterExists(personalAccountID, votersList) {
-	// 	return shim.Error("Voter with given ID already exists")
-	// }
-
 	// update ledger
-	err = _updateLedgerVoterList(stub, newVoter, voterGroupID)
+	newVoter := _getNewVoter(stub, args)
+	err = _updateLedgerVoterList(stub, newVoter, args)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
 	fmt.Println("New voter added.")
-
 	return shim.Success(nil)
+	// return shim.Error(voterGroupsList.VoterGroups[0].Voters[0].ID)
 }
 
-func _updateLedgerVoterList(stub shim.ChaincodeStubInterface, newVoter Voter, voterGroupID string) error {
-	voterGroupsListBytes, err := stub.GetState("Voter Groups List")
-	voterGroupsList := VoterGroupsList{}
-	json.Unmarshal(voterGroupsListBytes, &voterGroupsList)
+func _createVoterChecks(stub shim.ChaincodeStubInterface, args []string) error {
+	// check num args
+	if len(args) != 4 {
+		return errors.New("Incorrect number of arguments. Expecting 4.")
+	}
 
-	for _, voterGroup := range voterGroupsList.VoterGroups {
-		if voterGroup.ID == voterGroupID {
-			// add voter
-			voterGroup.Voters = append(voterGroup.Voters, newVoter)
-			voterGroupsListBytes, _ := json.Marshal(voterGroupsList)
-			err = stub.PutState("Voters Groups List", voterGroupsListBytes)
-			if err != nil {
-				return err
-			}
+	// check for correct account type TODO:
+	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution")
+	if !accountTypeOK {
+		return errors.New(err.Error())
+	}
+	// check if voter already exists in voter group
+	voterGroupID := args[2]
+	campaignID := args[3]
+	campaignsList, err := _getCampaignsList(stub)
+	if err != nil {
+		return err
+	}
+	campaign, err := queryCampaignByID(campaignID, campaignsList.Campaigns)
+	if err != nil {
+		return err
+	}
+	voterGroup, err := queryVoterGroupsByID(voterGroupID, campaign.CampaignVoterGroups)
+	if err != nil {
+		return err
+	}
+
+	voterID := args[0]
+	for _, voter := range voterGroup.Voters {
+		if voter.ID == voterID {
+			return errors.New("Voter with ID: " + voterID + " already exists")
 		}
 	}
 
-	return err
+	return nil
 }
 
-func _getNewVoter(stub shim.ChaincodeStubInterface, args []string) Voter {
-	institutionalAccountID := args[0]
-	personalAccountID := args[1]
-	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
-	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
-	newVoter := Voter{personalAccountID, institutionalAccountID, transactionTime, transactionTime} // second arg????
-
-	return newVoter
-}
-
-func _isVoterArgsValid(stub shim.ChaincodeStubInterface, args []string) error {
-	var err error
-
-	if len(args) != 2 {
-		return errors.New("Incorrect number of arguments. Expecting 2.")
-		// return shim.Error("Incorrect number of arguments. Expecting 2.")
-	}
-
-	personalAccountID := args[0]
-	voterGroupID := args[1]
-
-	// check if arg matches type
-	personalAccountIDOK, err := CheckCertAttribute(stub, "personalAccountID", personalAccountID)
-	if !personalAccountIDOK {
-		// return shim.Error(err.Error())
+func _updateLedgerVoterList(stub shim.ChaincodeStubInterface, newVoter Voter, args []string) error {
+	// get the voter group
+	voterGroupID := args[2]
+	campaignID := args[3]
+	campaignsList, err := _getCampaignsList(stub)
+	if err != nil {
 		return err
 	}
-	voterGroupIDOK, err := CheckCertAttribute(stub, "voterGroupID", voterGroupID)
-	if !voterGroupIDOK {
-		// return shim.Error(err.Error())
+	campaign, err := _queryCampaignPtrByID(campaignID, &campaignsList)
+	if err != nil {
+		return err
+	}
+	voterGroupPtr, err := _getVoterGroupsPointerByID(voterGroupID, campaign.CampaignVoterGroups)
+	if err != nil {
+		return err
+	}
+
+	// update the voter group
+	voterGroupPtr.Voters = append(voterGroupPtr.Voters, newVoter)
+	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
+	// Convert protobuf timestamp to Time data structure
+	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
+	voterGroupPtr.UpdatedAt = transactionTime
+	campaignsListBytes, _ := json.Marshal(campaignsList)
+	err = stub.PutState("Campaigns List", campaignsListBytes)
+	if err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func _isVoterExists(personalAccountID string, votersList []Voter) bool {
-	for _, voter := range votersList {
-		if voter.PersonalAccountID == personalAccountID {
-			return true
+func _getVoterGroupsPointerByID(id string, voterGroups []VoterGroup) (*VoterGroup, error) {
+	for k := range voterGroups {
+		voterGroupPtr := &voterGroups[k]
+		if voterGroupPtr.ID == id {
+			return voterGroupPtr, nil
 		}
 	}
 
-	return false
+	return &VoterGroup{}, errors.New("Voter Group with id: " + id + " does not exist.")
+}
+
+func _getNewVoter(stub shim.ChaincodeStubInterface, args []string) Voter {
+	id := args[0]
+	personalAccountID := args[1]
+	voterGroupID := args[2]
+	campaignID := args[3]
+	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
+	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
+	newVoter := Voter{id, personalAccountID, voterGroupID, campaignID, transactionTime, transactionTime}
+
+	return newVoter
 }
 
 //----------------------------------------------------------------------------------------------------------------
