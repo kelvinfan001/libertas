@@ -6,7 +6,7 @@
 
 'use strict';
 
-const registrationEnrollmentModule = require('./registrationEnrollment');
+const registrationEnrollmentModule = require('../registrationEnrollment');
 const path = require('path');
 
 const walletPath = path.join(process.cwd(), 'wallet')

@@ -8,13 +8,11 @@
 
 'use strict';
 
-module.exports = { registerUser, enrollUser, enrollAdmin, addAffiliation }
+module.exports = { enrollUser }
 
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const fs = require('fs');
-
-
 
 /**
  * Enrolls a registered user and stores its public key, private key, and X.509 certificate in a local wallet.

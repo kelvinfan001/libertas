@@ -22,7 +22,7 @@ const { FileSystemWallet } = require('fabric-network')
 const chaincodeID = 'libertas';
 const channelID = 'test';
 const connectionProfilePath = path.resolve(__dirname, '..', 'libertas-dev-network', 'connection-sipher.json');
-const walletPath = path.join(__dirname, '..', 'app', 'offline-signing-javascript', 'wallet');
+const walletPath = path.join(__dirname, 'tests', 'wallet');
 
 // JSON parser 
 router.use(express.urlencoded({

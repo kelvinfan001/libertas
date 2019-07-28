@@ -10,7 +10,7 @@
 
 module.exports = { getTransactionProposalDigest, submitSignedTransactionProposal, getCommitProposalDigest, submitSignedCommitProposal };
 
-const offlineSigningGatewayModule = require('../../api-http-server/offlineSigningGateway');
+const offlineSigningGatewayModule = require('./offlineSigningGateway');
 
 /**
  * Returns a Proposal type unsigned proposal for transaction.
