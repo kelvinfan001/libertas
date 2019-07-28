@@ -8,8 +8,6 @@
 
 module.exports = { getEndorsementPlanPeers, getChannel };
 
-const fs = require('fs');
-
 const Client = require('fabric-client');
 
  /**
@@ -44,15 +42,10 @@ async function getEndorsementPlanPeers(channel, contractName) {
  * @param {*} mspID 
  */
 async function getChannel(connectionProfilePath, channelName, adminCertificate, adminKey, mspID) {
-    // Get connection profile
-    const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
-    const ccp = JSON.parse(ccpJSON);
-
     // Get channel (admin credentials required)
     const client = await Client.loadFromConfig(connectionProfilePath);
     client.setAdminSigningIdentity(adminKey, adminCertificate, mspID);
     client.setTlsClientCertAndKey(adminCertificate, adminKey);
-
     const channel = client.getChannel(channelName);
 
     // Initialize channel with discovery enabled
