@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * 
  * This module contains frontend JavaScript calls for enrolling user.
+ * 
  */
 
 'use strict';
