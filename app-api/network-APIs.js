@@ -4,6 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  * API for app to interact with the Hyperledger Network.
+ * 
+ * !!CA TLS Certificate path MUST BE SET CORRECTLY IN CONNECTION PROFILE!!
+ * 
  */
 
 // Import required modules
