@@ -11,7 +11,7 @@
 
 module.exports = { enrollUser }
 
-const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
+const { FileSystemWallet, X509WalletMixin } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const fs = require('fs');
 
@@ -21,25 +21,22 @@ const fs = require('fs');
  * This process uses a Certificate Signing Request where the private and public keys are first generated locally
  * and the public key is then sent to the CA which returns an encoded certificate for use by the application.
  * 
- * @param {string} connectionProfilePath Path to connection profile.
+ * @param {string} caURL
+ * @param {string} caTLSCACertsPath
+ * @param {string} caName
  * @param {string} walletPath            Path to wallet.
  * @param {string} caDomain              Domain name of certificate authority.
  * @param {string} enrollmentID 
  * @param {string} enrollmentSecret 
  * @param {string} mspID 
  */
-async function enrollUser(connectionProfilePath, walletPath, caDomain, enrollmentID,
+async function enrollUser(caURL, caTLSCACertsPath, caName, walletPath, enrollmentID,
     enrollmentSecret, mspID) {
-
-    const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
-    const ccp = JSON.parse(ccpJSON);
 
     try {
         // Create a new CA client for interacting with the CA.
-        const caInfo = ccp.certificateAuthorities[caDomain];
-        const caTLSCACertsPath = caInfo.tlsCACerts.path;
-        const caTLSCACerts = fs.readFileSync(caTLSCACertsPath);
-        const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.Name);
+        const caTLSCACerts = fs.readFileSync(caTLSCACertsPath, 'utf8');
+        const ca = new FabricCAServices(caURL, { trustedRoots: caTLSCACerts, verify: false }, caName);
 
         // Enroll user with enrollmentID and enrollmentSecret.
         const enrollment = await ca.enroll({ enrollmentID: enrollmentID, enrollmentSecret: enrollmentSecret });

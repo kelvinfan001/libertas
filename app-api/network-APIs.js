@@ -19,10 +19,11 @@ const io = require('socket.io-client');
 
 // Set environment variables, all following variables modifiable
 // TODO: Create a profile for doing this more modularly.
-const connectionProfilePath = path.resolve(__dirname, 'connection-sipher.json');
 const walletPath = path.join(__dirname, 'wallet');
-const caDomain = "ca.libertas.sipher.co";
-const apiServerURL = '127.0.0.1';
+const caURL = "https://155.138.134.91:7054/";
+const caTLSCACertsPath = "../tlsca.libertas.sipher.co-cert.pem";
+const caName = "ca-sipher";
+const apiServerURL = '155.138.134.91';
 
 module.exports = { createAccount }
 
@@ -35,7 +36,7 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
         let userExists = await wallet.exists(id);
         if (!userExists) {
             // Enroll user (directly communicating with CA)
-            await registrationEnrollmentModule.enrollUser(connectionProfilePath, walletPath, caDomain, id, enrollmentSecret, mspID);
+            await registrationEnrollmentModule.enrollUser(caURL, caTLSCACertsPath, caName, walletPath, id, enrollmentSecret, mspID);
         } else {
             console.log('Warning: User with id ' + id + ' already exists in wallet and enrolled with CA.');
         }
@@ -121,7 +122,7 @@ async function submitTransaction(transactionProposal, id, mspID) {
                     submitTransactionSocket.disconnect();
                 })
                 submitTransactionSocket.disconnect();
-                console.log('Transaction successfully submitted and completed.')
+                console.log('Transaction successfully submitted and committed.')
             })
         });
     });
