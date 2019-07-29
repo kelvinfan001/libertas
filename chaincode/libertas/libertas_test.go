@@ -166,6 +166,10 @@ func TestLibertas_Vote(t *testing.T) {
 	checkInit(t, stub, [][]byte{[]byte("init"), []byte("123"), []byte("Derp Project")})
 	stub.MockTransactionStart("derp")
 
+	// make valid voter in valid voter group
+	// checkInvoke(t, stub, [][]byte{[]byte("CreateVoterGroup"), []byte("voterGroupID"), []byte("campaignID"), []byte("Voter Group")})
+	// checkInvoke(t, stub, [][]byte{[]byte("CreateVoter"), []byte("voterID"), []byte("kelvinfan"), []byte("voterGroupID")})
+
 	// Create some accounts
 	accountsList := AccountsList{}
 	newAccount1 := Account{"kelvinfan", "Kelvin Fan", "kelvin@sipher.co", "Personal", time.Now(), time.Now()}
@@ -180,8 +184,8 @@ func TestLibertas_Vote(t *testing.T) {
 	checkInvoke(t, stub, [][]byte{[]byte("CreateCampaign"), []byte("torontomayoralelection"), []byte("Toronto Mayoral Election"), []byte("Mayoral Election"), []byte("0"), []byte("1000")})
 
 	// create vote
-	checkInvoke(t, stub, [][]byte{[]byte("CreateVote"), []byte("voteID"), []byte("torontomayoralelection")})
+	checkInvoke(t, stub, [][]byte{[]byte("CreateVote"), []byte("voterID"), []byte("torontomayoralelection"), []byte("voterGroupID")})
 
 	// check query vote works
-	returnInvoke(t, stub, [][]byte{[]byte("ListBallotByCampaignID"), []byte("torontomayoralelection")})
+	// returnInvoke(t, stub, [][]byte{[]byte("ListBallotByCampaignID"), []byte("torontomayoralelection")})
 }
