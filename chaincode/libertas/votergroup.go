@@ -76,10 +76,10 @@ func _createVoterGroupChecks(stub shim.ChaincodeStubInterface, args []string) er
 	}
 
 	// Require that the account calling this function is an Institution Account.
-	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution")
-	if !accountTypeOK {
-		return err
-	}
+	// accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution")
+	// if !accountTypeOK {
+	// 	return err
+	// }
 
 	// check voter group id is unique in list of voter groups
 	voterGroupID := args[0]
@@ -102,10 +102,10 @@ func _getVoterGroup(stub shim.ChaincodeStubInterface, args []string) (VoterGroup
 	var voters []Voter
 
 	// Get owner's ID
-	ownerID, err := GetCertAttribute(stub, "id")
-	if err != nil {
-		return VoterGroup{}, err
-	}
+	// ownerID, err := GetCertAttribute(stub, "id") // TODO:
+	// if err != nil {
+	// 	return VoterGroup{}, err
+	// }
 
 	id = args[0]
 	campaignID = args[1]
