@@ -170,6 +170,75 @@ func queryVoterGroupsByIDExists(id string, voterGroups []VoterGroup) bool {
 
 //----------------------------------------------Edit--------------------------------------------------
 
-func (t *Libertas) EditVoterGroup(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *Libertas) EditVoterGroupByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 3 {
+		return shim.Error("Incorrect number of arguments. Expecting 3.")
+	}
+
+	voterGroupID := args[0]
+	voterGroupsList, err := _getVoterGroupsList(stub)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	voterGroup, err := _getVoterGroupPointerByID(voterGroupID, voterGroupsList.VoterGroups)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	field := args[1]
+	value := args[2]
+	switch field {
+	case "ID":
+		voterGroup.ID = value
+	case "CampaignID":
+		voterGroup.CampaignID = value
+	case "Name":
+		voterGroup.Name = value
+	}
+
+	voterGroupsListBytes, _ := json.Marshal(voterGroupsList)
+	err = stub.PutState("Voter Groups List", voterGroupsListBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
 	return shim.Success(nil)
+}
+
+//----------------------------------------------Delete--------------------------------------------------
+
+func (t *Libertas) DeleteVoterGroupByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1.")
+	}
+
+	voterGroupID := args[0]
+	voterGroupsList, err := _getVoterGroupsList(stub)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	index, err := _getVoterGroupIndexByID(voterGroupID, voterGroupsList.VoterGroups)
+	voterGroupsList.VoterGroups = removeVoterGroup(voterGroupsList.VoterGroups, index)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	voterGroupsListBytes, _ := json.Marshal(voterGroupsList)
+	err = stub.PutState("Voter Groups List", voterGroupsListBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	return shim.Success(nil)
+}
+
+func _getVoterGroupIndexByID(voterGroupID string, voterGroups []VoterGroup) (int, error) {
+	for index, voterGroup := range voterGroups {
+		if voterGroupID == voterGroup.ID {
+			return index, nil
+		}
+	}
+
+	return -1, errors.New("The voter group with ID: " + voterGroupID + " does not exist")
 }

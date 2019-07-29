@@ -147,6 +147,88 @@ func queryAccountExistsByID(id string, accounts []Account) bool {
 }
 
 //----------------------------------------------Edit--------------------------------------------------
-func (t *Libertas) EditAccount(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *Libertas) EditAccountByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 3 {
+		return shim.Error("Incorrect number of arguments. Expecting 3.")
+	}
+
+	accountID := args[0]
+	accountsList, err := _getAccountsList(stub)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	account, err := _getAccountPointerByID(accountID, accountsList.Accounts)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	field := args[1]
+	value := args[2]
+	switch field {
+	case "ID":
+		account.ID = value
+	case "Name":
+		account.Name = value
+	case "Email":
+		account.Email = value
+	case "AccountType":
+		account.AccountType = value
+	}
+
+	accountsListBytes, _ := json.Marshal(accountsList)
+	err = stub.PutState("Accounts List", accountsListBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
 	return shim.Success(nil)
+}
+
+func _getAccountPointerByID(accountID string, accounts []Account) (*Account, error) {
+	for k, _ := range accounts {
+		account := &accounts[k]
+		if account.ID == accountID {
+			return account, nil
+		}
+	}
+
+	return &Account{}, nil
+}
+
+//----------------------------------------------Delete--------------------------------------------------
+
+func (t *Libertas) DeleteAccountByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1.")
+	}
+
+	accountID := args[0]
+	accountsList, err := _getAccountsList(stub)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	index, err := _getAccountIndexByID(accountID, accountsList.Accounts)
+	accountsList.Accounts = removeAccount(accountsList.Accounts, index)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	accountsListBytes, _ := json.Marshal(accountsList)
+	err = stub.PutState("Accounts List", accountsListBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	return shim.Success(nil)
+}
+
+func _getAccountIndexByID(accountID string, accounts []Account) (int, error) {
+	for index, account := range accounts {
+		if accountID == account.ID {
+			return index, nil
+		}
+	}
+
+	return -1, errors.New("The account with ID: " + accountID + " does not exist")
 }

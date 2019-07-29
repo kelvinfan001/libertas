@@ -227,6 +227,11 @@ func _getNewVote(stub shim.ChaincodeStubInterface, args []string) Vote {
 
 //----------------------------------------------Edit--------------------------------------------------
 
-func (t *Libertas) EditVote(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	return shim.Success(nil)
-}
+// func (t *Libertas) EditVote(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+// 	return shim.Success(nil)
+// }
+
+//----------------------------------------------Delete--------------------------------------------------
+
+// func (t *Libertas) DeleteCampaignByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+// }
