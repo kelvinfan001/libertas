@@ -38,7 +38,6 @@ can enroll directly using ID: admin and Secret: adminpw after the network is set
 
 ## Priorities
 * Finish connecting backend and frontend, chaincode, HTTP APIs
-* Fix private key server issue
 * Fix gRPC
 * Finish no-more-cli and get no-more-cryptogen running  
 
