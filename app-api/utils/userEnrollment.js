@@ -28,7 +28,7 @@ const fs = require('fs');
  * @param {string} enrollmentSecret 
  * @param {string} mspID 
  */
-async function enrollUser(connectionProfilePath, walletPath, caDomain, enrollmentID,
+async function enrollUser(caURL, caTLSCACertsPath, caName, walletPath, enrollmentID,
     enrollmentSecret, mspID) {
 
     const ccpJSON = fs.readFileSync(connectionProfilePath, 'utf8');
@@ -36,10 +36,8 @@ async function enrollUser(connectionProfilePath, walletPath, caDomain, enrollmen
 
     try {
         // Create a new CA client for interacting with the CA.
-        const caInfo = ccp.certificateAuthorities[caDomain];
-        const caTLSCACertsPath = caInfo.tlsCACerts.path;
         const caTLSCACerts = fs.readFileSync(caTLSCACertsPath);
-        const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.Name);
+        const ca = new FabricCAServices(caURL, { trustedRoots: caTLSCACerts, verify: false }, caName);
 
         // Enroll user with enrollmentID and enrollmentSecret.
         const enrollment = await ca.enroll({ enrollmentID: enrollmentID, enrollmentSecret: enrollmentSecret });
