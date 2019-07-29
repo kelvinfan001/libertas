@@ -33,7 +33,6 @@ CHAINCODE_VERSION=2.1.7
 rm -rf ./hfc-key-store
 
 # launch network
-cd ../libertas-dev-network
 ./buildDevelopmentNetwork.sh
 
 

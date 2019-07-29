@@ -12,12 +12,10 @@ cd $(dirname "$0")
 
 # Bring down test network if it is up
 if [ "$(docker ps -q -f name=cli)" ]; then
-    cd ../libertas-dev-network
     ./downDevelopmentNetwork.sh
-    cd ../app/javascript/
 fi
 
 # Remove keys in wallet
-rm -rf ./wallet/*
+rm -rf ./app-server/tests/wallet/*
 
 echo "Squeaky clean!"
