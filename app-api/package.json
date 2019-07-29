@@ -1,5 +1,5 @@
 {
-  "name": "api-http-app",
+  "name": "api-app",
   "version": "1.0.0",
   "description": "HTTP server handling api requests from the Libertas app",
   "main": "index.js",

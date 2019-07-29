@@ -1,5 +1,3 @@
 const networkAPIModule = require('./network-APIs');
 
-networkAPIModule.createAccount('kelvinfan', 'Kelvin Fan', 'kelvin@sipher.co', 'Personal', 'yuhOIIFEsuAt', 'SipherMSP');
-
-networkAPIModule.createAccount('kailonghuang', 'Kailong Huang', 'kailong@sipher.co', 'Personal', 'KHGzQQNIPHeM', 'SipherMSP');
+networkAPIModule.createAccount('mannydelgado', 'Manny Delgado', 'manny@sipher.co', 'Personal', 'StPdtwCiPoAK', 'SipherMSP');

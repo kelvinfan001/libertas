@@ -20,10 +20,10 @@ const io = require('socket.io-client');
 // Set environment variables, all following variables modifiable
 // TODO: Create a profile for doing this more modularly.
 const walletPath = path.join(__dirname, 'wallet');
-const caURL = "https://127.0.0.1:7054/";
-const caTLSCACertsPath = "../libertas-dev-network/crypto-config/peerOrganizations/libertas.sipher.co/tlsca/tlsca.libertas.sipher.co-cert.pem";
+const caURL = "https://155.138.134.91:7054/";
+const caTLSCACertsPath = "../tlsca.libertas.sipher.co-cert.pem";
 const caName = "ca-sipher";
-const apiServerURL = '127.0.0.1';
+const apiServerURL = '155.138.134.91';
 
 module.exports = { createAccount }
 
@@ -122,7 +122,7 @@ async function submitTransaction(transactionProposal, id, mspID) {
                     submitTransactionSocket.disconnect();
                 })
                 submitTransactionSocket.disconnect();
-                console.log('Transaction successfully submitted and completed.')
+                console.log('Transaction successfully submitted and committed.')
             })
         });
     });
