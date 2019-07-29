@@ -31,6 +31,7 @@ type AccountsList struct {
 	Accounts []Account
 }
 
+//----------------------------------------------Create--------------------------------------------------
 // CreateAccount creates an account, if it doesn't already exist. Only admin can create account.
 func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	var id, name, email, accountType string
@@ -90,6 +91,7 @@ func (t *Libertas) CreateAccount(stub shim.ChaincodeStubInterface, args []string
 	return shim.Success(nil)
 }
 
+//----------------------------------------------Query--------------------------------------------------
 // QueryAccountByID queries existing accounts in the ledger for id and returns whether it exists.
 func (t *Libertas) QueryAccountByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
@@ -142,4 +144,9 @@ func queryAccountExistsByID(id string, accounts []Account) bool {
 	}
 
 	return false
+}
+
+//----------------------------------------------Edit--------------------------------------------------
+func (t *Libertas) EditAccount(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	return shim.Success(nil)
 }

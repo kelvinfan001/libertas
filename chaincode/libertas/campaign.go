@@ -23,30 +23,20 @@ type CampaignsList struct {
 }
 
 // Campaign is a campaign.
-// type Campaign struct {
-// 	OwnerID             string
-// 	ID                  string
-// 	Name                string
-// 	CampaignType        string
-// 	CampaignBallot      Ballot
-// 	Start               time.Time
-// 	End                 time.Time
-// 	CreatedAt           time.Time
-// 	UpdatedAt           time.Time
-// 	CampaignVoterGroups []VoterGroup
-// }
-
 type Campaign struct {
 	OwnerID             string
 	ID                  string
 	Name                string
 	CampaignType        string
 	CampaignBallot      []Vote
+	Start               time.Time
+	End                 time.Time
 	CreatedAt           time.Time
 	UpdatedAt           time.Time
 	CampaignVoterGroups []VoterGroup
 }
 
+//----------------------------------------------Create--------------------------------------------------
 // CreateCampaign creates a new campaign.
 // Takes in parameters id, name, campaignType, start, and end.
 // start and end are number of seconds after Unix epoch.
@@ -92,8 +82,6 @@ func _updateLedgerCampaignsList(stub shim.ChaincodeStubInterface, newCampaign Ca
 		return err
 	}
 
-	// fmt.Println(campaignsList)
-
 	return nil
 }
 
@@ -103,20 +91,20 @@ func _getNewCampaign(stub shim.ChaincodeStubInterface, args []string) (Campaign,
 	var campaignVoterGroups []VoterGroup
 
 	// Get owner's ID
-	// ownerID, err := GetCertAttribute(stub, "id") // TODO:
-	// if err != nil {
-	// 	return Campaign{}, err
-	// }
+	ownerID, err := GetCertAttribute(stub, "id") // TODO:
+	if err != nil {
+		return Campaign{}, err
+	}
 
 	startStr := args[3]
 	endStr := args[4]
 
 	// Convert start and end arguments from string to int
-	startInt, err := strconv.Atoi(startStr)
+	startInt, err := strconv.ParseInt(startStr, 10, 64)
 	if err != nil {
 		return Campaign{}, err
 	}
-	endInt, err := strconv.Atoi(endStr)
+	endInt, err := strconv.ParseInt(endStr, 10, 64)
 	if err != nil {
 		return Campaign{}, err
 	}
@@ -129,20 +117,17 @@ func _getNewCampaign(stub shim.ChaincodeStubInterface, args []string) (Campaign,
 	name = args[1]
 	campaignType = args[2]
 
-	// TODO: this stuff is causing problems
 	start = time.Unix(int64(startInt), 0)
 	end = time.Unix(int64(endInt), 0)
-
-	fmt.Println(start, end) // TODO:
 
 	// Create an empty slice of VoterGroups
 	campaignVoterGroups = make([]VoterGroup, 0)
 	campaignBallot := make([]Vote, 0)
-	// newCampaign := Campaign{ownerID, id, name, campaignType, campaignBallot, start, end, transactionTime,
-	// 	transactionTime, campaignVoterGroups}
-
-	newCampaign := Campaign{ownerID, id, name, campaignType, campaignBallot, transactionTime,
+	newCampaign := Campaign{ownerID, id, name, campaignType, campaignBallot, start, end, transactionTime,
 		transactionTime, campaignVoterGroups}
+
+	// newCampaign := Campaign{ownerID, id, name, campaignType, campaignBallot, transactionTime,
+	// 	transactionTime, campaignVoterGroups}
 
 	return newCampaign, nil
 }
@@ -153,11 +138,11 @@ func _createCampaignChecks(stub shim.ChaincodeStubInterface, args []string) erro
 		return errors.New("Incorrect number of arguments. Expecting 5.")
 	}
 
-	// check for correct account type TODO:
-	// accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution")
-	// if !accountTypeOK {
-	// 	return err
-	// }
+	// check for correct account type
+	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution") // TODO:
+	if !accountTypeOK {
+		return err
+	}
 
 	// Get list of Campaigns from the ledger
 	campaignsListBytes, err := stub.GetState("Campaigns List")
@@ -185,7 +170,7 @@ func _getCampaignExists(id string, campaigns []Campaign) bool {
 	return false
 }
 
-//-----------------------------------Query Functions----------------------------------------------
+//------------------------------------------Query----------------------------------------------
 func (t *Libertas) QueryCampaignByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	var id string
 	id = args[0]
@@ -194,7 +179,7 @@ func (t *Libertas) QueryCampaignByID(stub shim.ChaincodeStubInterface, args []st
 		return shim.Error("Incorrect number of arguments. Expecting 1.")
 	}
 
-	// Get list of accounts from the world state.
+	// Get list of campaigns from the world state.
 	campaignsListBytes, err := stub.GetState("Campaigns List")
 	if err != nil {
 		return shim.Error(err.Error())
@@ -209,8 +194,8 @@ func (t *Libertas) QueryCampaignByID(stub shim.ChaincodeStubInterface, args []st
 
 	// fmt.Println(campaign)
 
-	accountBytes, _ := json.Marshal(campaign)
-	return shim.Success(accountBytes)
+	campaignBytes, _ := json.Marshal(campaign)
+	return shim.Success(campaignBytes)
 }
 
 func queryCampaignByID(campaignID string, campaigns []Campaign) (Campaign, error) {
@@ -221,4 +206,33 @@ func queryCampaignByID(campaignID string, campaigns []Campaign) (Campaign, error
 	}
 
 	return Campaign{}, errors.New("The campaign with ID: " + campaignID + " does not exist")
+}
+
+func (t *Libertas) QueryCampaignByInstitutionUsername(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1.")
+	}
+
+	// Get list of campaigns from the world state.
+	campaignsList, err := _getCampaignsList(stub)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	username := args[0]
+	result := make([]Campaign, 0)
+	for _, campaign := range campaignsList.Campaigns {
+		if campaign.OwnerID == username {
+			result = append(result, campaign)
+		}
+	}
+
+	campaignsBytes, _ := json.Marshal(result)
+	return shim.Success(campaignsBytes)
+}
+
+//----------------------------------------------Edit--------------------------------------------------
+
+func (t *Libertas) EditCampaign(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	return shim.Success(nil)
 }

@@ -17,9 +17,9 @@ import (
 )
 
 // VoterGroupsList is a list of voter groups.
-// type VoterGroupsList struct {
-// 	VoterGroups []VoterGroup
-// }
+type VoterGroupsList struct {
+	VoterGroups []VoterGroup
+}
 
 // VoterGroup is a group of voters.
 type VoterGroup struct {
@@ -32,6 +32,7 @@ type VoterGroup struct {
 	Voters     []Voter
 }
 
+//----------------------------------------------Create--------------------------------------------------
 // CreateVoterGroup creates a new voter group
 func (t *Libertas) CreateVoterGroup(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	err := _createVoterGroupChecks(stub, args)
@@ -39,36 +40,29 @@ func (t *Libertas) CreateVoterGroup(stub shim.ChaincodeStubInterface, args []str
 		return shim.Error(err.Error())
 	}
 
-	// update ledger
-	_updateLedgerVoterGroup(stub, args)
+	//  create VoterGroup and add it to list
+	newVoterGroup, err := _getVoterGroup(stub, args)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	_updateLedgerVoterGroup(stub, newVoterGroup)
 
 	fmt.Println("New Voter Group added")
 	return shim.Success(nil)
 }
 
-func _updateLedgerVoterGroup(stub shim.ChaincodeStubInterface, args []string) error {
-	// update the voter group list for the campaign with ID campaignID
-	campaignID := args[1]
-	campaignsList, err := _getCampaignsList(stub)
-	if err != nil {
-		return err
-	}
-	campaign, err := _queryCampaignPtrByID(campaignID, &campaignsList)
+func _updateLedgerVoterGroup(stub shim.ChaincodeStubInterface, newVoterGroup VoterGroup) error {
+	voterGroupsList, err := _getVoterGroupsList(stub)
 	if err != nil {
 		return err
 	}
 
-	//  create VoterGroup and add it to list
-	newVoterGroup, err := _getVoterGroup(stub, args)
-	if err != nil {
-		return err
-	}
-	campaign.CampaignVoterGroups = append(campaign.CampaignVoterGroups, newVoterGroup)
+	voterGroupsList.VoterGroups = append(voterGroupsList.VoterGroups, newVoterGroup)
 
 	// Update state and put state on ledger
-	campaignsListBytes, _ := json.Marshal(campaignsList)
+	voterGroupsListBytes, _ := json.Marshal(voterGroupsList)
 
-	err = stub.PutState("Campaigns List", campaignsListBytes)
+	err = stub.PutState("Voter Groups List", voterGroupsListBytes)
 	if err != nil {
 		return err
 	}
@@ -89,18 +83,13 @@ func _createVoterGroupChecks(stub shim.ChaincodeStubInterface, args []string) er
 
 	// check voter group id is unique in list of voter groups
 	voterGroupID := args[0]
-	campaignID := args[1]
-	campaignsList, err := _getCampaignsList(stub)
+	voterGroupsList, err := _getVoterGroupsList(stub)
 	if err != nil {
-		return err
-	}
-	campaign, err := queryCampaignByID(campaignID, campaignsList.Campaigns)
-	if err != nil {
-		return err
+		return nil
 	}
 
 	// If voter group with id already exists in voterGroupsList, return Error
-	voterGroupExists := queryVoterGroupsByIDExists(voterGroupID, campaign.CampaignVoterGroups)
+	voterGroupExists := queryVoterGroupsByIDExists(voterGroupID, voterGroupsList.VoterGroups)
 	if voterGroupExists {
 		return errors.New("Voter group with this ID already exists.")
 	}
@@ -132,32 +121,22 @@ func _getVoterGroup(stub shim.ChaincodeStubInterface, args []string) (VoterGroup
 	return newVoterGroup, nil
 }
 
+//----------------------------------------------Query--------------------------------------------------
 // QueryAccountByID queries existing accounts in the ledger for id and returns whether it exists.
 func (t *Libertas) QueryVoterGroupsByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	voterGroupID := args[0]
-	campaignID := args[1]
 
-	if len(args) != 2 {
-		return shim.Error("Incorrect number of arguments. Expecting 2.")
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1.")
 	}
 
 	// Get list of VoterGroups from the ledger
-	// voterGroupsListBytes, err := stub.GetState("Voter Groups List")
-	// if err != nil {
-	// 	return shim.Error(err.Error())
-	// }
-	// voterGroupsList := VoterGroupsList{}
-	// json.Unmarshal(voterGroupsListBytes, &voterGroupsList)
-	campaignsList, err := _getCampaignsList(stub)
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-	campaign, err := queryCampaignByID(campaignID, campaignsList.Campaigns)
+	voterGroupsList, err := _getVoterGroupsList(stub)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
-	voterGroup, err := queryVoterGroupsByID(voterGroupID, campaign.CampaignVoterGroups)
+	voterGroup, err := queryVoterGroupsByID(voterGroupID, voterGroupsList.VoterGroups)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -189,6 +168,8 @@ func queryVoterGroupsByIDExists(id string, voterGroups []VoterGroup) bool {
 	return false
 }
 
-// TODO:
-// make getlist helps for all models
-// fix struct list issue
+//----------------------------------------------Edit--------------------------------------------------
+
+func (t *Libertas) EditVoterGroup(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	return shim.Success(nil)
+}

@@ -21,6 +21,7 @@ import (
 type Vote struct {
 	PersonalAccountID string
 	CampaignID        string
+	VotingGroupID     string
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
 }
@@ -79,9 +80,8 @@ func (t *Libertas) CreateVote(stub shim.ChaincodeStubInterface, args []string) p
 }
 
 func _createVoteChecks(stub shim.ChaincodeStubInterface, args []string) error {
-	// check num args
-	if len(args) != 2 {
-		return errors.New("Incorrect number of arguments. Expecting 2.")
+	if len(args) != 3 {
+		return errors.New("Incorrect number of arguments. Expecting 3.")
 	}
 
 	// check for correct account, only personal accounts can vote
@@ -90,7 +90,26 @@ func _createVoteChecks(stub shim.ChaincodeStubInterface, args []string) error {
 		return errors.New(err.Error())
 	}
 
-	// check if personalAccountID is unique in this campaign
+	err = _checkPersonalAccountIDUnique(stub, args)
+	if err != nil {
+		return err
+	}
+
+	err = _checkLegitVoter(stub, args)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func _checkLegitVoter(stub shim.ChaincodeStubInterface, args []string) error {
+	// legit voter when voterGroupID is real and personalGroupID belongs to voter group
+
+	return nil
+}
+
+func _checkPersonalAccountIDUnique(stub shim.ChaincodeStubInterface, args []string) error {
 	personalID := args[0]
 	campaignID := args[1]
 	campaignsListBytes, err := stub.GetState("Campaigns List")
@@ -123,7 +142,6 @@ func _getPersonalIDExists(personalID string, campaign Campaign) bool {
 }
 
 func _updateLedgerBallot(stub shim.ChaincodeStubInterface, campaignID string, newVote Vote) error {
-	// Get list of Campaigns from the ledger
 	campaignsListBytes, err := stub.GetState("Campaigns List")
 	if err != nil {
 		return err
@@ -160,9 +178,16 @@ func _queryCampaignPtrByID(campaignID string, campaignsList *CampaignsList) (*Ca
 func _getNewVote(stub shim.ChaincodeStubInterface, args []string) Vote {
 	personalAccountID := args[0]
 	campaignID := args[1]
+	votingGroupID := args[2]
 	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
 	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
-	newVote := Vote{personalAccountID, campaignID, transactionTime, transactionTime}
+	newVote := Vote{personalAccountID, campaignID, votingGroupID, transactionTime, transactionTime}
 
 	return newVote
+}
+
+//----------------------------------------------Edit--------------------------------------------------
+
+func (t *Libertas) EditVote(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	return shim.Success(nil)
 }
