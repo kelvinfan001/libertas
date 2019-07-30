@@ -42,7 +42,7 @@ async function main() {
 
     //---------------------------------------SUBMIT TRANSACTION SOCKET-----------------------------------------------
 
-    var submitTransactionSocket = io.of('/submitTransaction').on('connection', function (socket) {
+    let submitTransactionSocket = io.of('/submitTransaction').on('connection', function (socket) {
         socket.emit('connectionEstablished', 'Connection established');
         socket.on('sendTransactionProposal', async function (data) {
             // Retrieve values from transaction request and fill in TransactionProposal object
@@ -83,12 +83,12 @@ async function main() {
 
                     // Check if transaction propsal response is error
                     if (typeof transactionProposalResponses == "string") {
-                        socket.emit('submitTransactionError', transactionProposalResponses);
+                        socket.emit('submitTransactionErrors', transactionProposalResponses);
                         socket.disconnect();
                         return;
                     }
 
-                    // If no error, get transaction response payload
+                    // If no error, get transaction response payload from one of the responses (first one)
                     let payload = transactionProposalResponses[0].response.payload;
 
                     // Get commit prposal digest
@@ -96,7 +96,7 @@ async function main() {
 
                     // Check if failed to get commit proposal
                     if (typeof commitProposalDigest == "string") {
-                        socket.emit('getCommitProposalError', commitProposalDigest);
+                        socket.emit('submitTransactionErrors', commitProposalDigest);
                         socket.disconnect();
                         return;
                     }
@@ -119,38 +119,85 @@ async function main() {
 
                         // Check if commit propsal response is error
                         if (typeof commitProposalResponses == "string") {
-                            socket.emit('commitTransactionError', commitProposalResponses);
+                            socket.emit('submitTransactionErrors', commitProposalResponses);
                             socket.disconnect();
                             return;
                         }
 
                         // Send transaction response payload to client only if transaction was successfully committed
                         socket.emit('sendTransactionPayload', payload);
-
                         console.log('Transaction successfully submitted and committed.');
                     });
                 });
             } catch (error) {
                 console.error(error);
-                socket.emit('allOtherErrors', error.toString());
+                socket.emit('submitTransactionErrors', error.toString());
                 return;
             }
         });
     });
 
-    //---------------------------------------SUBMIT TRANSACTION SOCKET-----------------------------------------------
-    router.post('/evaluateTransaction', async function (req, res) {
-        try {
-            // Get 
-            const transactionProposal = req.body;
+    //--------------------------------------EVALUATE TRANSACTION SOCKET----------------------------------------------
+    
+    let evaluateTransactionSocket = io.of('/evaluateTransaction').on('connection', function (socket) {
+        socket.emit('connectionEstablished', 'Connection established');
+        socket.on('sendTransactionProposal', async function (data) {
+            // Retrieve values from transaction request and fill in TransactionProposal object
+            const transactionProposal = data.transactionProposal;
+            const userCertificate = data.userCertificate;
+            const userMSPID = data.mspID;
+            transactionProposal.chaincodeId = chaincodeID;
+            transactionProposal.channelId = channelID;
 
-            // Get channel object
-            let channel = await offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
+            try {
+                // Get channel object
+                let channel = await offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
 
+                // Get unsigned transaction proposal digest
+                let transactionProposalDigest = await submitEvaluateModule.getTransactionProposalDigest(channel, userCertificate, userMSPID, transactionProposal);
+                // Check if get transaction propsal is error
+                if (typeof transactionProposalDigest == "string") {
+                    socket.emit('getTransactionProposalError', transactionProposalDigest);
+                    socket.disconnect();
+                    return;
+                }
+                let transactionProposalDigestBuffer = transactionProposalDigest.toBuffer();
 
-        } catch (error) {
-            console.log(error);
-        }
+                // Send unsigned transaction proposal digest back to client as Buffer
+                socket.emit('sendTransactionProposalDigest', transactionProposalDigestBuffer);
+
+                socket.on('sendTransactionProposalSignature', async function (data) {
+                    // Retrieve the signature for transaction proposal
+                    const transactionProposalSignature = data;
+                    // Package signed transaction proposal
+                    const signedTransactionProposal = {
+                        signature: transactionProposalSignature,
+                        proposal_bytes: transactionProposalDigestBuffer
+                    }
+
+                    // Submit signed transaction proposal
+                    let transactionProposalResponses = await submitEvaluateModule.submitSignedTransactionProposal(channel, chaincodeID, signedTransactionProposal);
+
+                    // Check if transaction propsal response is error
+                    if (typeof transactionProposalResponses == "string") {
+                        socket.emit('evaluateTransactionErrors', transactionProposalResponses);
+                        socket.disconnect();
+                        return;
+                    }
+
+                    // If no error, get transaction response payload from one of the responses (first one)
+                    let payload = transactionProposalResponses[0].response.payload;
+
+                    // Send transaction response payload to client only if transaction had no errors
+                    socket.emit('sendTransactionPayload', payload);
+                    console.log('Transaction succesfully evaluated.')
+                })
+            } catch (error) {
+                console.error(error);
+                socket.emit('evaluateTransactionErrors', error.toString());
+                return
+            }
+        })
     })
 }
 

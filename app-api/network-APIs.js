@@ -77,9 +77,9 @@ async function queryAccountByID(idToQuery, userID, mspID) {
             fcn: 'QueryAccountByID',
             args: [idToQuery],
         }
-        // Submit transaction
-        let response = await submitTransaction(transactionProposal, userID, mspID);
-        return response;
+        // Evaluate transaction
+        let response = await evaluateTransaction(transactionProposal, userID, mspID);
+        return response.toString();
 
     } catch (error) {
         console.error(error);
@@ -114,11 +114,6 @@ async function submitTransaction(transactionProposal, id, mspID) {
                 userCertificate: userCertificate,
                 mspID: mspID
             });
-            // Handle if get transaction proposal digest error
-            submitTransactionSocket.on('getTransactionProposalError', function (error) {
-                submitTransactionSocket.disconnect();
-                reject('Promise Rejected: An error occurred when getting transaction proposal.');
-            })
 
             // Receive unsigned transaction proposal digest, sign, send signed transaction proposal digest
             submitTransactionSocket.on('sendTransactionProposalDigest', async function (data) {
@@ -131,16 +126,6 @@ async function submitTransaction(transactionProposal, id, mspID) {
 
                 // Send the signature back
                 submitTransactionSocket.emit('sendTransactionProposalSignature', transactionProposalSignature);
-                // Handle if submit transaction error
-                submitTransactionSocket.on('submitTransactionError', function (error) {
-                    submitTransactionSocket.disconnect();
-                    reject(error);
-                })
-                // Handle if get commit proposal error
-                submitTransactionSocket.on('getCommitProposalError', function (error) {
-                    submitTransactionSocket.disconnect();
-                    reject('Promise Rejected: An error occurred when getting commit proposal.');
-                });
 
                 // Receive unsigned commit proposal digest, sign, send signed commit proposal digest
                 submitTransactionSocket.on('sendCommitProposalDigest', async function (data) {
@@ -154,7 +139,7 @@ async function submitTransaction(transactionProposal, id, mspID) {
                     // Send the signature back
                     submitTransactionSocket.emit('sendCommitProposalSignature', commitProposalSignature);
                     // Handle if commit transaction error
-                    submitTransactionSocket.on('commitTransactionError', function (error) {
+                    submitTransactionSocket.on('submitTransactionErrors', function (error) {
                         submitTransactionSocket.disconnect();
                         reject(error);
                     });
@@ -167,8 +152,8 @@ async function submitTransaction(transactionProposal, id, mspID) {
             console.log('Transaction successfully submitted and committed.');
             resolve(payload);
         });
-        // Deal with all other errors if emitted by socket
-        submitTransactionSocket.on('allOtherErrors', function (error) {
+        // Deal with any errors emitted by socket
+        submitTransactionSocket.on('submitTransactionErrors', function (error) {
             submitTransactionSocket.disconnect();
             reject(error);
         })
@@ -177,17 +162,55 @@ async function submitTransaction(transactionProposal, id, mspID) {
 
 //------------------------------------EVALUATE TRANSACTION FUNCTIONS---------------------------------------------
 
-async function evaluateTransaction(transactionProposal) {
-    let url = 'http://' + apiServerURL + '/evaluateTransaction';
+async function evaluateTransaction(transactionProposal, id, mspID) {
 
-    await fetch(url, {
-        method: 'POST',
-        body: JSON.stringify(transactionProposal),
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        }
-    }).then(function (res) {
+    // Get wallet instance and retrieve user cert and key
+    const wallet = new FileSystemWallet(walletPath);
+    const userIdentity = await wallet.export(id);
+    const userCertificate = userIdentity.certificate;
+    const userPrivateKey = userIdentity.privateKey;
 
-    })
+    // Returns transaction proposal payload as a promise
+    return new Promise((resolve, reject) => {
+        // Connect to server socket
+        var evaluateTransactionSocket = io.connect('http://' + apiServerURL + '/evaluateTransaction');
+        evaluateTransactionSocket.on('connectionEstablished', async function () {
+            // Send transaction proposal data
+            evaluateTransactionSocket.emit('sendTransactionProposal', {
+                transactionProposal: transactionProposal,
+                userCertificate: userCertificate,
+                mspID: mspID
+            });
+
+            // Receive unsigned transaction proposal digest, sign, send signed transaction proposal digest
+            evaluateTransactionSocket.on('sendTransactionProposalDigest', async function (data) {
+                const transactionProposalDigestBuffer = Buffer.from(data);
+
+                // Sign transaction proposal
+                const signedTransactionProposal = signingModule.signProposal(transactionProposalDigestBuffer, userPrivateKey);
+                // Get signature
+                const transactionProposalSignature = signedTransactionProposal.signature;
+
+                // Send the signature back
+                evaluateTransactionSocket.emit('sendTransactionProposalSignature', transactionProposalSignature);
+
+                // Handle error
+                evaluateTransactionSocket.on('evaluateTransactionErrors', function (error) {
+                    SVGPathSegCurvetoCubicSmoothRel.disconnect();
+                    reject(error);
+                });
+            });
+        });
+        // Receive transaction response payload
+        evaluateTransactionSocket.on('sendTransactionPayload', function (payload) {
+            evaluateTransactionSocket.disconnect();
+            resolve(payload);
+        });
+        // Deal with any errors emitted by socket
+        evaluateTransactionSocket.on('submitTransactionErrors', function (error) {
+            evaluateTransactionSocket.disconnect();
+            reject(error);
+        })
+    });
+
 }
