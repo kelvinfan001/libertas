@@ -58,16 +58,17 @@ async function submitSignedTransactionProposal(channel, contractName, signedTran
         const proposalResponses = await channel.sendSignedProposal(sendSignedProposalReq);
 
         // Check if proposal got valid endorsement
-        if (proposalResponses[0].response) {
-            if (proposalResponses[0].response.status != 200) {
-                throw new Error("Proposal response status not 200!");
+        for (let i = 0; i < proposalResponses.length; i++) {
+            if (proposalResponses[0].response) {
+                if (proposalResponses[0].response.status != 200) {
+                    throw new Error("Proposal response status not 200!");
+                }
+            } else {
+                // Only reached if no response at all
+                throw proposalResponses[0];
             }
-        } else {
-            // Only reached if no response at all
-            // console.log(proposalResponses[0].message)
-            throw proposalResponses[0]; // todo change backt to proposalResponses[0]
         }
-
+        
         return proposalResponses;
 
     } catch (error) {
