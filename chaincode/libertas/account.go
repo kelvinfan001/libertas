@@ -181,6 +181,7 @@ func (t *Libertas) EditAccountByID(stub shim.ChaincodeStubInterface, args []stri
 		return shim.Error(err.Error())
 	}
 
+	fmt.Println("Edit Success")
 	return shim.Success(nil)
 }
 
@@ -220,6 +221,7 @@ func (t *Libertas) DeleteAccountByID(stub shim.ChaincodeStubInterface, args []st
 		return shim.Error(err.Error())
 	}
 
+	fmt.Println("Delete Success")
 	return shim.Success(nil)
 }
 
