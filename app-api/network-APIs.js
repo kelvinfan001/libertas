@@ -6,7 +6,6 @@
  * API for app to interact with the Hyperledger Network.
  * 
  * !!CA TLS Certificate path MUST BE SET CORRECTLY IN CONNECTION PROFILE!!
- * 
  */
 
 // Import required modules
@@ -60,7 +59,7 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
         await submitTransaction(transactionProposal, id, mspID);
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 }
 
@@ -73,18 +72,17 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
 async function queryAccountByID(idToQuery, userID, mspID) {
     
     try {
-         // prepare transaction proposal for querying account by id on chaincode
+         // Prepare transaction proposal for querying account by id on chaincode
         const transactionProposal = {
             fcn: 'QueryAccountByID',
             args: [idToQuery],
         }
         // Submit transaction
         let response = await submitTransaction(transactionProposal, userID, mspID);
-
         return response;
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
      }
 }
 
@@ -118,7 +116,6 @@ async function submitTransaction(transactionProposal, id, mspID) {
             });
             // Handle if get transaction proposal digest error
             submitTransactionSocket.on('getTransactionProposalError', function (error) {
-                console.error(error);
                 submitTransactionSocket.disconnect();
                 reject('Promise Rejected: An error occurred when getting transaction proposal.');
             })
@@ -136,13 +133,11 @@ async function submitTransaction(transactionProposal, id, mspID) {
                 submitTransactionSocket.emit('sendTransactionProposalSignature', transactionProposalSignature);
                 // Handle if submit transaction error
                 submitTransactionSocket.on('submitTransactionError', function (error) {
-                    console.error(error);
                     submitTransactionSocket.disconnect();
-                    reject('Promise Rejected: An error occurred when submitting transaction.');
+                    reject(error);
                 })
                 // Handle if get commit proposal error
                 submitTransactionSocket.on('getCommitProposalError', function (error) {
-                    console.error(error);
                     submitTransactionSocket.disconnect();
                     reject('Promise Rejected: An error occurred when getting commit proposal.');
                 });
@@ -160,9 +155,8 @@ async function submitTransaction(transactionProposal, id, mspID) {
                     submitTransactionSocket.emit('sendCommitProposalSignature', commitProposalSignature);
                     // Handle if commit transaction error
                     submitTransactionSocket.on('commitTransactionError', function (error) {
-                        console.error(error);
                         submitTransactionSocket.disconnect();
-                        reject('Promise Rejected: An error occurred when committing transaction.');
+                        reject(error);
                     });
                 });
             });
@@ -173,5 +167,27 @@ async function submitTransaction(transactionProposal, id, mspID) {
             console.log('Transaction successfully submitted and committed.');
             resolve(payload);
         });
+        // Deal with all other errors if emitted by socket
+        submitTransactionSocket.on('allOtherErrors', function (error) {
+            submitTransactionSocket.disconnect();
+            reject(error);
+        })
     });
+}
+
+//------------------------------------EVALUATE TRANSACTION FUNCTIONS---------------------------------------------
+
+async function evaluateTransaction(transactionProposal) {
+    let url = 'http://' + apiServerURL + '/evaluateTransaction';
+
+    await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(transactionProposal),
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        }
+    }).then(function (res) {
+
+    })
 }

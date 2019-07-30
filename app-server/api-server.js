@@ -52,85 +52,106 @@ async function main() {
             transactionProposal.chaincodeId = chaincodeID;
             transactionProposal.channelId = channelID;
 
-            // Get channel object
-            let channel = await offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
+            try {
+                // Get channel object
+                let channel = await offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
 
-            // Get unsigned transaction proposal digest
-            let transactionProposalDigest = await submitEvaluateModule.getTransactionProposalDigest(channel, userCertificate, userMSPID, transactionProposal);
-            // Check if get transaction propsal is error
-            if (typeof transactionProposalDigest == "string") {
-                socket.emit('getTransactionProposalError', transactionProposalDigest);
-                socket.disconnect();
-                return;
-            }
-            let transactionProposalDigestBuffer = transactionProposalDigest.toBuffer();
-
-            // Send unsigned transaction proposal digest back to client as Buffer
-            socket.emit('sendTransactionProposalDigest', transactionProposalDigestBuffer);
-
-            socket.on('sendTransactionProposalSignature', async function (data) {
-                // Retrieve the signature for transaction proposal
-                const transactionProposalSignature = data;
-                // Package signed transaction proposal
-                const signedTransactionProposal = {
-                    signature: transactionProposalSignature,
-                    proposal_bytes: transactionProposalDigestBuffer
-                }
-
-                // Submit signed transaction proposal
-                let transactionProposalResponses = await submitEvaluateModule.submitSignedTransactionProposal(channel, chaincodeID, signedTransactionProposal);
-            
-                // Check if transaction propsal response is error
-                if (typeof transactionProposalResponses == "string") {
-                    socket.emit('submitTransactionError', transactionProposalResponses);
+                // Get unsigned transaction proposal digest
+                let transactionProposalDigest = await submitEvaluateModule.getTransactionProposalDigest(channel, userCertificate, userMSPID, transactionProposal);
+                // Check if get transaction propsal is error
+                if (typeof transactionProposalDigest == "string") {
+                    socket.emit('getTransactionProposalError', transactionProposalDigest);
                     socket.disconnect();
                     return;
                 }
+                let transactionProposalDigestBuffer = transactionProposalDigest.toBuffer();
 
-                // If no error, get transaction response payload
-                let payload = transactionProposalResponses[0].response.payload;
+                // Send unsigned transaction proposal digest back to client as Buffer
+                socket.emit('sendTransactionProposalDigest', transactionProposalDigestBuffer);
 
-                // Get commit prposal digest
-                let commitProposalDigest = await submitEvaluateModule.getCommitProposalDigest(channel, transactionProposalDigest, transactionProposalResponses);
-
-                // Check if failed to get commit proposal
-                if (typeof commitProposalDigest == "string") {
-                    socket.emit('getCommitProposalError', commitProposalDigest);
-                    socket.disconnect();
-                    return;
-                }
-                let commitProposalDigestBuffer = commitProposalDigest.toBuffer();
-
-                // Send unsigned commit proposal digest to client as Buffer
-                socket.emit('sendCommitProposalDigest', commitProposalDigestBuffer);
-
-                socket.on('sendCommitProposalSignature', async function (data) {
-                    // Retrieve the signature for commit proposal
-                    const commitProposalSignature = data;
-                    // Package signed commit proposal
-                    const signedCommitProposal = {
-                        signature: commitProposalSignature,
-                        proposal_bytes: commitProposalDigestBuffer
+                socket.on('sendTransactionProposalSignature', async function (data) {
+                    // Retrieve the signature for transaction proposal
+                    const transactionProposalSignature = data;
+                    // Package signed transaction proposal
+                    const signedTransactionProposal = {
+                        signature: transactionProposalSignature,
+                        proposal_bytes: transactionProposalDigestBuffer
                     }
 
-                    // Submit signed commit proposal
-                    let commitProposalResponses = await submitEvaluateModule.submitSignedCommitProposal(channel, signedCommitProposal, transactionProposalResponses, transactionProposalDigest);
+                    // Submit signed transaction proposal
+                    let transactionProposalResponses = await submitEvaluateModule.submitSignedTransactionProposal(channel, chaincodeID, signedTransactionProposal);
 
-                    // Check if commit propsal response is error
-                    if (typeof commitProposalResponses == "string") {
-                        socket.emit('commitTransactionError', commitProposalResponses);
+                    // Check if transaction propsal response is error
+                    if (typeof transactionProposalResponses == "string") {
+                        socket.emit('submitTransactionError', transactionProposalResponses);
                         socket.disconnect();
                         return;
                     }
-                    
-                    // Send transaction response payload to client
-                    socket.emit('sendTransactionPayload', payload);
 
-                    console.log('Transaction successfully submitted and committed.');
-                })
-            })
+                    // If no error, get transaction response payload
+                    let payload = transactionProposalResponses[0].response.payload;
+
+                    // Get commit prposal digest
+                    let commitProposalDigest = await submitEvaluateModule.getCommitProposalDigest(channel, transactionProposalDigest, transactionProposalResponses);
+
+                    // Check if failed to get commit proposal
+                    if (typeof commitProposalDigest == "string") {
+                        socket.emit('getCommitProposalError', commitProposalDigest);
+                        socket.disconnect();
+                        return;
+                    }
+                    let commitProposalDigestBuffer = commitProposalDigest.toBuffer();
+
+                    // Send unsigned commit proposal digest to client as Buffer
+                    socket.emit('sendCommitProposalDigest', commitProposalDigestBuffer);
+
+                    socket.on('sendCommitProposalSignature', async function (data) {
+                        // Retrieve the signature for commit proposal
+                        const commitProposalSignature = data;
+                        // Package signed commit proposal
+                        const signedCommitProposal = {
+                            signature: commitProposalSignature,
+                            proposal_bytes: commitProposalDigestBuffer
+                        }
+
+                        // Submit signed commit proposal
+                        let commitProposalResponses = await submitEvaluateModule.submitSignedCommitProposal(channel, signedCommitProposal, transactionProposalResponses, transactionProposalDigest);
+
+                        // Check if commit propsal response is error
+                        if (typeof commitProposalResponses == "string") {
+                            socket.emit('commitTransactionError', commitProposalResponses);
+                            socket.disconnect();
+                            return;
+                        }
+
+                        // Send transaction response payload to client only if transaction was successfully committed
+                        socket.emit('sendTransactionPayload', payload);
+
+                        console.log('Transaction successfully submitted and committed.');
+                    });
+                });
+            } catch (error) {
+                console.error(error);
+                socket.emit('allOtherErrors', error.toString());
+                return;
+            }
         });
     });
+
+    //---------------------------------------SUBMIT TRANSACTION SOCKET-----------------------------------------------
+    router.post('/evaluateTransaction', async function (req, res) {
+        try {
+            // Get 
+            const transactionProposal = req.body;
+
+            // Get channel object
+            let channel = await offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
+
+
+        } catch (error) {
+            console.log(error);
+        }
+    })
 }
 
 main();

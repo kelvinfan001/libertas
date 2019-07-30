@@ -42,6 +42,7 @@ async function getEndorsementPlanPeers(channel, contractName) {
  * @param {*} mspID 
  */
 async function getChannel(connectionProfilePath, channelName, adminCertificate, adminKey, mspID) {
+
     // Get channel (admin credentials required)
     const client = await Client.loadFromConfig(connectionProfilePath);
     client.setAdminSigningIdentity(adminKey, adminCertificate, mspID);
@@ -52,4 +53,5 @@ async function getChannel(connectionProfilePath, channelName, adminCertificate, 
     await channel.initialize({ discover: true, asLocalhost: true });
 
     return channel;
+    
 }

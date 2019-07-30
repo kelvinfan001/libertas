@@ -64,14 +64,15 @@ async function submitSignedTransactionProposal(channel, contractName, signedTran
             }
         } else {
             // Only reached if no response at all
-            throw new Error(proposalResponses[0]);
+            // console.log(proposalResponses[0].message)
+            throw proposalResponses[0]; // todo change backt to proposalResponses[0]
         }
 
         return proposalResponses;
 
     } catch (error) {
         console.error(`Failed to submit signed transaction proposal: ${error}`);
-        return `Failed to submit signed transaction proposal: ${error}`
+        return `Failed to submit signed transaction proposal: ${error}`;
     }
 }
 
