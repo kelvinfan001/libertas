@@ -19,11 +19,11 @@ import (
 
 // Vote stuff
 type Vote struct {
-	PersonalAccountID string
-	CampaignID        string
-	VotingGroupID     string
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
+	VoterID      string
+	CampaignID   string
+	VoterGroupID string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
 // Ballot stuff
@@ -84,18 +84,19 @@ func _createVoteChecks(stub shim.ChaincodeStubInterface, args []string) error {
 		return errors.New("Incorrect number of arguments. Expecting 3.")
 	}
 
-	// check for correct account, only personal accounts can vote
-	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Personal")
-	if !accountTypeOK {
-		return errors.New(err.Error())
-	}
+	// // check for correct account, only personal accounts can vote
+	// accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Personal") // TODO:
+	// if !accountTypeOK {
+	// 	return errors.New(err.Error())
+	// }
 
-	err = _checkPersonalAccountIDUnique(stub, args)
+	var err error
+	err = _checkVoterIDUnique(stub, args)
 	if err != nil {
 		return err
 	}
 
-	err = _checkLegitVoter(stub, args)
+	err = _checkValidVoter(stub, args)
 	if err != nil {
 		return err
 	}
@@ -103,14 +104,52 @@ func _createVoteChecks(stub shim.ChaincodeStubInterface, args []string) error {
 	return nil
 }
 
-func _checkLegitVoter(stub shim.ChaincodeStubInterface, args []string) error {
-	// legit voter when voterGroupID is real and personalGroupID belongs to voter group
+func _checkValidVoter(stub shim.ChaincodeStubInterface, args []string) error {
+	voterID := args[0]
+	// campaignID := args[1]
+	voterGroupID := args[2]
+
+	// TODO: add check that voter group is part of campaign
+	// campaignsList, err := _getCampaignsList(stub)
+	// if err != nil {
+	// 	return err
+	// }
+	// campaign, err := queryCampaignByID(campaignID, campaignsList.Campaigns)
+	// if err != nil {
+	// 	return nil
+	// }
+
+	voterGroupsList, err := _getVoterGroupsList(stub)
+	if err != nil {
+		return err
+	}
+
+	// voter is valid when voter belongs to valid voter group
+	voterGroup, err := queryVoterGroupsByID(voterGroupID, voterGroupsList.VoterGroups)
+	if err != nil {
+		return err
+	}
+
+	err = isVoterBelongVoterGroup(voterID, voterGroup)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func _checkPersonalAccountIDUnique(stub shim.ChaincodeStubInterface, args []string) error {
-	personalID := args[0]
+func isVoterBelongVoterGroup(voterID string, voterGroup VoterGroup) error {
+	for _, voter := range voterGroup.Voters {
+		if voter.ID == voterID {
+			return nil
+		}
+	}
+
+	return errors.New("Voter with ID: " + voterID + " does not belong to voter group with ID: " + voterGroup.ID)
+}
+
+func _checkVoterIDUnique(stub shim.ChaincodeStubInterface, args []string) error {
+	voterID := args[0]
 	campaignID := args[1]
 	campaignsListBytes, err := stub.GetState("Campaigns List")
 	if err != nil {
@@ -123,17 +162,17 @@ func _checkPersonalAccountIDUnique(stub shim.ChaincodeStubInterface, args []stri
 		return err
 	}
 
-	isPersonalIDExists := _getPersonalIDExists(personalID, campaign)
-	if isPersonalIDExists {
-		return errors.New("Voter with ID: " + personalID + " has already voted in campaign with ID: " + campaignID)
+	isVoterIDExists := _getVoterIDExists(voterID, campaign)
+	if isVoterIDExists {
+		return errors.New("Voter with ID: " + voterID + " has already voted in campaign with ID: " + campaignID)
 	}
 
 	return nil
 }
 
-func _getPersonalIDExists(personalID string, campaign Campaign) bool {
+func _getVoterIDExists(voterID string, campaign Campaign) bool {
 	for _, vote := range campaign.CampaignBallot {
-		if vote.PersonalAccountID == personalID {
+		if vote.VoterID == voterID {
 			return true
 		}
 	}
@@ -176,18 +215,23 @@ func _queryCampaignPtrByID(campaignID string, campaignsList *CampaignsList) (*Ca
 }
 
 func _getNewVote(stub shim.ChaincodeStubInterface, args []string) Vote {
-	personalAccountID := args[0]
+	voterID := args[0]
 	campaignID := args[1]
 	votingGroupID := args[2]
 	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
 	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
-	newVote := Vote{personalAccountID, campaignID, votingGroupID, transactionTime, transactionTime}
+	newVote := Vote{voterID, campaignID, votingGroupID, transactionTime, transactionTime}
 
 	return newVote
 }
 
 //----------------------------------------------Edit--------------------------------------------------
 
-func (t *Libertas) EditVote(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	return shim.Success(nil)
-}
+// func (t *Libertas) EditVote(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+// 	return shim.Success(nil)
+// }
+
+//----------------------------------------------Delete--------------------------------------------------
+
+// func (t *Libertas) DeleteCampaignByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+// }
