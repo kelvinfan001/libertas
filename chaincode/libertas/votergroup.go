@@ -202,6 +202,7 @@ func (t *Libertas) EditVoterGroupByID(stub shim.ChaincodeStubInterface, args []s
 		return shim.Error(err.Error())
 	}
 
+	fmt.Println("Edit Success")
 	return shim.Success(nil)
 }
 
@@ -230,6 +231,7 @@ func (t *Libertas) DeleteVoterGroupByID(stub shim.ChaincodeStubInterface, args [
 		return shim.Error(err.Error())
 	}
 
+	fmt.Println("Delete Success")
 	return shim.Success(nil)
 }
 
