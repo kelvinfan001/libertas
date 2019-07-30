@@ -196,6 +196,11 @@ func (t *Libertas) EditVoterGroupByID(stub shim.ChaincodeStubInterface, args []s
 		voterGroup.Name = value
 	}
 
+	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
+	// Convert protobuf timestamp to Time data structure
+	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
+	voterGroup.UpdatedAt = transactionTime
+
 	voterGroupsListBytes, _ := json.Marshal(voterGroupsList)
 	err = stub.PutState("Voter Groups List", voterGroupsListBytes)
 	if err != nil {
@@ -212,6 +217,11 @@ func (t *Libertas) DeleteVoterGroupByID(stub shim.ChaincodeStubInterface, args [
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1.")
 	}
+
+	// accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution") // TODO:
+	// if !accountTypeOK {
+	// 	return err
+	// }
 
 	voterGroupID := args[0]
 	voterGroupsList, err := _getVoterGroupsList(stub)
