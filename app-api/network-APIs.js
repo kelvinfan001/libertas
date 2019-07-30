@@ -27,13 +27,9 @@ const caURL = "https://127.0.0.1:7054/";
 const caTLSCACertsPath = "../libertas-dev-network/crypto-config/peerOrganizations/libertas.sipher.co/tlsca/tlsca.libertas.sipher.co-cert.pem";
 const apiServerURL = '127.0.0.1'
 
-module.exports = { createAccount, queryAccountByID, printFoo }
+module.exports = { createAccount, queryAccountByID }
 
 //---------------------------------------API WRAPPER FUNCTIONS----------------------------------------------
-
-function printFoo() {
-    console.log(foo)
-}
 
 /**
  * Creates an account on chaincode. 
@@ -53,7 +49,7 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
             // Enroll user (directly communicating with CA)
             await registrationEnrollmentModule.enrollUser(caURL, caTLSCACertsPath, caName, walletPath, id, enrollmentSecret, mspID);
         } else {
-            console.log('Warning: User with id ' + id + ' already exists in wallet and enrolled with CA.');
+            console.warn('Warning: User with id ' + id + ' already exists in wallet and enrolled with CA.');
         }
         // Prepare transaction proposal for creating account on chaincode
         const transactionProposal = {
@@ -83,9 +79,9 @@ async function queryAccountByID(idToQuery, userID, mspID) {
             args: [idToQuery],
         }
         // Submit transaction
-        let result = await submitTransaction(transactionProposal, userID, mspID);
+        let response = await submitTransaction(transactionProposal, userID, mspID);
 
-        return result;
+        return response;
 
     } catch (error) {
         console.log(error);
@@ -95,7 +91,7 @@ async function queryAccountByID(idToQuery, userID, mspID) {
 //------------------------------------SUBMIT TRANSACTION FUNCTIONS---------------------------------------------
 
 /**
- * 
+ * Sign transaction and commit proposal with id's private key offline and submit transaction.
  * @param  {Proposal Request} transactionProposal JSON object in Proposal format containing transaction details
  * @param  {string}           id                  ID of user making transaction
  * @param  {string}           mspID               MSP ID of user making transaction
@@ -109,7 +105,7 @@ async function submitTransaction(transactionProposal, id, mspID) {
     const userCertificate = userIdentity.certificate;
     const userPrivateKey = userIdentity.privateKey;
 
-    // Returns 
+    // Returns transaction proposal payload as a promise
     return new Promise((resolve, reject) => {
         // Connect to server socket
         var submitTransactionSocket = io.connect('http://' + apiServerURL + '/submitTransaction');
@@ -122,9 +118,9 @@ async function submitTransaction(transactionProposal, id, mspID) {
             });
             // Handle if get transaction proposal digest error
             submitTransactionSocket.on('getTransactionProposalError', function (error) {
-                console.log(error);
+                console.error(error);
                 submitTransactionSocket.disconnect();
-                reject('Error: An error occurred when getting transaction proposal.');
+                reject('Promise Rejected: An error occurred when getting transaction proposal.');
             })
 
             // Receive unsigned transaction proposal digest, sign, send signed transaction proposal digest
@@ -140,15 +136,15 @@ async function submitTransaction(transactionProposal, id, mspID) {
                 submitTransactionSocket.emit('sendTransactionProposalSignature', transactionProposalSignature);
                 // Handle if submit transaction error
                 submitTransactionSocket.on('submitTransactionError', function (error) {
-                    console.log(error);
+                    console.error(error);
                     submitTransactionSocket.disconnect();
-                    reject('Error: An error occurred when submitting transaction.');
+                    reject('Promise Rejected: An error occurred when submitting transaction.');
                 })
                 // Handle if get commit proposal error
                 submitTransactionSocket.on('getCommitProposalError', function (error) {
-                    console.log(error);
+                    console.error(error);
                     submitTransactionSocket.disconnect();
-                    reject('Error: An error occurred when getting commit proposal.');
+                    reject('Promise Rejected: An error occurred when getting commit proposal.');
                 });
 
                 // Receive unsigned commit proposal digest, sign, send signed commit proposal digest
@@ -164,9 +160,9 @@ async function submitTransaction(transactionProposal, id, mspID) {
                     submitTransactionSocket.emit('sendCommitProposalSignature', commitProposalSignature);
                     // Handle if commit transaction error
                     submitTransactionSocket.on('commitTransactionError', function (error) {
-                        console.log(error);
+                        console.error(error);
                         submitTransactionSocket.disconnect();
-                        reject('Error: An error occurred when committing transaction.');
+                        reject('Promise Rejected: An error occurred when committing transaction.');
                     });
                 });
             });
