@@ -87,7 +87,12 @@ async function main() {
                     return;
                 }
 
+                // If no error, get transaction response payload
+                let payload = transactionProposalResponses[0].response.payload;
+
+                // Get commit prposal digest
                 let commitProposalDigest = await submitEvaluateModule.getCommitProposalDigest(channel, transactionProposalDigest, transactionProposalResponses);
+
                 // Check if failed to get commit proposal
                 if (typeof commitProposalDigest == "string") {
                     socket.emit('getCommitProposalError', commitProposalDigest);
@@ -117,6 +122,10 @@ async function main() {
                         socket.disconnect();
                         return;
                     }
+                    
+                    // Send transaction response payload to client
+                    socket.emit('sendTransactionPayload', payload);
+
                     console.log('Transaction successfully submitted and committed.');
                 })
             })
