@@ -199,6 +199,50 @@ async function main() {
             }
         })
     })
+
+    router.post('/evaluateTransactionFetch', async function (req, res) {
+        // Retrieve values from transaction proposal request
+        const transactionProposal = req.body.transactionProposal;
+
+        try {
+            // Get channel object
+            let channel = await offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
+
+            // Get endorsement plan
+            let endorsementPlanPeerNames = await offlineSigningGatewayModule.getEndorsementPlanPeers(channel, chaincodeID);
+
+            // Target peers in the endorsement plan
+            let targets = [];
+            for (let i = 0; i < endorsementPlanPeerNames.length; i++) {
+                targets.push(channel.getPeer(endorsementPlanPeerNames[i]));
+            }
+
+            // Package chaincode invoke request
+            let chaincodeInvokeRequest = {
+                targets: targets,
+                chaincodeId: chaincodeID,
+                fcn: transactionProposal.fcn,
+                args: transactionProposal.args
+            }
+
+            // Get responses from peers
+            let queryResponses = await channel.queryByChaincode(chaincodeInvokeRequest, true);
+
+            // Check for errors. Note queryResponses[i] could either be Error or Payload
+            for (let i = 0; i < queryResponses.length; i++) {
+                if (queryResponses[i].message) { // If is Error, must have message field
+                    throw queryResponses[i];
+                }
+            }
+
+            res.send(queryResponses[0]);
+            console.log("Transaction successfully evaluated");
+
+        } catch (error) {
+            console.error(error.message);
+            res.send(error.message);
+        }
+    })
 }
 
 main();
