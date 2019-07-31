@@ -175,6 +175,11 @@ func (t *Libertas) EditAccountByID(stub shim.ChaincodeStubInterface, args []stri
 		account.AccountType = value
 	}
 
+	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
+	// Convert protobuf timestamp to Time data structure
+	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
+	account.UpdatedAt = transactionTime
+
 	accountsListBytes, _ := json.Marshal(accountsList)
 	err = stub.PutState("Accounts List", accountsListBytes)
 	if err != nil {
@@ -202,6 +207,11 @@ func (t *Libertas) DeleteAccountByID(stub shim.ChaincodeStubInterface, args []st
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1.")
 	}
+
+	// accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution") // TODO:
+	// if !accountTypeOK {
+	// 	return err
+	// }
 
 	accountID := args[0]
 	accountsList, err := _getAccountsList(stub)
