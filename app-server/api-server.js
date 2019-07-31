@@ -228,7 +228,7 @@ async function main() {
             // Get responses from peers
             let queryResponses = await channel.queryByChaincode(chaincodeInvokeRequest, true);
 
-            // Check for errors. Note queryResponses[i] could either be Error or Payload
+            // Check for errors. Note: queryResponses[i] could either be Error or Payload
             for (let i = 0; i < queryResponses.length; i++) {
                 if (queryResponses[i].message) { // If is Error, must have message field
                     throw queryResponses[i];
