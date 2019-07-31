@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  * API for app to interact with the Hyperledger Network.
- * 
- * !!CA TLS Certificate path MUST BE SET CORRECTLY IN CONNECTION PROFILE!!
  */
 
 // Import required modules
@@ -80,7 +78,7 @@ async function queryAccountByID(idToQuery) {
             fcn: 'QueryAccountByID',
             args: [idToQuery]
         }
-        let response = await evaluateTransactionFetch(transactionProposal);
+        let response = await evaluateTransactionUnsigned(transactionProposal);
         return response;
 
     } catch (error) {
@@ -182,14 +180,15 @@ async function submitTransaction(transactionProposal, id, mspID) {
 //------------------------------------EVALUATE TRANSACTION FUNCTIONS---------------------------------------------
 
 /**
- * Sign transaction proposal with id's private key offline and evaluate transaction. 
+ * Sign transaction proposal with id's private key offline and evaluate transaction.
+ * Communicates through socket. 
  * Return proposal responses payload.
  * @param  {Proposal Request} transactionProposal JSON object in Proposal format containing transaction details
  * @param  {string}           id                  ID of user making transaction
  * @param  {string}           mspID               MSP ID of user making transaction
  * @return {string}                               Payload of transaction response
  */
-async function evaluateTransaction(transactionProposal, id, mspID) {
+async function evaluateTransactionSigned(transactionProposal, id, mspID) {
 
     // Get wallet instance and retrieve user cert and key
     const wallet = new FileSystemWallet(walletPath);
@@ -243,11 +242,12 @@ async function evaluateTransaction(transactionProposal, id, mspID) {
 
 /**
  * Post transaction proposal to server for server to evaluate the transaction (as admin on behalf of user).
+ * Communicates through fetch.
  * Return proposal responses payload.
  * @param  {Proposal Request} transactionProposal JSON object in Proposal format containing transaction details
  * @return {string}                               Payload of transaction response
  */
-async function evaluateTransactionFetch(transactionProposal) {
+async function evaluateTransactionUnsigned(transactionProposal) {
     let url = 'http://' + apiServerURL + '/evaluateTransactionFetch';
 
     return new Promise(async (resolve, reject) => {
