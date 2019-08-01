@@ -28,7 +28,10 @@ const caTLSCACertsPath = "../libertas-dev-network/crypto-config/peerOrganization
 const caName = "ca-sipher";
 const apiServerURL = '127.0.0.1'
 
-module.exports = { createAccount, queryAccountByID, editAccountByID }
+module.exports = {
+    createAccount, queryAccountByID, editPersonalAccount, createCampaign, queryCampaignByID,
+    queryCampaignByInstitutionUsername, editCampaignByID, DeleteCampaignByID
+}
 
 //---------------------------------------ACCOUNT FUNCTIONS----------------------------------------------
 
@@ -87,16 +90,16 @@ async function queryAccountByID(idToQuery) {
      }
 }
 
-async function editAccountByID(accountID, field, value) {
+async function editPersonalAccount(field, value, userID) {
 
     try {
-        // Prepare trnasaction proposal for editting account by id on chaincode
-        const transactionProposal = {
-            fcn: 'EditAccountByID',
-            args: [accountID, field, value]
+        // Prepare transaction proposal for editing account by id on chaincode
+        const transactionProposal = { 
+            fcn: 'EditAccountByID', // todo: might change fcn name
+            args: [userID, field, value]
         }
         // Submit transaction
-        await submitTransaction(transactionProposal, accountID);
+        await submitTransaction(transactionProposal, userID);
 
     } catch (error) {
         console.error(error);
@@ -105,11 +108,84 @@ async function editAccountByID(accountID, field, value) {
 
 //------------------------------------CAMPAIGN FUNCTIONS---------------------------------------------
 
-async function createCampaign(campaignID, campaignName, campaignType, start, end, userID, mspID) {
+async function createCampaign(campaignID, campaignName, campaignType, start, end, userID) {
     
+    try {
+        // Prepare transaction proposal for creating campaign on chaincode
+        const transactionProposal = {
+            fcn: 'CreateCampaign',
+            args: [campaignID, campaignName, campaignType, start, end]
+        }
+        // Submit transaction
+        await submitTransaction(transactionProposal, userID);
+
+    } catch (error) {
+        console.error(error);
+    }
 }
 
+async function queryCampaignByID(idToQuery) {
 
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'QueryCampaignByID',
+            args: [idToQuery]
+        }
+        let response = await evaluateTransactionUnsigned(transactionProposal);
+        return response;
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function queryCampaignByInstitutionUsername(usernameToQuery) {
+
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'queryCampaignByInstitutionUsername',
+            args: [usernameToQuery]
+        }
+        let response = await evaluateTransactionUnsigned(transactionProposal);
+        return response;
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function editCampaignByID(campaignID, field, value, userID) {
+
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'EditCampaignByID',
+            args: [campaignID, field, value]
+        }
+        // Submit transaction
+        await submitTransaction(transactionProposal, userID);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function deleteAccountByID(campaignID, userID) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'DeleteCampaignByID',
+            args: [campaignID]
+        }
+        // Submit transaction
+        await submitTransaction(transactionProposal, userID);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
 
 //------------------------------------SUBMIT TRANSACTION FUNCTIONS---------------------------------------------
 
