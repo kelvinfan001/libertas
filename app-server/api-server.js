@@ -40,7 +40,7 @@ async function main() {
 
     server.listen(80, () => console.log("Listening on port 80"));
 
-    //---------------------------------------SUBMIT TRANSACTION SOCKET-----------------------------------------------
+    //----------------------SUBMIT TRANSACTION SOCKET---------------------------
 
     let submitTransactionSocket = io.of('/submitTransaction').on('connection', function (socket) {
         socket.emit('connectionEstablished', 'Connection established');
@@ -54,10 +54,12 @@ async function main() {
 
             try {
                 // Get channel object
-                let channel = await offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
+                let channel = await offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID,
+                    adminCertificate, adminKey, adminMSPID);
 
                 // Get unsigned transaction proposal digest
-                let transactionProposalDigest = await submitEvaluateModule.getTransactionProposalDigest(channel, userCertificate, userMSPID, transactionProposal);
+                let transactionProposalDigest = await submitEvaluateModule.getTransactionProposalDigest(channel,
+                    userCertificate, userMSPID, transactionProposal);
                 // Check if get transaction propsal is error
                 if (typeof transactionProposalDigest == "string") {
                     socket.emit('getTransactionProposalError', transactionProposalDigest);
@@ -79,7 +81,9 @@ async function main() {
                     }
 
                     // Submit signed transaction proposal
-                    let transactionProposalResponses = await submitEvaluateModule.submitSignedTransactionProposal(channel, chaincodeID, signedTransactionProposal);
+                    let transactionProposalResponses =
+                        await submitEvaluateModule.submitSignedTransactionProposal(channel, chaincodeID,
+                            signedTransactionProposal);
 
                     // Check if transaction propsal response is error
                     if (typeof transactionProposalResponses == "string") {
@@ -92,7 +96,8 @@ async function main() {
                     let payload = transactionProposalResponses[0].response.payload;
 
                     // Get commit prposal digest
-                    let commitProposalDigest = await submitEvaluateModule.getCommitProposalDigest(channel, transactionProposalDigest, transactionProposalResponses);
+                    let commitProposalDigest = await submitEvaluateModule.getCommitProposalDigest(channel,
+                        transactionProposalDigest, transactionProposalResponses);
 
                     // Check if failed to get commit proposal
                     if (typeof commitProposalDigest == "string") {
@@ -115,7 +120,8 @@ async function main() {
                         }
 
                         // Submit signed commit proposal
-                        let commitProposalResponses = await submitEvaluateModule.submitSignedCommitProposal(channel, signedCommitProposal, transactionProposalResponses, transactionProposalDigest);
+                        let commitProposalResponses = await submitEvaluateModule.submitSignedCommitProposal(channel,
+                            signedCommitProposal, transactionProposalResponses, transactionProposalDigest);
 
                         // Check if commit propsal response is error
                         if (typeof commitProposalResponses == "string") {
@@ -137,8 +143,8 @@ async function main() {
         });
     });
 
-    //--------------------------------------EVALUATE TRANSACTION SOCKET----------------------------------------------
-    
+    //----------------------EVALUATE TRANSACTION SOCKET-------------------------
+
     let evaluateTransactionSocket = io.of('/evaluateTransaction').on('connection', function (socket) {
         socket.emit('connectionEstablished', 'Connection established');
         socket.on('sendTransactionProposal', async function (data) {
@@ -151,10 +157,12 @@ async function main() {
 
             try {
                 // Get channel object
-                let channel = await offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
+                let channel = await offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID,
+                    adminCertificate, adminKey, adminMSPID);
 
                 // Get unsigned transaction proposal digest
-                let transactionProposalDigest = await submitEvaluateModule.getTransactionProposalDigest(channel, userCertificate, userMSPID, transactionProposal);
+                let transactionProposalDigest = await submitEvaluateModule.getTransactionProposalDigest(channel,
+                    userCertificate, userMSPID, transactionProposal);
                 // Check if get transaction propsal is error
                 if (typeof transactionProposalDigest == "string") {
                     socket.emit('getTransactionProposalError', transactionProposalDigest);
@@ -176,7 +184,9 @@ async function main() {
                     }
 
                     // Submit signed transaction proposal
-                    let transactionProposalResponses = await submitEvaluateModule.submitSignedTransactionProposal(channel, chaincodeID, signedTransactionProposal);
+                    let transactionProposalResponses =
+                        await submitEvaluateModule.submitSignedTransactionProposal(channel, chaincodeID,
+                            signedTransactionProposal);
 
                     // Check if transaction propsal response is error
                     if (typeof transactionProposalResponses == "string") {
@@ -206,10 +216,12 @@ async function main() {
 
         try {
             // Get channel object
-            let channel = await offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID, adminCertificate, adminKey, adminMSPID);
+            let channel = await offlineSigningGatewayModule.getChannel(connectionProfilePath, channelID,
+                adminCertificate, adminKey, adminMSPID);
 
             // Get endorsement plan
-            let endorsementPlanPeerNames = await offlineSigningGatewayModule.getEndorsementPlanPeers(channel, chaincodeID);
+            let endorsementPlanPeerNames = await offlineSigningGatewayModule.getEndorsementPlanPeers(channel,
+                chaincodeID);
 
             // Target peers in the endorsement plan
             let targets = [];
