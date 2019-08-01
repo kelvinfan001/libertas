@@ -70,7 +70,7 @@
     },
     "orderers": {
         "orderer.sipher.co": {
-            "url": "grpc://localhost:7050",
+            "url": "grpcs://localhost:7050",
             "tlsCACerts": {
                 "path": "crypto-config/ordererOrganizations/sipher.co/tlsca/tlsca.sipher.co-cert.pem"
             },
