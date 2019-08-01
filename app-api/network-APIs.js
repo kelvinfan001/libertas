@@ -29,7 +29,7 @@ const apiServerURL = '155.138.134.91';
 // const apiServerURL = '127.0.0.1'
 
 module.exports = {
-    createAccount, queryAccountByID, editPersonalAccount,
+    createAccount, queryAccountByID, personalEditAccount,
     createCampaign, queryCampaignByID, queryCampaignByInstitutionUsername, editCampaignByID, deleteCampaignByID,
     createVoterGroup, queryVoterGroupsByID, editVoterGroupByID, deleteVoterGroupByID,
     createVoter, listVotersByVoterGroupID, editVoterByID, deleteVoterByID,
@@ -92,11 +92,11 @@ async function queryAccountByID(idToQuery) {
     }
 }
 
-async function editPersonalAccount(field, value, userID) {
+async function personalEditAccount(field, value, userID) {
     try {
         // Prepare transaction proposal for editing account by id on chaincode
         const transactionProposal = {
-            fcn: 'EditAccountByID', // todo: might change fcn name
+            fcn: 'PersonalEditAccount', // todo: might change fcn name
             args: [userID, field, value]
         }
         // Submit transaction
