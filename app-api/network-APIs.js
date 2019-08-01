@@ -16,6 +16,7 @@ const io = require('socket.io-client');
 
 // Set environment variables for connecting with API Server and CA, all following variables modifiable
 const walletPath = path.join(__dirname, 'wallet');
+const mspID = 'SipherMSP'; // TODO: hardcoded for now, query from server in future.
 // const caURL = "https://155.138.134.91:7054/";
 // const caTLSCACertsPath = "../tlsca.libertas.sipher.co-cert.pem";
 // const caName = "ca-sipher";
@@ -40,7 +41,7 @@ module.exports = { createAccount, queryAccountByID, editAccountByID }
  * @param {string} enrollmentSecret 
  * @param {string} mspID 
  */
-async function createAccount(id, name, email, accountType, enrollmentSecret, mspID) {
+async function createAccount(id, name, email, accountType, enrollmentSecret) {
 
     try {
         const wallet = new FileSystemWallet(walletPath);
@@ -57,7 +58,7 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
             args: [id, name, email, accountType],
         }
         // Submit transaction
-        await submitTransaction(transactionProposal, id, mspID);
+        await submitTransaction(transactionProposal, id);
 
     } catch (error) {
         console.error(error);
@@ -86,7 +87,7 @@ async function queryAccountByID(idToQuery) {
      }
 }
 
-async function editAccountByID(accountID, field, value, mspID) {
+async function editAccountByID(accountID, field, value) {
 
     try {
         // Prepare trnasaction proposal for editting account by id on chaincode
@@ -95,12 +96,20 @@ async function editAccountByID(accountID, field, value, mspID) {
             args: [accountID, field, value]
         }
         // Submit transaction
-        await submitTransaction(transactionProposal, accountID, mspID);
+        await submitTransaction(transactionProposal, accountID);
 
     } catch (error) {
         console.error(error);
     }
 }
+
+//------------------------------------CAMPAIGN FUNCTIONS---------------------------------------------
+
+async function createCampaign(campaignID, campaignName, campaignType, start, end, userID, mspID) {
+    
+}
+
+
 
 //------------------------------------SUBMIT TRANSACTION FUNCTIONS---------------------------------------------
 
@@ -112,13 +121,14 @@ async function editAccountByID(accountID, field, value, mspID) {
  * @param  {string}           mspID               MSP ID of user making transaction
  * @return {string}                               Payload of transaction response
  */
-async function submitTransaction(transactionProposal, id, mspID) {
+async function submitTransaction(transactionProposal, id) {
 
     // Get wallet instance and retrieve user cert and key
     const wallet = new FileSystemWallet(walletPath);
     const userIdentity = await wallet.export(id);
     const userCertificate = userIdentity.certificate;
     const userPrivateKey = userIdentity.privateKey;
+    const mspID = userIdentity.mspId;
 
     // Returns transaction proposal payload as a promise
     return new Promise((resolve, reject) => {
