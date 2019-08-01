@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  * API for app to interact with the Hyperledger Network.
- * 
- * !!CA TLS Certificate path MUST BE SET CORRECTLY IN CONNECTION PROFILE!!
  */
 
 // Import required modules
@@ -20,15 +18,18 @@ const io = require('socket.io-client');
 const walletPath = path.join(__dirname, 'wallet');
 // const caURL = "https://155.138.134.91:7054/";
 // const caTLSCACertsPath = "../tlsca.libertas.sipher.co-cert.pem";
-const caName = "ca-sipher";
+// const caName = "ca-sipher";
 // const apiServerURL = '155.138.134.91';
+
+// The following for local testing
 const caURL = "https://127.0.0.1:7054/";
 const caTLSCACertsPath = "../libertas-dev-network/crypto-config/peerOrganizations/libertas.sipher.co/tlsca/tlsca.libertas.sipher.co-cert.pem";
+const caName = "ca-sipher";
 const apiServerURL = '127.0.0.1'
 
-module.exports = { createAccount, queryAccountByID }
+module.exports = { createAccount, queryAccountByID, editAccountByID }
 
-//---------------------------------------API WRAPPER FUNCTIONS----------------------------------------------
+//---------------------------------------ACCOUNT FUNCTIONS----------------------------------------------
 
 /**
  * Creates an account on chaincode. 
@@ -69,27 +70,43 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
  * @param {string} userID
  * @param {string} mspID
  */
-async function queryAccountByID(idToQuery, userID, mspID) {
+async function queryAccountByID(idToQuery) {
     
     try {
          // Prepare transaction proposal for querying account by id on chaincode
         const transactionProposal = {
             fcn: 'QueryAccountByID',
-            args: [idToQuery],
+            args: [idToQuery]
         }
-        // Evaluate transaction
-        let response = await evaluateTransaction(transactionProposal, userID, mspID);
-        return response.toString();
+        let response = await evaluateTransactionUnsigned(transactionProposal);
+        return response;
 
     } catch (error) {
         console.error(error);
      }
 }
 
+async function editAccountByID(accountID, field, value, mspID) {
+
+    try {
+        // Prepare trnasaction proposal for editting account by id on chaincode
+        const transactionProposal = {
+            fcn: 'EditAccountByID',
+            args: [accountID, field, value]
+        }
+        // Submit transaction
+        await submitTransaction(transactionProposal, accountID, mspID);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 //------------------------------------SUBMIT TRANSACTION FUNCTIONS---------------------------------------------
 
 /**
  * Sign transaction and commit proposal with id's private key offline and submit transaction.
+ * Return proposal responses payload.
  * @param  {Proposal Request} transactionProposal JSON object in Proposal format containing transaction details
  * @param  {string}           id                  ID of user making transaction
  * @param  {string}           mspID               MSP ID of user making transaction
@@ -162,7 +179,16 @@ async function submitTransaction(transactionProposal, id, mspID) {
 
 //------------------------------------EVALUATE TRANSACTION FUNCTIONS---------------------------------------------
 
-async function evaluateTransaction(transactionProposal, id, mspID) {
+/**
+ * Sign transaction proposal with id's private key offline and evaluate transaction.
+ * Communicates through socket. 
+ * Return proposal responses payload.
+ * @param  {Proposal Request} transactionProposal JSON object in Proposal format containing transaction details
+ * @param  {string}           id                  ID of user making transaction
+ * @param  {string}           mspID               MSP ID of user making transaction
+ * @return {string}                               Payload of transaction response
+ */
+async function evaluateTransactionSigned(transactionProposal, id, mspID) {
 
     // Get wallet instance and retrieve user cert and key
     const wallet = new FileSystemWallet(walletPath);
@@ -196,7 +222,7 @@ async function evaluateTransaction(transactionProposal, id, mspID) {
 
                 // Handle error
                 evaluateTransactionSocket.on('evaluateTransactionErrors', function (error) {
-                    SVGPathSegCurvetoCubicSmoothRel.disconnect();
+                    evaluateTransactionSocket.disconnect();
                     reject(error);
                 });
             });
@@ -212,5 +238,34 @@ async function evaluateTransaction(transactionProposal, id, mspID) {
             reject(error);
         })
     });
+}
 
+/**
+ * Post transaction proposal to server for server to evaluate the transaction (as admin on behalf of user).
+ * Communicates through fetch.
+ * Return proposal responses payload.
+ * @param  {Proposal Request} transactionProposal JSON object in Proposal format containing transaction details
+ * @return {string}                               Payload of transaction response
+ */
+async function evaluateTransactionUnsigned(transactionProposal) {
+    let url = 'http://' + apiServerURL + '/evaluateTransactionFetch';
+
+    return new Promise(async (resolve, reject) => {
+        await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({
+                transactionProposal: transactionProposal
+            }),
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
+        }).then(function (res) {
+            res.text().then(function (text) {
+                resolve(text);
+            });
+        }).catch(function (error) {
+            reject(error);
+        });
+    });
 }

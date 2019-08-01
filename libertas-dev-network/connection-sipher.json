@@ -4,7 +4,7 @@
     "channels": {
         "test": {
             "orderers": [
-                "orderer.example.com"
+                "orderer.sipher.co"
             ],
             "peers": {
                 "peer0.libertas.sipher.co": {
@@ -13,24 +13,6 @@
                     "ledgerQuery": true,
                     "eventSource": true,
                     "discover": true
-                },
-                "peer1.libertas.sipher.co": {
-                    "endorsingPeer": true,
-                    "chaincodeQuery": true,
-                    "ledgerQuery": true,
-                    "eventSource": true
-                },
-                "peer0.libertas.whiteboxplatform.com": {
-                    "endorsingPeer": true,
-                    "chaincodeQuery": true,
-                    "ledgerQuery": true,
-                    "eventSource": true
-                },
-                "peer1.libertas.whiteboxplatform.com": {
-                    "endorsingPeer": true,
-                    "chaincodeQuery": true,
-                    "ledgerQuery": true,
-                    "eventSource": true
                 }
             }
         }

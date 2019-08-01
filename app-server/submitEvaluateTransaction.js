@@ -47,7 +47,7 @@ async function submitSignedTransactionProposal(channel, contractName, signedTran
         // Get endorsement plan
         var endorsementPlanPeerNames = await offlineSigningGatewayModule.getEndorsementPlanPeers(channel, contractName);
 
-        // Connect to peers in the endorsement plan
+        // Target peers in the endorsement plan
         var targets = [];
         for (var i = 0; i < endorsementPlanPeerNames.length; i++) {
             targets.push(channel.getPeer(endorsementPlanPeerNames[i]));
@@ -59,13 +59,14 @@ async function submitSignedTransactionProposal(channel, contractName, signedTran
 
         // Check if proposal got valid endorsement
         for (let i = 0; i < proposalResponses.length; i++) {
-            if (proposalResponses[0].response) {
-                if (proposalResponses[0].response.status != 200) {
+            if (proposalResponses[i].response) {
+                if (proposalResponses[i].response.status !== 200) {
                     throw new Error("Proposal response status not 200!");
                 }
             } else {
-                // Only reached if no response at all
-                throw proposalResponses[0];
+                // Only reached if at least one proposal response had no response and 
+                // the response is an Error object
+                throw proposalResponses[i];
             }
         }
         
