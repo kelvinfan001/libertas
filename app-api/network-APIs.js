@@ -17,19 +17,19 @@ const io = require('socket.io-client');
 // Set environment variables for connecting with API Server and CA, all following variables modifiable
 const walletPath = path.join(__dirname, 'wallet');
 const mspID = 'SipherMSP'; // TODO: hardcoded for now, query from server in future.
-// const caURL = "https://155.138.134.91:7054/";
-// const caTLSCACertsPath = "../tlsca.libertas.sipher.co-cert.pem";
-// const caName = "ca-sipher";
-// const apiServerURL = '155.138.134.91';
+const caURL = "https://155.138.134.91:7054/";
+const caTLSCACertsPath = "../tlsca.libertas.sipher.co-cert.pem";
+const caName = "ca-sipher";
+const apiServerURL = '155.138.134.91';
 
 // The following for local testing
-const caURL = "https://127.0.0.1:7054/";
-const caTLSCACertsPath = "../libertas-dev-network/crypto-config/peerOrganizations/libertas.sipher.co/tlsca/tlsca.libertas.sipher.co-cert.pem";
-const caName = "ca-sipher";
-const apiServerURL = '127.0.0.1'
+// const caURL = "https://127.0.0.1:7054/";
+// const caTLSCACertsPath = "../libertas-dev-network/crypto-config/peerOrganizations/libertas.sipher.co/tlsca/tlsca.libertas.sipher.co-cert.pem";
+// const caName = "ca-sipher";
+// const apiServerURL = '127.0.0.1'
 
 module.exports = {
-    createAccount, queryAccountByID, editPersonalAccount,
+    createAccount, queryAccountByID, personalEditAccount,
     createCampaign, queryCampaignByID, queryCampaignByInstitutionUsername, editCampaignByID, deleteCampaignByID,
     createVoterGroup, queryVoterGroupsByID, editVoterGroupByID, deleteVoterGroupByID,
     createVoter, listVotersByVoterGroupID, editVoterByID, deleteVoterByID,
@@ -92,11 +92,11 @@ async function queryAccountByID(idToQuery) {
     }
 }
 
-async function editPersonalAccount(field, value, userID) {
+async function personalEditAccount(field, value, userID) {
     try {
         // Prepare transaction proposal for editing account by id on chaincode
         const transactionProposal = {
-            fcn: 'EditAccountByID', // todo: might change fcn name
+            fcn: 'PersonalEditAccount', // todo: might change fcn name
             args: [userID, field, value]
         }
         // Submit transaction

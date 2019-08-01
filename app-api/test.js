@@ -2,7 +2,7 @@ const networkAPIModule = require('./network-APIs');
 
 async function main() {
 
-    let response = await networkAPIModule.createAccount('kelvinfan', 'Kelvin Fan', 'kelvin@sipher.co', 'Personal', 'tkVHnyGmESTV', 'SipherMSP'); //* no need to try/catch because createAccount already handles error
+    let response = await networkAPIModule.createAccount('kelvinfan', 'Kelvin Fan', 'kelvin@sipher.co', 'Personal', 'DAgMRJhERxHw', 'SipherMSP'); //* no need to try/catch because createAccount already handles error
 
     // response = await networkAPIModule.queryAccountByID('kelvinfa');
     // console.log(response);
@@ -13,7 +13,7 @@ async function main() {
     // response = await networkAPIModule.queryAccountByID('kelvinfan', 'kelvinfan', 'SipherMSP');
     // console.log(response);
 
-    
+
 }
 
 main();
