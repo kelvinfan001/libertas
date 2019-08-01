@@ -31,7 +31,8 @@ const apiServerURL = '127.0.0.1'
 module.exports = {
     createAccount, queryAccountByID, editPersonalAccount,
     createCampaign, queryCampaignByID, queryCampaignByInstitutionUsername, editCampaignByID, deleteCampaignByID,
-    createVoterGroup, queryVoterGroupsByID, editVoterGroupByID, deleteVoterGroupByID
+    createVoterGroup, queryVoterGroupsByID, editVoterGroupByID, deleteVoterGroupByID,
+    createVoter, listVotersByVoterGroupID, editVoterByID, deleteVoterByID,
 }
 
 //-----------------------------ACCOUNT FUNCTIONS--------------------------------
@@ -243,6 +244,70 @@ async function deleteVoterGroupByID(voterGroupID, userID) {
         console.error(error);
     }
 }
+
+//-----------------------------VOTER FUNCTIONS----------------------------------
+
+async function createVoter(voterID, personalAccountID, voterGroupID, userID) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'CreateVoter',
+            args: [voterID, personalAccountID, voterGroupID]
+        }
+        // Submit transaction
+        await submitTransaction(transactionProposal, userID);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function editVoterByID(voterID, voterGroupID, field, value, userID) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'EditVoterByID',
+            args: [voterID, voterGroupID, field, value]
+        }
+        // Submit transaction
+        await submitTransaction(transactionProposal, userID);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function deleteVoterByID(voterID, voterGroupID, userID) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'DeleteVoterByID',
+            args: [voterID, voterGroupID]
+        }
+        // Submit transaction
+        await submitTransaction(transactionProposal, userID);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function listVotersByVoterGroupID(voterGroupID) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'ListVotersByVoterGroupID',
+            args: [voterGroupID]
+        }
+        let response = await evaluateTransactionUnsigned(transactionProposal);
+        return response;
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+
 
 
 //-----------------------SUBMIT TRANSACTION FUNCTIONS---------------------------
