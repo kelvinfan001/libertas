@@ -147,7 +147,7 @@ func queryAccountExistsByID(id string, accounts []Account) bool {
 }
 
 //----------------------------------------------Edit--------------------------------------------------
-func (t *Libertas) EditAccountByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *Libertas) InstitutionEditAccountByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	if len(args) != 3 {
 		return shim.Error("Incorrect number of arguments. Expecting 3.")
 	}
@@ -173,6 +173,45 @@ func (t *Libertas) EditAccountByID(stub shim.ChaincodeStubInterface, args []stri
 		account.Email = value
 	case "AccountType":
 		account.AccountType = value
+	}
+
+	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
+	// Convert protobuf timestamp to Time data structure
+	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
+	account.UpdatedAt = transactionTime
+
+	accountsListBytes, _ := json.Marshal(accountsList)
+	err = stub.PutState("Accounts List", accountsListBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	fmt.Println("Edit Success")
+	return shim.Success(nil)
+}
+
+func (t *Libertas) PersonalEditAccount(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 3 {
+		return shim.Error("Incorrect number of arguments. Expecting 3.")
+	}
+
+	accountID := args[0]
+	accountsList, err := _getAccountsList(stub)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	account, err := _getAccountPointerByID(accountID, accountsList.Accounts)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	field := args[1]
+	value := args[2]
+	switch field {
+	case "Name":
+		account.Name = value
+	case "Email":
+		account.Email = value
 	}
 
 	transactionTimeProtobuf, _ := stub.GetTxTimestamp()

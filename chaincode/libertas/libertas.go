@@ -93,8 +93,10 @@ func (t *Libertas) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.CreateAccount(stub, args)
 	case "QueryAccountByID":
 		return t.QueryAccountByID(stub, args)
-	case "EditAccountByID":
-		return t.EditAccountByID(stub, args)
+	case "InstitutionEditAccountByID":
+		return t.InstitutionEditAccountByID(stub, args)
+	case "PersonalEditAccount":
+		return t.PersonalEditAccount(stub, args)
 	case "DeleteAccountByID":
 		return t.DeleteAccountByID(stub, args)
 	case "CreateVoterGroup": // Votergroup-related functions
