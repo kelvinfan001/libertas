@@ -33,6 +33,7 @@ module.exports = {
     createCampaign, queryCampaignByID, queryCampaignByInstitutionUsername, editCampaignByID, deleteCampaignByID,
     createVoterGroup, queryVoterGroupsByID, editVoterGroupByID, deleteVoterGroupByID,
     createVoter, listVotersByVoterGroupID, editVoterByID, deleteVoterByID,
+    createVote, listBallotByCampaignID
 }
 
 //-----------------------------ACCOUNT FUNCTIONS--------------------------------
@@ -307,7 +308,37 @@ async function listVotersByVoterGroupID(voterGroupID) {
     }
 }
 
+//------------------------------VOTE FUNCTIONS----------------------------------
 
+async function createVote(voterID, campaignID, voterGroupID, userID) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'CreateVote',
+            args: [voterID, campaignID, voterGroupID]
+        }
+        // Submit transaction
+        await submitTransaction(transactionProposal, userID);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function listBallotByCampaignID(campaignID) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'ListBallotByCampaignID',
+            args: [campaignID]
+        }
+        let response = await evaluateTransactionUnsigned(transactionProposal);
+        return response;
+
+    } catch (error) {
+        console.error(error);
+    }
+}
 
 
 //-----------------------SUBMIT TRANSACTION FUNCTIONS---------------------------
