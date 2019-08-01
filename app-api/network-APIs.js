@@ -16,6 +16,7 @@ const io = require('socket.io-client');
 
 // Set environment variables for connecting with API Server and CA, all following variables modifiable
 const walletPath = path.join(__dirname, 'wallet');
+const mspID = 'SipherMSP'; // TODO: hardcoded for now, query from server in future.
 // const caURL = "https://155.138.134.91:7054/";
 // const caTLSCACertsPath = "../tlsca.libertas.sipher.co-cert.pem";
 // const caName = "ca-sipher";
@@ -27,9 +28,15 @@ const caTLSCACertsPath = "../libertas-dev-network/crypto-config/peerOrganization
 const caName = "ca-sipher";
 const apiServerURL = '127.0.0.1'
 
-module.exports = { createAccount, queryAccountByID, editAccountByID }
+module.exports = {
+    createAccount, queryAccountByID, editPersonalAccount,
+    createCampaign, queryCampaignByID, queryCampaignByInstitutionUsername, editCampaignByID, deleteCampaignByID,
+    createVoterGroup, queryVoterGroupsByID, editVoterGroupByID, deleteVoterGroupByID,
+    createVoter, listVotersByVoterGroupID, editVoterByID, deleteVoterByID,
+    createVote, listBallotByCampaignID
+}
 
-//---------------------------------------ACCOUNT FUNCTIONS----------------------------------------------
+//-----------------------------ACCOUNT FUNCTIONS--------------------------------
 
 /**
  * Creates an account on chaincode. 
@@ -40,14 +47,14 @@ module.exports = { createAccount, queryAccountByID, editAccountByID }
  * @param {string} enrollmentSecret 
  * @param {string} mspID 
  */
-async function createAccount(id, name, email, accountType, enrollmentSecret, mspID) {
-
+async function createAccount(id, name, email, accountType, enrollmentSecret) {
     try {
         const wallet = new FileSystemWallet(walletPath);
         let userExists = await wallet.exists(id);
         if (!userExists) {
             // Enroll user (directly communicating with CA)
-            await registrationEnrollmentModule.enrollUser(caURL, caTLSCACertsPath, caName, walletPath, id, enrollmentSecret, mspID);
+            await registrationEnrollmentModule.enrollUser(caURL, caTLSCACertsPath, caName, walletPath, id,
+                enrollmentSecret, mspID);
         } else {
             console.warn('Warning: User with id ' + id + ' already exists in wallet and enrolled with CA.');
         }
@@ -57,7 +64,7 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
             args: [id, name, email, accountType],
         }
         // Submit transaction
-        await submitTransaction(transactionProposal, id, mspID);
+        await submitTransaction(transactionProposal, id);
 
     } catch (error) {
         console.error(error);
@@ -71,9 +78,8 @@ async function createAccount(id, name, email, accountType, enrollmentSecret, msp
  * @param {string} mspID
  */
 async function queryAccountByID(idToQuery) {
-    
     try {
-         // Prepare transaction proposal for querying account by id on chaincode
+        // Prepare transaction proposal for querying account by id on chaincode
         const transactionProposal = {
             fcn: 'QueryAccountByID',
             args: [idToQuery]
@@ -83,26 +89,259 @@ async function queryAccountByID(idToQuery) {
 
     } catch (error) {
         console.error(error);
-     }
+    }
 }
 
-async function editAccountByID(accountID, field, value, mspID) {
-
+async function editPersonalAccount(field, value, userID) {
     try {
-        // Prepare trnasaction proposal for editting account by id on chaincode
+        // Prepare transaction proposal for editing account by id on chaincode
         const transactionProposal = {
-            fcn: 'EditAccountByID',
-            args: [accountID, field, value]
+            fcn: 'EditAccountByID', // todo: might change fcn name
+            args: [userID, field, value]
         }
         // Submit transaction
-        await submitTransaction(transactionProposal, accountID, mspID);
+        await submitTransaction(transactionProposal, userID);
 
     } catch (error) {
         console.error(error);
     }
 }
 
-//------------------------------------SUBMIT TRANSACTION FUNCTIONS---------------------------------------------
+//----------------------------CAMPAIGN FUNCTIONS--------------------------------
+
+async function createCampaign(campaignID, campaignName, campaignType, start, end, userID) {
+    try {
+        // Prepare transaction proposal for creating campaign on chaincode
+        const transactionProposal = {
+            fcn: 'CreateCampaign',
+            args: [campaignID, campaignName, campaignType, start, end]
+        }
+        // Submit transaction
+        await submitTransaction(transactionProposal, userID);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function queryCampaignByID(idToQuery) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'QueryCampaignByID',
+            args: [idToQuery]
+        }
+        let response = await evaluateTransactionUnsigned(transactionProposal);
+        return response;
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function queryCampaignByInstitutionUsername(usernameToQuery) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'QueryCampaignByInstitutionUsername',
+            args: [usernameToQuery]
+        }
+        let response = await evaluateTransactionUnsigned(transactionProposal);
+        return response;
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function editCampaignByID(campaignID, field, value, userID) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'EditCampaignByID',
+            args: [campaignID, field, value]
+        }
+        // Submit transaction
+        await submitTransaction(transactionProposal, userID);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function deleteCampaignByID(campaignID, userID) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'DeleteCampaignByID',
+            args: [campaignID]
+        }
+        // Submit transaction
+        await submitTransaction(transactionProposal, userID);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+//-------------------------VOTERGROUP FUNCTIONS---------------------------------
+
+async function createVoterGroup(voterGroupID, campaignID, voterGroupName, userID) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'CreateVoterGroup',
+            args: [voterGroupID, campaignID, voterGroupName]
+        }
+        // Submit transaction
+        await submitTransaction(transactionProposal, userID);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function queryVoterGroupsByID(voterGroupIDToQuery) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'QueryVoterGroupsByID',
+            args: [voterGroupIDToQuery]
+        }
+        let response = await evaluateTransactionUnsigned(transactionProposal);
+        return response;
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function editVoterGroupByID(voterGroupID, field, value, userID) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'EditVoterGroupByID',
+            args: [voterGroupID, field, value]
+        }
+        // Submit transaction
+        await submitTransaction(transactionProposal, userID);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function deleteVoterGroupByID(voterGroupID, userID) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'DeleteVoterGroupByID',
+            args: [voterGroupID]
+        }
+        // Submit transaction
+        await submitTransaction(transactionProposal, userID);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+//-----------------------------VOTER FUNCTIONS----------------------------------
+
+async function createVoter(voterID, personalAccountID, voterGroupID, userID) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'CreateVoter',
+            args: [voterID, personalAccountID, voterGroupID]
+        }
+        // Submit transaction
+        await submitTransaction(transactionProposal, userID);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function editVoterByID(voterID, voterGroupID, field, value, userID) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'EditVoterByID',
+            args: [voterID, voterGroupID, field, value]
+        }
+        // Submit transaction
+        await submitTransaction(transactionProposal, userID);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function deleteVoterByID(voterID, voterGroupID, userID) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'DeleteVoterByID',
+            args: [voterID, voterGroupID]
+        }
+        // Submit transaction
+        await submitTransaction(transactionProposal, userID);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function listVotersByVoterGroupID(voterGroupID) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'ListVotersByVoterGroupID',
+            args: [voterGroupID]
+        }
+        let response = await evaluateTransactionUnsigned(transactionProposal);
+        return response;
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+//------------------------------VOTE FUNCTIONS----------------------------------
+
+async function createVote(voterID, campaignID, voterGroupID, userID) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'CreateVote',
+            args: [voterID, campaignID, voterGroupID]
+        }
+        // Submit transaction
+        await submitTransaction(transactionProposal, userID);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function listBallotByCampaignID(campaignID) {
+    try {
+        // Prepare transaction proposal
+        const transactionProposal = {
+            fcn: 'ListBallotByCampaignID',
+            args: [campaignID]
+        }
+        let response = await evaluateTransactionUnsigned(transactionProposal);
+        return response;
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+
+//-----------------------SUBMIT TRANSACTION FUNCTIONS---------------------------
 
 /**
  * Sign transaction and commit proposal with id's private key offline and submit transaction.
@@ -112,13 +351,14 @@ async function editAccountByID(accountID, field, value, mspID) {
  * @param  {string}           mspID               MSP ID of user making transaction
  * @return {string}                               Payload of transaction response
  */
-async function submitTransaction(transactionProposal, id, mspID) {
+async function submitTransaction(transactionProposal, id) {
 
     // Get wallet instance and retrieve user cert and key
     const wallet = new FileSystemWallet(walletPath);
     const userIdentity = await wallet.export(id);
     const userCertificate = userIdentity.certificate;
     const userPrivateKey = userIdentity.privateKey;
+    const mspID = userIdentity.mspId;
 
     // Returns transaction proposal payload as a promise
     return new Promise((resolve, reject) => {
@@ -137,7 +377,8 @@ async function submitTransaction(transactionProposal, id, mspID) {
                 const transactionProposalDigestBuffer = Buffer.from(data);
 
                 // Sign transaction proposal
-                const signedTransactionProposal = signingModule.signProposal(transactionProposalDigestBuffer, userPrivateKey);
+                const signedTransactionProposal = signingModule.signProposal(transactionProposalDigestBuffer,
+                    userPrivateKey);
                 // Get signature
                 const transactionProposalSignature = signedTransactionProposal.signature;
 
@@ -177,7 +418,7 @@ async function submitTransaction(transactionProposal, id, mspID) {
     });
 }
 
-//------------------------------------EVALUATE TRANSACTION FUNCTIONS---------------------------------------------
+//------------------------EVALUATE TRANSACTION FUNCTIONS------------------------
 
 /**
  * Sign transaction proposal with id's private key offline and evaluate transaction.
@@ -213,7 +454,8 @@ async function evaluateTransactionSigned(transactionProposal, id, mspID) {
                 const transactionProposalDigestBuffer = Buffer.from(data);
 
                 // Sign transaction proposal
-                const signedTransactionProposal = signingModule.signProposal(transactionProposalDigestBuffer, userPrivateKey);
+                const signedTransactionProposal = signingModule.signProposal(transactionProposalDigestBuffer,
+                    userPrivateKey);
                 // Get signature
                 const transactionProposalSignature = signedTransactionProposal.signature;
 
