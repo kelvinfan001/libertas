@@ -247,10 +247,10 @@ func (t *Libertas) DeleteAccountByID(stub shim.ChaincodeStubInterface, args []st
 		return shim.Error("Incorrect number of arguments. Expecting 1.")
 	}
 
-	// accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution") // TODO:
-	// if !accountTypeOK {
-	// 	return err
-	// }
+	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution")
+	if !accountTypeOK {
+		return shim.Error(err.Error())
+	}
 
 	accountID := args[0]
 	accountsList, err := _getAccountsList(stub)

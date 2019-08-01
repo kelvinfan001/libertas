@@ -23,13 +23,12 @@ type VoterGroupsList struct {
 
 // VoterGroup is a group of voters.
 type VoterGroup struct {
-	ownerID    string
-	ID         string
-	CampaignID string
-	Name       string
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	Voters     []Voter
+	ownerID   string
+	ID        string
+	Name      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Voters    []Voter
 }
 
 //----------------------------------------------Create--------------------------------------------------
@@ -76,10 +75,10 @@ func _createVoterGroupChecks(stub shim.ChaincodeStubInterface, args []string) er
 	}
 
 	// Require that the account calling this function is an Institution Account.
-	// accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution")
-	// if !accountTypeOK {
-	// 	return err
-	// }
+	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution") // TODO:
+	if !accountTypeOK {
+		return err
+	}
 
 	// check voter group id is unique in list of voter groups
 	voterGroupID := args[0]
@@ -98,18 +97,17 @@ func _createVoterGroupChecks(stub shim.ChaincodeStubInterface, args []string) er
 }
 
 func _getVoterGroup(stub shim.ChaincodeStubInterface, args []string) (VoterGroup, error) {
-	var id, campaignID, name, ownerID string
+	var id, name, ownerID string
 	var voters []Voter
 
 	// Get owner's ID
-	// ownerID, err := GetCertAttribute(stub, "id") // TODO:
-	// if err != nil {
-	// 	return VoterGroup{}, err
-	// }
+	ownerID, err := GetCertAttribute(stub, "id") // TODO:
+	if err != nil {
+		return VoterGroup{}, err
+	}
 
 	id = args[0]
-	campaignID = args[1]
-	name = args[2]
+	name = args[1]
 	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
 	// Convert protobuf timestamp to Time data structure
 	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
@@ -117,7 +115,7 @@ func _getVoterGroup(stub shim.ChaincodeStubInterface, args []string) (VoterGroup
 	// Create an empty slice of voters
 	voters = make([]Voter, 0)
 
-	newVoterGroup := VoterGroup{ownerID, id, campaignID, name, transactionTime, transactionTime, voters}
+	newVoterGroup := VoterGroup{ownerID, id, name, transactionTime, transactionTime, voters}
 	return newVoterGroup, nil
 }
 
@@ -190,8 +188,6 @@ func (t *Libertas) EditVoterGroupByID(stub shim.ChaincodeStubInterface, args []s
 	switch field {
 	case "ID":
 		voterGroup.ID = value
-	case "CampaignID":
-		voterGroup.CampaignID = value
 	case "Name":
 		voterGroup.Name = value
 	}
@@ -218,10 +214,10 @@ func (t *Libertas) DeleteVoterGroupByID(stub shim.ChaincodeStubInterface, args [
 		return shim.Error("Incorrect number of arguments. Expecting 1.")
 	}
 
-	// accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution") // TODO:
-	// if !accountTypeOK {
-	// 	return err
-	// }
+	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution") // TODO:
+	if !accountTypeOK {
+		return shim.Error(err.Error())
+	}
 
 	voterGroupID := args[0]
 	voterGroupsList, err := _getVoterGroupsList(stub)

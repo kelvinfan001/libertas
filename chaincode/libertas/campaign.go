@@ -93,9 +93,9 @@ func _getNewCampaign(stub shim.ChaincodeStubInterface, args []string) (Campaign,
 
 	// Get owner's ID
 	ownerID, err := GetCertAttribute(stub, "id") // TODO:
-	// if err != nil {
-	// 	return Campaign{}, err
-	// }
+	if err != nil {
+		return Campaign{}, err
+	}
 
 	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
 	// Convert protobuf timestamp to Time data structure
@@ -151,10 +151,10 @@ func _createCampaignChecks(stub shim.ChaincodeStubInterface, args []string) erro
 	}
 
 	// check for correct account type
-	// accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution") // TODO:
-	// if !accountTypeOK {
-	// 	return err
-	// }
+	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution") // TODO:
+	if !accountTypeOK {
+		return err
+	}
 
 	// Get list of Campaigns from the ledger
 	campaignsListBytes, err := stub.GetState("Campaigns List")
@@ -307,10 +307,10 @@ func (t *Libertas) DeleteCampaignByID(stub shim.ChaincodeStubInterface, args []s
 		return shim.Error("Incorrect number of arguments. Expecting 1.")
 	}
 
-	// accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution") // TODO:
-	// if !accountTypeOK {
-	// 	return err
-	// }
+	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution")
+	if !accountTypeOK {
+		return shim.Error(err.Error())
+	}
 
 	campaignID := args[0]
 	campaignsList, err := _getCampaignsList(stub)

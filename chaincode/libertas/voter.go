@@ -57,11 +57,10 @@ func (t *Libertas) ListVotersByVoterGroupID(stub shim.ChaincodeStubInterface, ar
 // Create
 func (t *Libertas) CreateVoter(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	// checks
-	// err := _createVoterChecks(stub, args) // TODO:
-	// if err != nil {
-	// 	return shim.Error(err.Error())
-	// }
-	var err error
+	err := _createVoterChecks(stub, args)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
 
 	// update ledger
 	voterGroupID := args[2]
@@ -87,6 +86,11 @@ func _createVoterChecks(stub shim.ChaincodeStubInterface, args []string) error {
 	if !accountTypeOK {
 		return errors.New(err.Error())
 	}
+
+	// check that personalAccountID is legit
+	personalAccountID := args[1]
+	err = _checkValidPersonalAccountID(stub, personalAccountID)
+
 	// check if voter already exists in voter group
 	voterGroupID := args[2]
 	voterGroupsList, err := _getVoterGroupsList(stub)
@@ -106,6 +110,21 @@ func _createVoterChecks(stub shim.ChaincodeStubInterface, args []string) error {
 	}
 
 	return nil
+}
+
+func _checkValidPersonalAccountID(stub shim.ChaincodeStubInterface, personalAccountID string) error {
+	accountsList, err := _getAccountsList(stub)
+	if err != nil {
+		return err
+	}
+	accounts := accountsList.Accounts
+	for _, account := range accounts {
+		if account.ID == personalAccountID && account.AccountType == "Personal" {
+			return nil
+		}
+	}
+
+	return errors.New("The account with ID: " + personalAccountID + " is not valid")
 }
 
 func _updateLedgerVoterList(stub shim.ChaincodeStubInterface, voterGroupID string, newVoter Voter) error {
