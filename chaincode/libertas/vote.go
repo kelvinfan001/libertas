@@ -193,7 +193,7 @@ func _updateLedgerBallot(stub shim.ChaincodeStubInterface, campaignID string, ne
 		return err
 	}
 
-	campaign.CampaignBallot = append(campaign.CampaignBallotBox, newVote)
+	campaign.CampaignBallotBox = append(campaign.CampaignBallotBox, newVote)
 
 	campaignsListBytes, _ = json.Marshal(campaignsList)
 	err = stub.PutState("Campaigns List", campaignsListBytes)

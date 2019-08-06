@@ -57,10 +57,11 @@ func (t *Libertas) ListVotersByVoterGroupID(stub shim.ChaincodeStubInterface, ar
 // Create
 func (t *Libertas) CreateVoter(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	// checks
-	err := _createVoterChecks(stub, args)
-	if err != nil {
-		return shim.Error(err.Error())
-	}
+	// err := _createVoterChecks(stub, args) // TODO:
+	// if err != nil {
+	// 	return shim.Error(err.Error())
+	// }
+	var err error
 
 	// update ledger
 	voterGroupID := args[2]
