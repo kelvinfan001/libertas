@@ -207,8 +207,8 @@ async function main() {
                 socket.emit('evaluateTransactionErrors', error.toString());
                 return
             }
-        })
-    })
+        });
+    });
 
     router.post('/evaluateTransactionFetch', async function (req, res) {
         // Retrieve values from transaction proposal request
@@ -254,7 +254,7 @@ async function main() {
             console.error(error.message);
             res.send(error.message);
         }
-    })
+    });
 }
 
 main();
