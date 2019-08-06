@@ -376,14 +376,24 @@ async function submitTransaction(transactionProposal, id) {
             submitTransactionSocket.on('sendTransactionProposalDigest', async function (data) {
                 const transactionProposalDigestBuffer = Buffer.from(data);
 
-                // Sign transaction proposal
-                const signedTransactionProposal = signingModule.signProposal(transactionProposalDigestBuffer,
-                    userPrivateKey);
-                // Get signature
-                const transactionProposalSignature = signedTransactionProposal.signature;
+                // Only sign if transaction proposal digest returned by server matches with user certificate
+                // and transaction sendCommitProposalSignature
+                proposalDigestOK = checkProposalDigest(data.toString(), transactionProposal, userCertificate);
+                if (proposalDigestOK) {
+                    // Sign transaction proposal
+                    const signedTransactionProposal = signingModule.signProposal(transactionProposalDigestBuffer,
+                        userPrivateKey);
+                    // Get signature
+                    const transactionProposalSignature = signedTransactionProposal.signature;
 
-                // Send the signature back
-                submitTransactionSocket.emit('sendTransactionProposalSignature', transactionProposalSignature);
+                    // Send the signature back
+                    submitTransactionSocket.emit('sendTransactionProposalSignature', transactionProposalSignature);
+                } else {
+                    submitTransactionSocket.disconnect();
+                    reject(new Error("Transaction proposal digest returned by API server does not match" +
+                        "TransactionProposalDigest"));
+                    return;
+                }
 
                 // Receive unsigned commit proposal digest, sign, send signed commit proposal digest
                 submitTransactionSocket.on('sendCommitProposalDigest', async function (data) {
@@ -400,6 +410,7 @@ async function submitTransaction(transactionProposal, id) {
                     submitTransactionSocket.on('submitTransactionErrors', function (error) {
                         submitTransactionSocket.disconnect();
                         reject(error);
+                        return;
                     });
                 });
             });
@@ -408,12 +419,13 @@ async function submitTransaction(transactionProposal, id) {
         submitTransactionSocket.on('sendTransactionPayload', function (payload) {
             submitTransactionSocket.disconnect();
             console.log('Transaction successfully submitted and committed.');
-            resolve(payload);
+            resolve(payload.toString());
         });
         // Deal with any errors emitted by socket
         submitTransactionSocket.on('submitTransactionErrors', function (error) {
             submitTransactionSocket.disconnect();
             reject(error);
+            return;
         })
     });
 }
@@ -510,4 +522,65 @@ async function evaluateTransactionUnsigned(transactionProposal) {
             reject(error);
         });
     });
+}
+
+//-----------------------------------HELPERS------------------------------------
+
+function checkProposalDigest(transactionProposalDigest, transactionProposal, userCert) {
+
+    let userCertIndex = kmpSearch(userCert, transactionProposalDigest);
+    if (userCertIndex == -1) {
+        return false
+    }
+
+    transactionProposalDigest = transactionProposalDigest.slice(userCertIndex);
+
+    let fcnIndex = kmpSearch(transactionProposal.fcn, transactionProposalDigest);
+    if (fcnIndex == -1) {
+        return false;
+    }
+
+    transactionProposalDigest = transactionProposalDigest.slice(fcnIndex);
+
+    for (let i = 0; i < transactionProposal.args.length; i++) {
+        let argIndex = kmpSearch(transactionProposal.args[i], transactionProposalDigest);
+        if (argIndex == -1) {
+            return false;
+        }
+        transactionProposalDigest = transactionProposalDigest.slice(argIndex + transactionProposal.args[i].length);
+    }
+
+    return true
+
+}
+
+// Searches for the given pattern string in the given text string using the Knuth-Morris-Pratt string matching algorithm.
+// If the pattern is found, this returns the index of the start of the earliest match in 'text'. Otherwise -1 is returned.
+function kmpSearch(pattern, text) {
+    if (pattern.length == 0)
+        return 0;  // Immediate match
+
+    // Compute longest suffix-prefix table
+    var lsp = [0];  // Base case
+    for (var i = 1; i < pattern.length; i++) {
+        var j = lsp[i - 1];  // Start by assuming we're extending the previous LSP
+        while (j > 0 && pattern.charAt(i) != pattern.charAt(j))
+            j = lsp[j - 1];
+        if (pattern.charAt(i) == pattern.charAt(j))
+            j++;
+        lsp.push(j);
+    }
+
+    // Walk through text string
+    var j = 0;  // Number of chars matched in pattern
+    for (var i = 0; i < text.length; i++) {
+        while (j > 0 && text.charAt(i) != pattern.charAt(j))
+            j = lsp[j - 1];  // Fall back in the pattern
+        if (text.charAt(i) == pattern.charAt(j)) {
+            j++;  // Next char matched, increment position
+            if (j == pattern.length)
+                return i - (j - 1);
+        }
+    }
+    return -1;  // Not found
 }
