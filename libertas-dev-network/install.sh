@@ -27,13 +27,12 @@ export CHANNEL_NAME=test
 # set contract (chaincode) name
 CONTRACT_NAME=libertas
 # set chaincode version
-CHAINCODE_VERSION=2.2.5
+CHAINCODE_VERSION=2.1.8
 
 # clean the keystore
 rm -rf ./hfc-key-store
 
 # launch network
-cd ../libertas-dev-network
 ./buildDevelopmentNetwork.sh
 
 
@@ -113,7 +112,8 @@ docker exec \
     -e CORE_PEER_TLS_ROOTCERT_FILE=${SIPHER_TLS_ROOTCERT_FILE} \
     cli \
     peer channel update \
-        -o orderer.sipher.co:7050 -c $CHANNEL_NAME \
+        -o orderer.sipher.co:7050 \
+        -c $CHANNEL_NAME \
         -f ./channel-artifacts/SipherMSPanchors.tx \
         --tls \
         --cafile ${ORDERER_TLS_ROOTCERT_FILE} \
@@ -145,12 +145,38 @@ docker exec \
         -p "$CC_SRC_PATH" \
         #-l "$CC_RUNTIME_LANGUAGE"
 
+echo "Installing smart contract \"libertas\" on peer1 of Sipher"
+docker exec \
+    -e CORE_PEER_LOCALMSPID=SipherMSP \
+    -e CORE_PEER_ADDRESS=peer1.libertas.sipher.co:8051 \
+    -e CORE_PEER_MSPCONFIGPATH=${SIPHER_MSPCONFIGPATH} \
+    -e CORE_PEER_TLS_ROOTCERT_FILE=${SIPHER_TLS_ROOTCERT_FILE} \
+    cli \
+    peer chaincode install \
+        -n $CONTRACT_NAME \
+        -v $CHAINCODE_VERSION \
+        -p "$CC_SRC_PATH" \
+        #-l "$CC_RUNTIME_LANGUAGE"
+
 echo "Installing smart contract \"libertas\" on peer0 of WhiteBoxPlatform"
 docker exec \
     -e CORE_PEER_LOCALMSPID=WhiteBoxPlatformMSP \
     -e CORE_PEER_ADDRESS=peer0.libertas.whiteboxplatform.com:9051 \
     -e CORE_PEER_MSPCONFIGPATH=${WHITEBOXPLATFORM_MSPCONFIGPATH} \
     -e CORE_PEER_TLS_ROOTCERT_FILE=${WHITEBOXPLATFORM_TLS_ROOTCERT_FILE} \
+    cli \
+    peer chaincode install \
+        -n $CONTRACT_NAME \
+        -v $CHAINCODE_VERSION \
+        -p "$CC_SRC_PATH" \
+        #-l "$CC_RUNTIME_LANGUAGE"
+
+echo "Installing smart contract \"libertas\" on peer1 of WhiteBoxPlatform"
+docker exec \
+    -e CORE_PEER_LOCALMSPID=SipherMSP \
+    -e CORE_PEER_ADDRESS=peer1.libertas.whiteboxplatform.com:10051 \
+    -e CORE_PEER_MSPCONFIGPATH=${SIPHER_MSPCONFIGPATH} \
+    -e CORE_PEER_TLS_ROOTCERT_FILE=${SIPHER_TLS_ROOTCERT_FILE} \
     cli \
     peer chaincode install \
         -n $CONTRACT_NAME \

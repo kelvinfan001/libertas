@@ -1,7 +1,7 @@
 {
-    "name": "voteapp",
+    "name": "app-api-server",
     "version": "1.0.0",
-    "description": "Fabric-based voting application implemented in JavaScript",
+    "description": "Server for Libertas app API calls.",
     "engines": {
         "node": ">=8",
         "npm": ">=5"
@@ -12,11 +12,14 @@
         "test": "nyc mocha --recursive"
     },
     "engineStrict": true,
-    "author": "Hyperledger",
+    "author": "Libertas Team",
     "license": "Apache-2.0",
     "dependencies": {
         "fabric-ca-client": "~1.4.0",
-        "fabric-network": "~1.4.0"
+        "fabric-network": "~1.4.0",
+        "serialize-javascript": "^1.7.0",
+        "socket.io": "^2.2.0",
+        "express": "^4.17.1"
     },
     "devDependencies": {
         "chai": "^4.2.0",

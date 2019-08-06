@@ -14,6 +14,17 @@ import (
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
+func _getAccountsList(stub shim.ChaincodeStubInterface) (AccountsList, error) {
+	accountsListBytes, err := stub.GetState("Accounts List")
+	if err != nil {
+		return AccountsList{}, err
+	}
+	accountsList := AccountsList{}
+	json.Unmarshal(accountsListBytes, &accountsList)
+
+	return accountsList, nil
+}
+
 func _getCampaignsList(stub shim.ChaincodeStubInterface) (CampaignsList, error) {
 	campaignsListBytes, err := stub.GetState("Campaigns List")
 	if err != nil {
@@ -65,4 +76,25 @@ func GetCertAttribute(stub shim.ChaincodeStubInterface, attribute string) (strin
 	}
 
 	return val, nil
+}
+
+//------------------------------------------MISC---------------------------------------------------------
+func removeAccount(s []Account, i int) []Account {
+	s[i] = s[len(s)-1]
+	return s[:len(s)-1]
+}
+
+func removeCampaign(s []Campaign, i int) []Campaign {
+	s[i] = s[len(s)-1]
+	return s[:len(s)-1]
+}
+
+func removeVoterGroup(s []VoterGroup, i int) []VoterGroup {
+	s[i] = s[len(s)-1]
+	return s[:len(s)-1]
+}
+
+func removeVoter(s []Voter, i int) []Voter {
+	s[i] = s[len(s)-1]
+	return s[:len(s)-1]
 }

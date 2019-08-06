@@ -147,6 +147,139 @@ func queryAccountExistsByID(id string, accounts []Account) bool {
 }
 
 //----------------------------------------------Edit--------------------------------------------------
-func (t *Libertas) EditAccount(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *Libertas) InstitutionEditAccountByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 3 {
+		return shim.Error("Incorrect number of arguments. Expecting 3.")
+	}
+
+	accountID := args[0]
+	accountsList, err := _getAccountsList(stub)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	account, err := _getAccountPointerByID(accountID, accountsList.Accounts)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	field := args[1]
+	value := args[2]
+	switch field {
+	case "ID":
+		account.ID = value
+	case "Name":
+		account.Name = value
+	case "Email":
+		account.Email = value
+	case "AccountType":
+		account.AccountType = value
+	}
+
+	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
+	// Convert protobuf timestamp to Time data structure
+	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
+	account.UpdatedAt = transactionTime
+
+	accountsListBytes, _ := json.Marshal(accountsList)
+	err = stub.PutState("Accounts List", accountsListBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	fmt.Println("Edit Success")
 	return shim.Success(nil)
+}
+
+func (t *Libertas) PersonalEditAccount(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 3 {
+		return shim.Error("Incorrect number of arguments. Expecting 3.")
+	}
+
+	accountID := args[0]
+	accountsList, err := _getAccountsList(stub)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	account, err := _getAccountPointerByID(accountID, accountsList.Accounts)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	field := args[1]
+	value := args[2]
+	switch field {
+	case "Name":
+		account.Name = value
+	case "Email":
+		account.Email = value
+	}
+
+	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
+	// Convert protobuf timestamp to Time data structure
+	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
+	account.UpdatedAt = transactionTime
+
+	accountsListBytes, _ := json.Marshal(accountsList)
+	err = stub.PutState("Accounts List", accountsListBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	fmt.Println("Edit Success")
+	return shim.Success(nil)
+}
+
+func _getAccountPointerByID(accountID string, accounts []Account) (*Account, error) {
+	for k, _ := range accounts {
+		account := &accounts[k]
+		if account.ID == accountID {
+			return account, nil
+		}
+	}
+
+	return &Account{}, nil
+}
+
+//----------------------------------------------Delete--------------------------------------------------
+
+func (t *Libertas) DeleteAccountByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1.")
+	}
+
+	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution")
+	if !accountTypeOK {
+		return shim.Error(err.Error())
+	}
+
+	accountID := args[0]
+	accountsList, err := _getAccountsList(stub)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	index, err := _getAccountIndexByID(accountID, accountsList.Accounts)
+	accountsList.Accounts = removeAccount(accountsList.Accounts, index)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	accountsListBytes, _ := json.Marshal(accountsList)
+	err = stub.PutState("Accounts List", accountsListBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	fmt.Println("Delete Success")
+	return shim.Success(nil)
+}
+
+func _getAccountIndexByID(accountID string, accounts []Account) (int, error) {
+	for index, account := range accounts {
+		if accountID == account.ID {
+			return index, nil
+		}
+	}
+
+	return -1, errors.New("The account with ID: " + accountID + " does not exist")
 }

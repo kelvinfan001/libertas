@@ -1,6 +1,5 @@
-
 /*
- * Copyright 2019 Sipher Inc
+ * Copyright 2019 Sipher Inc.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -10,8 +9,8 @@
 const registrationEnrollmentModule = require('../registrationEnrollment');
 const path = require('path');
 
-const ccpPath = path.resolve(__dirname, '..', '..', '..', 'libertas-dev-network', 'connection-sipher.json');
-const networkDirPath = path.resolve(__dirname, '..', '..', '..', 'libertas-dev-network')
+const ccpPath = path.resolve(__dirname, '..', '..', 'libertas-dev-network', 'connection-sipher.json');
+const networkDirPath = path.resolve(__dirname, '..', '..', 'libertas-dev-network')
 
 async function main() {
 
@@ -21,7 +20,6 @@ async function main() {
         console.error(`${error}`);
         process.exit(1);
     }
-
 }
 
-main()
+main();

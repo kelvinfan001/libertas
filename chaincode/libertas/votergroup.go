@@ -23,13 +23,12 @@ type VoterGroupsList struct {
 
 // VoterGroup is a group of voters.
 type VoterGroup struct {
-	ownerID    string
-	ID         string
-	CampaignID string
-	Name       string
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	Voters     []Voter
+	ownerID   string
+	ID        string
+	Name      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Voters    []Voter
 }
 
 //----------------------------------------------Create--------------------------------------------------
@@ -76,10 +75,10 @@ func _createVoterGroupChecks(stub shim.ChaincodeStubInterface, args []string) er
 	}
 
 	// Require that the account calling this function is an Institution Account.
-	// accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution")
-	// if !accountTypeOK {
-	// 	return err
-	// }
+	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution") // TODO:
+	if !accountTypeOK {
+		return err
+	}
 
 	// check voter group id is unique in list of voter groups
 	voterGroupID := args[0]
@@ -98,18 +97,17 @@ func _createVoterGroupChecks(stub shim.ChaincodeStubInterface, args []string) er
 }
 
 func _getVoterGroup(stub shim.ChaincodeStubInterface, args []string) (VoterGroup, error) {
-	var id, campaignID, name, ownerID string
+	var id, name, ownerID string
 	var voters []Voter
 
 	// Get owner's ID
-	// ownerID, err := GetCertAttribute(stub, "id") // TODO:
-	// if err != nil {
-	// 	return VoterGroup{}, err
-	// }
+	ownerID, err := GetCertAttribute(stub, "id") // TODO:
+	if err != nil {
+		return VoterGroup{}, err
+	}
 
 	id = args[0]
-	campaignID = args[1]
-	name = args[2]
+	name = args[1]
 	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
 	// Convert protobuf timestamp to Time data structure
 	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
@@ -117,7 +115,7 @@ func _getVoterGroup(stub shim.ChaincodeStubInterface, args []string) (VoterGroup
 	// Create an empty slice of voters
 	voters = make([]Voter, 0)
 
-	newVoterGroup := VoterGroup{ownerID, id, campaignID, name, transactionTime, transactionTime, voters}
+	newVoterGroup := VoterGroup{ownerID, id, name, transactionTime, transactionTime, voters}
 	return newVoterGroup, nil
 }
 
@@ -170,6 +168,85 @@ func queryVoterGroupsByIDExists(id string, voterGroups []VoterGroup) bool {
 
 //----------------------------------------------Edit--------------------------------------------------
 
-func (t *Libertas) EditVoterGroup(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *Libertas) EditVoterGroupByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 3 {
+		return shim.Error("Incorrect number of arguments. Expecting 3.")
+	}
+
+	voterGroupID := args[0]
+	voterGroupsList, err := _getVoterGroupsList(stub)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	voterGroup, err := _getVoterGroupPointerByID(voterGroupID, voterGroupsList.VoterGroups)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	field := args[1]
+	value := args[2]
+	switch field {
+	case "ID":
+		voterGroup.ID = value
+	case "Name":
+		voterGroup.Name = value
+	}
+
+	transactionTimeProtobuf, _ := stub.GetTxTimestamp()
+	// Convert protobuf timestamp to Time data structure
+	transactionTime := time.Unix(transactionTimeProtobuf.Seconds, int64(transactionTimeProtobuf.Nanos))
+	voterGroup.UpdatedAt = transactionTime
+
+	voterGroupsListBytes, _ := json.Marshal(voterGroupsList)
+	err = stub.PutState("Voter Groups List", voterGroupsListBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	fmt.Println("Edit Success")
 	return shim.Success(nil)
+}
+
+//----------------------------------------------Delete--------------------------------------------------
+
+func (t *Libertas) DeleteVoterGroupByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1.")
+	}
+
+	accountTypeOK, err := CheckCertAttribute(stub, "accountType", "Institution") // TODO:
+	if !accountTypeOK {
+		return shim.Error(err.Error())
+	}
+
+	voterGroupID := args[0]
+	voterGroupsList, err := _getVoterGroupsList(stub)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	index, err := _getVoterGroupIndexByID(voterGroupID, voterGroupsList.VoterGroups)
+	voterGroupsList.VoterGroups = removeVoterGroup(voterGroupsList.VoterGroups, index)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	voterGroupsListBytes, _ := json.Marshal(voterGroupsList)
+	err = stub.PutState("Voter Groups List", voterGroupsListBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	fmt.Println("Delete Success")
+	return shim.Success(nil)
+}
+
+func _getVoterGroupIndexByID(voterGroupID string, voterGroups []VoterGroup) (int, error) {
+	for index, voterGroup := range voterGroups {
+		if voterGroupID == voterGroup.ID {
+			return index, nil
+		}
+	}
+
+	return -1, errors.New("The voter group with ID: " + voterGroupID + " does not exist")
 }

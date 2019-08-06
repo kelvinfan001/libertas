@@ -10,7 +10,7 @@ const registrationEnrollmentModule = require('../registrationEnrollment');
 const path = require('path');
 
 const walletPath = path.join(process.cwd(), 'wallet')
-const ccpPath = path.resolve(__dirname, '..', '..', '..', 'libertas-dev-network', 'connection-sipher.json');
+const ccpPath = path.resolve(__dirname, '..', '..', 'libertas-dev-network', 'connection-sipher.json');
 
 async function main() {
 

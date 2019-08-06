@@ -88,40 +88,50 @@ func (t *Libertas) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	fmt.Println("Election Invoke")
 	function, args := stub.GetFunctionAndParameters()
 
-	if function == "CreateAccount" { // Account-related functions
+	switch function {
+	case "CreateAccount": // Account-related functions
 		return t.CreateAccount(stub, args)
-	} else if function == "QueryAccountByID" {
+	case "QueryAccountByID":
 		return t.QueryAccountByID(stub, args)
-	} else if function == "EditAccount" {
-		return t.EditAccount(stub, args)
-	} else if function == "CreateVoterGroup" { // Votergroup-related functions
+	case "InstitutionEditAccountByID":
+		return t.InstitutionEditAccountByID(stub, args)
+	case "PersonalEditAccount":
+		return t.PersonalEditAccount(stub, args)
+	case "DeleteAccountByID":
+		return t.DeleteAccountByID(stub, args)
+	case "CreateVoterGroup": // Votergroup-related functions
 		return t.CreateVoterGroup(stub, args)
-	} else if function == "QueryVoterGroupsByID" {
+	case "QueryVoterGroupsByID":
 		return t.QueryVoterGroupsByID(stub, args)
-	} else if function == "EditVoterGroup" {
-		return t.EditVoterGroup(stub, args)
-	} else if function == "ListVotersByVoterGroupID" { // Voter-related functions
+	case "EditVoterGroupByID":
+		return t.EditVoterGroupByID(stub, args)
+	case "DeleteVoterGroupByID":
+		return t.DeleteVoterGroupByID(stub, args)
+	case "ListVotersByVoterGroupID": // Voter-related functions
 		return t.ListVotersByVoterGroupID(stub, args)
-	} else if function == "CreateVoter" {
+	case "CreateVoter":
 		return t.CreateVoter(stub, args)
-	} else if function == "EditVoter" {
-		return t.EditVoter(stub, args)
-	} else if function == "EditVoter" {
-		return t.EditVoter(stub, args)
-	} else if function == "CreateCampaign" { // Campaign-related functions
+	case "EditVoterByID":
+		return t.EditVoterByID(stub, args)
+	case "DeleteVoterByID":
+		return t.DeleteVoterByID(stub, args)
+	case "CreateCampaign": // Campaign-related functions
 		return t.CreateCampaign(stub, args)
-	} else if function == "QueryCampaignByID" {
+	case "QueryCampaignByID":
 		return t.QueryCampaignByID(stub, args)
-	} else if function == "QueryCampaignByInstitutionUsername" {
+	case "QueryCampaignByInstitutionUsername":
 		return t.QueryCampaignByInstitutionUsername(stub, args)
-	} else if function == "EditCampaign" {
-		return t.EditCampaign(stub, args)
-	} else if function == "CreateVote" { // Vote-related functions
+	case "EditCampaignByID":
+		return t.EditCampaignByID(stub, args)
+	case "DeleteCampaignByID":
+		return t.DeleteCampaignByID(stub, args)
+	case "CreateVote": // Vote-related functions
 		return t.CreateVote(stub, args)
-	} else if function == "ListBallotByCampaignID" {
+	case "ListBallotByCampaignID":
 		return t.ListBallotByCampaignID(stub, args)
-	} else if function == "EditVote" {
-		return t.EditVote(stub, args)
+		// case "EditVote":
+		// 	return t.EditVoteByID(stub, args)
+
 	}
 
 	return shim.Error("Invalid invoke function name.")
