@@ -49,7 +49,7 @@ func (t *Libertas) ListBallotByCampaignID(stub shim.ChaincodeStubInterface, args
 		return shim.Error(err.Error())
 	}
 
-	ballot := campaign.CampaignBallot
+	ballot := campaign.CampaignBallotBox
 	ballotBytes, _ := json.Marshal(ballot)
 
 	return shim.Success(ballotBytes)
@@ -171,7 +171,7 @@ func _checkVoterIDUnique(stub shim.ChaincodeStubInterface, args []string) error 
 }
 
 func _getVoterIDExists(voterID string, campaign Campaign) bool {
-	for _, vote := range campaign.CampaignBallot {
+	for _, vote := range campaign.CampaignBallotBox {
 		if vote.VoterID == voterID {
 			return true
 		}
@@ -193,7 +193,7 @@ func _updateLedgerBallot(stub shim.ChaincodeStubInterface, campaignID string, ne
 		return err
 	}
 
-	campaign.CampaignBallot = append(campaign.CampaignBallot, newVote)
+	campaign.CampaignBallot = append(campaign.CampaignBallotBox, newVote)
 
 	campaignsListBytes, _ = json.Marshal(campaignsList)
 	err = stub.PutState("Campaigns List", campaignsListBytes)

@@ -28,7 +28,7 @@ type Campaign struct {
 	ID                  string
 	Name                string
 	CampaignType        string
-	CampaignBallot      []Vote
+	CampaignBallotBox   []Vote
 	Start               time.Time
 	End                 time.Time
 	CreatedAt           time.Time
@@ -115,11 +115,11 @@ func _getNewCampaign(stub shim.ChaincodeStubInterface, args []string) (Campaign,
 
 	// Create an empty slice of VoterGroups
 	campaignVoterGroups = make([]VoterGroup, 0)
-	campaignBallot := make([]Vote, 0)
-	newCampaign := Campaign{ownerID, id, name, campaignType, campaignBallot, start, end, transactionTime,
+	campaignBallotBox := make([]Vote, 0)
+	newCampaign := Campaign{ownerID, id, name, campaignType, campaignBallotBox, start, end, transactionTime,
 		transactionTime, campaignVoterGroups}
 
-	// newCampaign := Campaign{ownerID, id, name, campaignType, campaignBallot, transactionTime,
+	// newCampaign := Campaign{ownerID, id, name, campaignType, campaignBallotBox, transactionTime,
 	// 	transactionTime, campaignVoterGroups}
 
 	return newCampaign, nil
