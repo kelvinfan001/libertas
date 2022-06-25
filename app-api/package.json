@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "fabric-network": "~1.4.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.7",
     "socket.io-client": "^2.2.0"
   },
   "devDependencies": {
